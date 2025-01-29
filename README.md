@@ -1,4 +1,5 @@
-# projet_mobile
+# CoHab
+L'application qui connecte les colocataires, pas les soucis !
 
 ## Membres de l'équipe:
 - CROGUENNOC Romain - CROR09080300
