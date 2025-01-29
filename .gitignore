@@ -1,0 +1,60 @@
+# Fichiers et dossiers spécifiques à Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+*.orig
+
+# Répertoires de build
+/build/
+*/build/
+*/out/
+captures/
+
+# Fichiers de configuration utilisateur
+local.properties
+*.keystore
+*.jks
+*.gradle
+.gradle/
+gradle-app.setting
+
+# Cache et logs
+*.log
+*.cache
+*.DS_Store
+*.lock
+*.class
+
+# Dépendances téléchargées
+/.cxx/
+.cxx/
+.externalNativeBuild/
+.externalNativeBuild/
+.gradle/
+captures/
+lint/
+lint/intermediates/
+lint/generated/
+
+# Fichiers générés par Gradle
+.gradle/
+gradle-wrapper.jar
+gradlew
+gradlew.bat
+
+# Clés et informations sensibles
+/key.properties
+/google-services.json
+/firebase/
+crashlytics.properties
+fabric.properties
+
+# Fichiers spécifiques à Mac/Linux/Windows
+*.swp
+*~.nib
+*.swo
+*.swn
+*.sbl
+Thumbs.db
+ehthumbs.db
