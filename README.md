@@ -1,5 +1,5 @@
-# CoHab
-L'application qui connecte les colocataires, pas les soucis !
+# Thirsty Quest
+De la première pinte au dernier shot, on s'en souvient pour toi !
 
 ## Membres de l'équipe:
 - CROGUENNOC Romain - CROR09080300
