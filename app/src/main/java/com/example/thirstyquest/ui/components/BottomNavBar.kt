@@ -17,7 +17,6 @@ import com.example.thirstyquest.navigation.Screen
 fun BottomNavBar(navController: NavController) {
     // Define the items in the bottom navigation bar
     val items = listOf(
-        Screen.Profile to Icons.Filled.Person,      // Move to the topbar
         Screen.MainMenu to Icons.Filled.Home,
         Screen.Social to Icons.Filled.Face,
     )
