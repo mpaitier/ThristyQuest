@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">ThirstyQuest</string>
+    <string name="app_name">Thirsty Quest</string>
+    <string name="profile">Profil</string>
+    <string name="social">Social</string>
 </resources>
