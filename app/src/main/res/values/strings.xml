@@ -3,4 +3,6 @@
     <string name="profile">Profil</string>
     <string name="social">Social</string>
     <string name="research">Rechercher un ami ...</string>
+    <string name="leagues">Mes ligues</string>
+    <string name="friends">Mes amis</string>
 </resources>

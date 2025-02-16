@@ -15,18 +15,13 @@ val md_theme_light_tertiary = Color(0xFFFF961C)
 val md_theme_light_onTertiary = Color(0xFFFFFFFF)
 val md_theme_light_tertiaryContainer = Color(0xFFFFE0B2)
 val md_theme_light_onTertiaryContainer = Color(0xFF5D3700)
-val md_theme_light_background = Color(0xFFFFFFFF)
+val md_theme_light_background = Color(0xF8F8F8F8)
 val md_theme_light_onBackground = Color(0xFF202020)
 val md_theme_light_surface = Color(0xFFFFFFFF)
 val md_theme_light_onSurface = Color(0xFF202020)
 val md_theme_light_surfaceVariant = Color(0xFFE0E0E0)
 val md_theme_light_onSurfaceVariant = Color(0xFF4D4D4D)
 val md_theme_light_outline = Color(0xFF757575)
-
-val bottomNavBackgroundLight = md_theme_light_primary
-val bottomNavSelectedLight = md_theme_light_tertiary
-val bottomNavUnselectedLight = md_theme_light_primaryContainer
-val bottomNavIconBackgroundSelectedLight = md_theme_light_primaryContainer
 
 
 
@@ -42,7 +37,7 @@ val md_theme_dark_tertiary = Color(0xFFFFB74D)
 val md_theme_dark_onTertiary = Color(0xFF5D3700)
 val md_theme_dark_tertiaryContainer = Color(0xFF5D3700)
 val md_theme_dark_onTertiaryContainer = Color(0xFFFFE0B2)
-val md_theme_dark_background = Color(0xFF121212)
+val md_theme_dark_background = Color(0xFF1F211F)
 val md_theme_dark_onBackground = Color(0xFFE0E0E0)
 val md_theme_dark_surface = Color(0xFF121212)
 val md_theme_dark_onSurface = Color(0xFFE0E0E0)

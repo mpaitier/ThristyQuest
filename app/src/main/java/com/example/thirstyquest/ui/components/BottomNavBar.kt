@@ -15,16 +15,15 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Icon
-import com.example.thirstyquest.ui.theme.*
+import com.example.thirstyquest.ui.theme.md_theme_light_tertiary
 
 @Composable
 fun BottomNavBar(navController: NavController) {
-    val isDarkTheme = isSystemInDarkTheme()
 
-    val backgroundColor = if (isDarkTheme) bottomNavBackgroundDark else bottomNavBackgroundLight
-    val selectedColor = if (isDarkTheme) bottomNavSelectedDark else bottomNavSelectedLight
-    val unselectedColor = if (isDarkTheme) bottomNavUnselectedDark else bottomNavUnselectedLight
-    val selectedIconBackgroundColor = if (isDarkTheme) bottomNavIconBackgroundSelectedDark else bottomNavIconBackgroundSelectedLight
+    val backgroundColor =  MaterialTheme.colorScheme.primary
+    val selectedColor = MaterialTheme.colorScheme.tertiary
+    val unselectedColor = MaterialTheme.colorScheme.primaryContainer
+    val selectedIconBackgroundColor = MaterialTheme.colorScheme.primaryContainer
 
     val items = listOf(
         Screen.MainMenu to Icons.Filled.Home,
