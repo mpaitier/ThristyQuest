@@ -39,7 +39,7 @@ fun BottomNavBar(navController: NavController) {
 
         items.forEach { (screen, icon) ->
             val isSelected = when (screen) {
-                Screen.Social -> currentRoute == Screen.Social.name || currentRoute?.startsWith(Screen.LeagueDetail.name) == true
+                Screen.Social -> currentRoute == Screen.Social.name || currentRoute?.startsWith(Screen.LeagueContent.name) == true
                 else -> currentRoute == screen.name
             }
 

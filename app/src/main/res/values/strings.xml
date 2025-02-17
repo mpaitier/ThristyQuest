@@ -5,5 +5,5 @@
     <string name="research">Rechercher un ami ...</string>
     <string name="leagues">Mes ligues</string>
     <string name="friends">Mes amis</string>
-    <string name="league_detail">Détail de ma ligue</string>
+    <string name="league_content">Contenu de ma ligue</string>
 </resources>

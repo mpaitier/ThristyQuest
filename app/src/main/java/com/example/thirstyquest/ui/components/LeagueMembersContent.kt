@@ -1,94 +1,50 @@
-package com.example.thirstyquest.ui.screens.social
+package com.example.thirstyquest.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.style.TextAlign
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+
+// Modèle de données pour un membre
+data class Member(val ID: Int, val name: String, val level: Int)
 
 @Composable
-fun LeagueDetailScreen(leagueID: Int, navController: NavController) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        LeagueTopBar(navController, leagueID)
-        Spacer(modifier = Modifier.height(16.dp))
+fun LeagueMembersScreenContent(leagueID: Int) {
+    Column(modifier = Modifier.fillMaxSize()) {
         LeagueInfo(leagueID, onShareClick = { /* Share league code */ })
         Spacer(modifier = Modifier.height(16.dp))
         Divider()
         Spacer(modifier = Modifier.height(16.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ){
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             MemberList()
-        }
-        BottomDots()
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//                                Composables
-// ------------------------------ League Top Bar ------------------------------
-@Composable
-fun LeagueTopBar(navController: NavController, leagueID: Int) {
-    val leagueName = "Ligue $leagueID"        // TODO : get league name with leagueID
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height((0.04166*LocalConfiguration.current.screenHeightDp).dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = { navController.popBackStack() }) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = "Back"
-            )
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Icon(imageVector = Icons.Filled.Menu,       // TODO : replace by league picture
-            contentDescription = "League picture",
-            modifier = Modifier.size(60.dp))
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Text(
-            text = leagueName,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f)
-        )
-
-        // TODO : navigate to league settings & visible only if user is owner
-        IconButton(onClick = { /* Modifier la ligue */ }) {
-            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
         }
     }
 }
@@ -260,51 +216,8 @@ fun MemberItem(member: Member, position: Int) {
     }
 }
 
-@Composable
-fun BottomDots() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Premier point (petit)
-        Box(
-            modifier = Modifier
-                .size(16.dp)
-                .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        // Point du milieu (plus grand)
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        // Troisième point (petit)
-        Box(
-            modifier = Modifier
-                .size(16.dp)
-                .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
-        )
-    }
-}
-
-
-// Modèle de données pour un membre
-data class Member(val ID: Int, val name: String, val level: Int)
-
 //////////////////////////////////////////////////////////////////////////////////
 //                               Previews
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeagueTopBar() {
-    LeagueTopBar(navController = rememberNavController(), leagueID = 12)
-}
 
 @Preview(showBackground = true)
 @Composable

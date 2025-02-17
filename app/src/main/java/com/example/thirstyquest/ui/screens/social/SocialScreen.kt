@@ -41,6 +41,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import com.example.thirstyquest.R
+import com.example.thirstyquest.navigation.Screen
 
 @Composable
 fun SocialScreen(navController: NavController) {
@@ -160,7 +161,7 @@ fun LeagueItem(navController: NavController, leagueID: Int) {
                 interactionSource = interactionSource,
                 indication = null
             ) {
-                navController.navigate("leagueDetail/$leagueID")
+                navController.navigate(Screen.LeagueContent.name + "/$leagueID")
             },
         verticalAlignment = Alignment.CenterVertically
     ) {

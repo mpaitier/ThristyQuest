@@ -7,5 +7,5 @@ enum class Screen(@StringRes val title: Int) {
     MainMenu(title = R.string.app_name),
     Profile(title = R.string.profile),
     Social(title = R.string.social),
-    LeagueDetail(title = R.string.league_detail)
+    LeagueContent(title = R.string.league_content),
 }
