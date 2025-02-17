@@ -124,7 +124,7 @@ fun LeagueList(navController: NavController, leagueNumber: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp)
-            .verticalScroll(rememberScrollState()) // Activation du scroll manuel
+            .verticalScroll(rememberScrollState()) // Enable manual scroll
     ) {
         Column {
             repeat(leagueNumber) { index ->
@@ -217,12 +217,12 @@ fun FriendsList(friendNumber: Int) {
                 items(3) { index2 ->
                     if(index * 3 + index2 < friendNumber) {
                         FriendItem(
-                            friendName = "Ami ${index * 3 + index2 + 1}"
+                            friendID = index * 3 + index2 + 1
                         )
                     }
                     else {
                         FriendItem(
-                            friendName = ""
+                            friendID = -1
                         )
                     }
                 }
@@ -233,7 +233,8 @@ fun FriendsList(friendNumber: Int) {
 }
 
 @Composable
-fun FriendItem(friendName: String, modifier: Modifier = Modifier) {
+fun FriendItem(friendID: Int, modifier: Modifier = Modifier) {
+    val friendName = "Ami $friendID" // TODO : get the friend name
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -241,7 +242,7 @@ fun FriendItem(friendName: String, modifier: Modifier = Modifier) {
             .padding(8.dp)
     ) {
         // TODO : get friend profile picture
-        if (friendName == "") {
+        if (friendID == -1) {
             Spacer(modifier = Modifier.size(60.dp))
         }
         else
@@ -279,4 +280,10 @@ fun SearchBarPreview() {
 @Composable
 fun LeagueItemPreview() {
     LeagueItem(navController = rememberNavController(), 26)
+}
+
+@Preview
+@Composable
+fun FriendItemPreview() {
+    FriendItem(26)
 }
