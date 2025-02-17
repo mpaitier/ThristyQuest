@@ -14,6 +14,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.navigation.Screen.Social
 
 @Composable
@@ -28,7 +31,10 @@ fun BottomNavBar(navController: NavController) {
         Screen.Social to Icons.Filled.Person
     )
 
-    NavigationBar(containerColor = backgroundColor) {
+    NavigationBar(
+        containerColor = backgroundColor,
+        modifier = Modifier.height((0.1*LocalConfiguration.current.screenHeightDp).dp)
+    ) {
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
         items.forEach { (screen, icon) ->

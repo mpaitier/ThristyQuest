@@ -1,7 +1,9 @@
 package com.example.thirstyquest.ui.screens.social
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -26,6 +29,7 @@ import androidx.compose.ui.text.withStyle
 
 @Composable
 fun LeagueDetailScreen(leagueID: Int, navController: NavController) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,7 +41,14 @@ fun LeagueDetailScreen(leagueID: Int, navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
         Divider()
         Spacer(modifier = Modifier.height(16.dp))
-        MemberList()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ){
+            MemberList()
+        }
+        BottomDots()
     }
 }
 
@@ -48,7 +59,9 @@ fun LeagueDetailScreen(leagueID: Int, navController: NavController) {
 fun LeagueTopBar(navController: NavController, leagueID: Int) {
     val leagueName = "Ligue $leagueID"        // TODO : get league name with leagueID
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height((0.04166*LocalConfiguration.current.screenHeightDp).dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = { navController.popBackStack() }) {
@@ -90,7 +103,9 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
     val currentXP = 900
     val requiredXP = 1000
 
-    Column {
+    Column (
+        modifier = Modifier.height(126.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,7 +116,7 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
             Text(
                 text = buildAnnotatedString {
                     append("Code de ligue : ")
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.tertiary)) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
                         append(leagueCode)
                     }
                 },
@@ -140,7 +155,7 @@ fun LeagueXPProgress(currentLevel: Int, nextLevel: Int, currentXP: Int, required
                 modifier = Modifier
                     .weight(1f)
                     .height(8.dp),
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.tertiary,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Niv. $nextLevel", style = MaterialTheme.typography.bodyMedium)
@@ -244,6 +259,40 @@ fun MemberItem(member: Member, position: Int) {
         )
     }
 }
+
+@Composable
+fun BottomDots() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Premier point (petit)
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        // Point du milieu (plus grand)
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        // Troisième point (petit)
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
+        )
+    }
+}
+
 
 // Modèle de données pour un membre
 data class Member(val ID: Int, val name: String, val level: Int)

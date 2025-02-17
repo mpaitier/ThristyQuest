@@ -39,12 +39,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.interaction.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import com.example.thirstyquest.R
 
 @Composable
 fun SocialScreen(navController: NavController) {
-    val friendNumber = 14 // TODO : replace 11 by the user's friends count
-    val leagueNumber = 7 // TODO : replace 4 by the user's leagues count
+    val friendNumber = 13 // TODO : replace 13 by the user's friends count
+    val leagueNumber = 7 // TODO : replace 7 by the user's leagues count
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -123,7 +124,7 @@ fun LeagueList(navController: NavController, leagueNumber: Int) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .height((0.23f*LocalConfiguration.current.screenHeightDp).dp)
             .verticalScroll(rememberScrollState()) // Enable manual scroll
     ) {
         Column {
@@ -247,23 +248,24 @@ fun FriendItem(friendID: Int, modifier: Modifier = Modifier) {
         }
         else
         {
-            Icon(   // Icon of the friend background color if name = ""
+            Icon(
                 imageVector = Icons.Filled.Person,
                 contentDescription = "Friend Icon",
                 modifier = Modifier.size(60.dp)
             )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-        Text(
-            text = friendName,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis, // If name is too long, it will be cut
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
+            Text(
+                text = friendName,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis, // If name is too long, it will be cut
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
     }
 }
 
