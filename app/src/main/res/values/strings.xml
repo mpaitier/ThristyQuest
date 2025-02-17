@@ -5,5 +5,8 @@
     <string name="research">Rechercher un ami ...</string>
     <string name="leagues">Mes ligues</string>
     <string name="friends">Mes amis</string>
-    <string name="league_content">Contenu de ma ligue</string>
+    <string name="league_content">Contenu de la ligue</string>
+    <string name="league_members">Membres de la Ligue </string>
+    <string name="league_level">Niveau de la ligue</string>
+    <string name="league_history">Historique des publications</string>
 </resources>

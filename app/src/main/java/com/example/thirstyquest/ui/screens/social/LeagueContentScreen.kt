@@ -24,6 +24,8 @@ import androidx.compose.ui.text.withStyle
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import com.example.thirstyquest.R
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 
@@ -47,6 +49,10 @@ fun LeagueContentScreen(leagueID: Int, navController: NavController) {
     ) {
         LeagueTopBar(navController, leagueID)
         Spacer(modifier = Modifier.height(16.dp))
+        LeagueInfo(leagueID, onShareClick = { /* Share league code */ })
+        Spacer(modifier = Modifier.height(16.dp))
+        Divider()
+        Spacer(modifier = Modifier.height(16.dp))
 
         HorizontalPager(
             count = 3, // Trois pages : Stats, Détails, Historique
@@ -68,6 +74,7 @@ fun LeagueContentScreen(leagueID: Int, navController: NavController) {
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composables
+
 // ------------------------------ League Top Bar ------------------------------
 @Composable
 fun LeagueTopBar(navController: NavController, leagueID: Int) {
@@ -104,6 +111,88 @@ fun LeagueTopBar(navController: NavController, leagueID: Int) {
         IconButton(onClick = { /* Modifier la ligue */ }) {
             Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
         }
+    }
+}
+
+// ------------------------------ League Info ------------------------------
+@Composable
+fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
+    // TODO : get informations with leagueID
+    val leagueCode =  "ABCD"
+    val currentLevel = 3
+    val nextLevel = 4
+    val currentXP = 900
+    val requiredXP = 1000
+
+    Column (
+        modifier = Modifier.height(126.dp)
+    ) {
+        // League code & share button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    append("Code de ligue : ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
+                        append(leagueCode)
+                    }
+                },
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            IconButton(onClick = { onShareClick(leagueCode) }) {
+                Icon(imageVector = Icons.Filled.Share, contentDescription = "Share")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        // League XP progress
+        Text(
+            text = stringResource(id = R.string.league_level),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LeagueXPProgress(currentLevel, nextLevel, currentXP, requiredXP)
+    }
+}
+// ------------------------------ League XP Progress ------------------------------
+@Composable
+fun LeagueXPProgress(currentLevel: Int, nextLevel: Int, currentXP: Int, requiredXP: Int) {
+    val progress = currentXP.toFloat() / requiredXP
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Niv. $currentLevel",
+                style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.width(8.dp))
+            LinearProgressIndicator(
+                progress = progress,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(8.dp),
+                color = MaterialTheme.colorScheme.tertiary,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Niv. $nextLevel", style = MaterialTheme.typography.bodyLarge)
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            "$currentXP / $requiredXP XP",
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
@@ -144,4 +233,16 @@ fun BottomDots(pagerState: PagerState) {
 @Composable
 fun PreviewLeagueTopBar() {
     LeagueTopBar(navController = rememberNavController(), leagueID = 12)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLeagueInfo() {
+    LeagueInfo(leagueID = 12, onShareClick = { /* Share league code */ })
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLeagueXPProgress() {
+    LeagueXPProgress(currentLevel = 3, nextLevel = 4, currentXP = 600, requiredXP = 1000)
 }

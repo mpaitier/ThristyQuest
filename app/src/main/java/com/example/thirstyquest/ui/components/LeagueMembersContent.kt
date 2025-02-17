@@ -26,101 +26,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.thirstyquest.R
 
-// Modèle de données pour un membre
+// Data model for a member
 data class Member(val ID: Int, val name: String, val level: Int)
 
 @Composable
 fun LeagueMembersScreenContent(leagueID: Int) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        LeagueInfo(leagueID, onShareClick = { /* Share league code */ })
-        Spacer(modifier = Modifier.height(16.dp))
-        Divider()
-        Spacer(modifier = Modifier.height(16.dp))
-        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            MemberList()
-        }
-    }
-}
-
-// ------------------------------ League Info ------------------------------
-@Composable
-fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
-    // TODO : get informations with leagueID
-    val leagueCode =  "ABCD"
-    val currentLevel = 3
-    val nextLevel = 4
-    val currentXP = 900
-    val requiredXP = 1000
-
-    Column (
-        modifier = Modifier.height(126.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = buildAnnotatedString {
-                    append("Code de ligue : ")
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
-                        append(leagueCode)
-                    }
-                },
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            IconButton(onClick = { onShareClick(leagueCode) }) {
-                Icon(imageVector = Icons.Filled.Share, contentDescription = "Share")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            "Niveau de la ligue",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LeagueXPProgress(currentLevel, nextLevel, currentXP, requiredXP)
-    }
-}
-// ------------------------------ League XP Progress ------------------------------
-@Composable
-fun LeagueXPProgress(currentLevel: Int, nextLevel: Int, currentXP: Int, requiredXP: Int) {
-    val progress = currentXP.toFloat() / requiredXP
-
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Niv. $currentLevel", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.width(8.dp))
-            LinearProgressIndicator(
-                progress = progress,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(8.dp),
-                color = MaterialTheme.colorScheme.tertiary,
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Niv. $nextLevel", style = MaterialTheme.typography.bodyMedium)
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text("$currentXP XP / $requiredXP XP", style = MaterialTheme.typography.bodyMedium)
-    }
+    MemberList()
 }
 
 // ------------------------------ League Member List ------------------------------
@@ -150,8 +70,9 @@ fun MemberList() {
     var position = 1
     Column {
         Text(
-            "Membres de la Ligue",
-            style = MaterialTheme.typography.titleMedium,
+            // call R.string.league_members
+            text = stringResource(id = R.string.league_members) + " (" + members.size + ")",
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -218,18 +139,6 @@ fun MemberItem(member: Member, position: Int) {
 
 //////////////////////////////////////////////////////////////////////////////////
 //                               Previews
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeagueInfo() {
-    LeagueInfo(leagueID = 12, onShareClick = { /* Share league code */ })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeagueXPProgress() {
-    LeagueXPProgress(currentLevel = 3, nextLevel = 4, currentXP = 600, requiredXP = 1000)
-}
 
 @Preview(showBackground = true)
 @Composable

@@ -58,6 +58,7 @@ fun SocialScreen(navController: NavController) {
         SearchBar()
 
         Spacer(modifier = Modifier.height(12.dp))
+        // TODO : Row & Icon to add a new league
         Text(
             text = stringResource(id = R.string.leagues) + " (" + leagueNumber + ")",
             fontSize = 20.sp,
