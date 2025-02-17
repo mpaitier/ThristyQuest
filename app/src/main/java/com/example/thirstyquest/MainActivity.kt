@@ -30,7 +30,7 @@ fun ThirstyQuestApp() {
 
     Scaffold(
         topBar = { TopBar(navController) },
-        bottomBar = { BottomNavBar(navController) }
+        bottomBar = { BottomNavBar(navController = navController) }
     ) { innerPadding ->
         AppNavigation(
             navController = navController,

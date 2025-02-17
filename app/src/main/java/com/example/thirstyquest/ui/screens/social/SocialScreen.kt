@@ -1,6 +1,7 @@
-package com.example.thirstyquest.ui.screens
+package com.example.thirstyquest.ui.screens.social
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -34,8 +35,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.interaction.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
 import com.example.thirstyquest.R
 
 @Composable
@@ -58,7 +61,7 @@ fun SocialScreen(navController: NavController) {
             fontSize = 20.sp,
             color = primaryColor
         )
-        LeagueList(leagueNumber)
+        LeagueList(navController, leagueNumber)
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
@@ -116,7 +119,7 @@ fun SearchBar() {
 // --------------------------------- League List ---------------------------------
 
 @Composable
-fun LeagueList(leagueNumber: Int) {
+fun LeagueList(navController: NavController, leagueNumber: Int) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,9 +129,8 @@ fun LeagueList(leagueNumber: Int) {
         Column {
             repeat(leagueNumber) { index ->
                 LeagueItem(
-                    leagueName = "Ligue ${index + 1}",
-                    peopleCount = (index + 5) * 10,
-                    rank = index + 1
+                    navController = navController,
+                    leagueID = index    // TODO : get the league ID
                 )
             }
         }
@@ -137,11 +139,28 @@ fun LeagueList(leagueNumber: Int) {
 
 
 @Composable
-fun LeagueItem(leagueName: String, peopleCount: Int, rank: Int) {
+fun LeagueItem(navController: NavController, leagueID: Int) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+
+    val peopleCount = 26                    // TODO : get the number of people in the league with the leagueID
+    val rank = 8                            // TODO : get the rank of the user in the league with the leagueID
+    val leagueName = "Ligue $leagueID"      // TODO : get the name of the league with the leagueID
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (isPressed) tertiaryColor else Color.Transparent)
+            .clickable (
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                navController.navigate("leagueDetail/$leagueID")
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         // TODO: get league image
@@ -259,5 +278,5 @@ fun SearchBarPreview() {
 @Preview
 @Composable
 fun LeagueItemPreview() {
-    LeagueItem(leagueName = "La Scrott Ligue", peopleCount = 50, rank = 1)
+    LeagueItem(navController = rememberNavController(), 26)
 }
