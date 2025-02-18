@@ -17,8 +17,8 @@ import com.example.thirstyquest.ui.screens.social.LeagueContentScreen
 fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        // startDestination = Screen.MainMenu.name,
-        startDestination = Screen.LeagueContent.name+"/3",  // to see changes faster
+        startDestination = Screen.MainMenu.name,
+        // startDestination = Screen.LeagueContent.name+"/3",  // to see changes faster
         modifier = modifier
     ) {
         composable(Screen.MainMenu.name)
