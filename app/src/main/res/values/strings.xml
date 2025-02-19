@@ -16,4 +16,5 @@
     <string name="collection">Ma collection</string>
     <string name="badge">Mes badges</string>
     <string name="stats">Mes statistiques</string>
+    <string name="historique_personnel">Mes dernières boissons</string>
 </resources>
