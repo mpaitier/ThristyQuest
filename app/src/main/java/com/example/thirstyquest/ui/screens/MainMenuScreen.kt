@@ -79,37 +79,41 @@ fun MainMenuScreen(navController: NavController) {
             // Historique des boissons
             Text(stringResource(id = R.string.historique_personnel), fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
 
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp) // Ajuste la taille de l'historique ici
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                    .padding(8.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                Column {
-                    val hist = listOf(
-                        Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025"),
-                        Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
-                        Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
-                        Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
-                        Publication(5, "Ricard du midi", 1, "12:26 13/02/2025"),
-                        Publication(6, "Double IPA qui arrache", 4, "16:52 13/02/2025"),
-                        Publication(7, "Bouteille de vin en mode classe", 18, "21:30 14/02/2025"),
-                        Publication(8, "Ricard pur x_x", 14, "19:15 15/02/2025"),
-                        Publication(9, "La potion de Shrek", 8, "01:26 15/02/2025"),
-                        Publication(10, "Pinte à la Voie Maltée", 74, "10:28 16/02/2025")
-                    )
+                val hist = listOf(
+                    Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025"),
+                    Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
+                    Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
+                    Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
+                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025"),
+                    Publication(6, "Double IPA qui arrache", 4, "16:52 13/02/2025"),
+                    Publication(7, "Bouteille de vin en mode classe", 18, "21:30 14/02/2025"),
+                    Publication(8, "Ricard pur x_x", 14, "19:15 15/02/2025"),
+                    Publication(9, "La potion de Shrek", 8, "01:26 15/02/2025"),
+                    Publication(10, "Pinte à la Voie Maltée", 74, "10:28 16/02/2025")
+                )
 
-                    val sortedHist = hist.sortedByDescending { it.date }
+                val sortedHist = hist.sortedByDescending { it.date }
 
-                    sortedHist.forEach { publication ->
+                sortedHist.forEach { publication ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                            .padding(8.dp)
+                    ) {
                         histItem(publication)
                     }
                 }
             }
         }
     }
+
     // Affichage du dialogue
     if (showDialog) {
         AddDrinkDialog(onDismiss = { showDialog = false })
