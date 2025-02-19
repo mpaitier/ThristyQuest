@@ -13,4 +13,7 @@
     <string name="top_boissons">Top boissons</string>
     <string name="ajouter">Ajouter</string>
     <string name="annuler">Annuler</string>
+    <string name="collection">Ma collection</string>
+    <string name="badge">Mes badges</string>
+    <string name="stats">Mes statistiques</string>
 </resources>

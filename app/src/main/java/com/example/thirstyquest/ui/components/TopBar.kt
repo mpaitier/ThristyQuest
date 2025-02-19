@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,11 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
 
@@ -32,8 +35,10 @@ fun TopBar(navController: NavController) {
 
     val primaryColor = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.background
-
+    var showDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    val currentBackStackEntry = navController.currentBackStackEntryAsState()
+
 
     CenterAlignedTopAppBar(
         modifier = Modifier.height((0.12*LocalConfiguration.current.screenHeightDp).dp),
@@ -53,10 +58,48 @@ fun TopBar(navController: NavController) {
                 )
             }
         },
+        actions = {
+            if (currentBackStackEntry.value?.destination?.route == Screen.Profile.name) {
+                IconButton(onClick = { showDialog = true}) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Paramètres"
+                    )
+                }
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = backgroundColor,
         )
 
+    )
+    if (showDialog) {
+        ChangeProfilePictureDialog(
+            onDismiss = { showDialog = false },
+            onConfirm = {}
+        )
+    }
+}
+
+@Composable
+fun ChangeProfilePictureDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Changer la photo de profil", fontWeight = FontWeight.Bold) },
+        text = { Text("Souhaitez-vous changer votre photo de profil ?") },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm()
+                onDismiss()
+            }) {
+                Text("Oui")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Non")
+            }
+        }
     )
 }
 
