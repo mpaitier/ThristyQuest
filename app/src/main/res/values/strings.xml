@@ -11,4 +11,6 @@
     <string name="league_history">Historique des publications</string>
     <string name="ajouter_boisson">Ajouter une boisson</string>
     <string name="top_boissons">Top boissons</string>
+    <string name="ajouter">Ajouter</string>
+    <string name="annuler">Annuler</string>
 </resources>

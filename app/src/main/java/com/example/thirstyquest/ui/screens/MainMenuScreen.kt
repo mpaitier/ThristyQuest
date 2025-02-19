@@ -62,7 +62,7 @@ fun MainMenuScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Icon(Icons.Filled.CameraAlt, contentDescription = "Ajouter une consommation")
+                    Icon(Icons.Filled.CameraAlt, contentDescription = stringResource(id = R.string.ajouter_boisson))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(id = R.string.ajouter_boisson), fontSize = 18.sp)
                 }
@@ -89,12 +89,12 @@ fun AddDrinkDialog(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(0.8f),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Ajouter", fontSize = 16.sp)
+                Text(stringResource(id = R.string.ajouter), fontSize = 16.sp)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Annuler")
+                Text(stringResource(id = R.string.annuler))
             }
         },
         text = {
