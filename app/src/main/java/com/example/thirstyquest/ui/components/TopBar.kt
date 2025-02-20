@@ -52,7 +52,6 @@ fun TopBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            // Bouton Profil toujours visible
             IconButton(onClick = { navController.navigate(Screen.Profile.name) }) {
                 Image(
                     painter = painterResource(id = R.drawable.pdp),

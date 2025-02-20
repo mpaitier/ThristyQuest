@@ -184,9 +184,9 @@ fun Screen1() {
 fun ListBoisson() {
     // Liste des boissons avec des données d'exemple
     val boissonList = listOf(
-        Boisson("Bière", R.drawable.yager, "Une bière rafraîchissante."),
+        Boisson("Bière", R.drawable.biere, "Une bière rafraîchissante."),
         Boisson("Vodka", R.drawable.vodka, "Une vodka premium."),
-        Boisson("Coca", R.drawable.yager, "Boisson gazeuse classique."),
+        Boisson("Coca", R.drawable.coca, "Boisson gazeuse classique."),
         Boisson("Jäger", R.drawable.yager, "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.")
     )
 
