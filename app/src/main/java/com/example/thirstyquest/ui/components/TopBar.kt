@@ -38,7 +38,6 @@ import com.example.thirstyquest.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(navController: NavController) {
-
     val primaryColor = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.background
     var showDialog by remember { mutableStateOf(false) }
@@ -55,6 +54,7 @@ fun TopBar(navController: NavController) {
             )
         },
         navigationIcon = {
+            // Bouton Profil toujours visible
             IconButton(onClick = { navController.navigate(Screen.Profile.name) }) {
                 Image(
                     painter = painterResource(id = R.drawable.pdp),
@@ -62,21 +62,20 @@ fun TopBar(navController: NavController) {
                     modifier = Modifier.size(60.dp)
                 )
             }
-
         },
         actions = {
             if (currentBackStackEntry.value?.destination?.route == Screen.Profile.name) {
                 IconButton(onClick = { showDialog = true }) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Modifier"
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Paramètres"
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "Modifier"
+                    )
+                }
+                IconButton(onClick = { navController.navigate(Screen.Settings.name) }) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Paramètres"
+                    )
                 }
             }
         },
@@ -85,6 +84,7 @@ fun TopBar(navController: NavController) {
         )
     )
 
+
     if (showDialog) {
         ChangeProfilePictureDialog(
             onDismiss = { showDialog = false },
@@ -92,6 +92,9 @@ fun TopBar(navController: NavController) {
         )
     }
 }
+
+
+
 
 
 
