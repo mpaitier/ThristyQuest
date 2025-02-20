@@ -61,7 +61,7 @@ fun LeagueContentScreen(leagueID: Int, navController: NavController) {
         ) { page ->
             when (page) {
                 0 -> LeagueStatsScreenContent(leagueID) // Page gauche
-                1 -> LeagueMembersScreenContent(leagueID) // Page centrale
+                1 -> LeagueMembersScreenContent(navController, leagueID) // Page centrale
                 2 -> LeagueHistScreenContent(leagueID) // Page droite
             }
         }

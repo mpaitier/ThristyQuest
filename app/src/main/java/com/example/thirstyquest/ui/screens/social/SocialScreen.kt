@@ -39,7 +39,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.interaction.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 
@@ -64,14 +66,17 @@ fun SocialScreen(navController: NavController) {
             fontSize = 20.sp,
             color = primaryColor
         )
+        Spacer(modifier = Modifier.height(12.dp))
         LeagueList(navController, leagueNumber)
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = stringResource(id = R.string.friends) + " (" + friendNumber + ")",
             fontSize = 20.sp,
-            color = primaryColor)
-        FriendsList(friendNumber)
+            color = primaryColor
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        FriendsList(navController, friendNumber)
     }
 }
 
@@ -208,7 +213,7 @@ fun LeagueItem(navController: NavController, leagueID: Int) {
 // --------------------------------- Friends List ---------------------------------
 
 @Composable
-fun FriendsList(friendNumber: Int) {
+fun FriendsList(navController: NavController, friendNumber: Int) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
     ){
@@ -220,11 +225,13 @@ fun FriendsList(friendNumber: Int) {
                 items(3) { index2 ->
                     if(index * 3 + index2 < friendNumber) {
                         FriendItem(
+                            navController= navController,
                             friendID = index * 3 + index2 + 1
                         )
                     }
                     else {
                         FriendItem(
+                            navController= navController,
                             friendID = -1
                         )
                     }
@@ -236,7 +243,9 @@ fun FriendsList(friendNumber: Int) {
 }
 
 @Composable
-fun FriendItem(friendID: Int, modifier: Modifier = Modifier) {
+fun FriendItem(navController: NavController, friendID: Int,  modifier: Modifier = Modifier) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     val friendName = "Ami $friendID" // TODO : get the friend name
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -250,22 +259,31 @@ fun FriendItem(friendID: Int, modifier: Modifier = Modifier) {
         }
         else
         {
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = "Friend Icon",
-                modifier = Modifier.size(60.dp)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+            Column (
+                modifier = Modifier.clickable (interactionSource = interactionSource, indication = null)
+                {
+                    navController.navigate(Screen.LeagueContent.name + "/$friendID")    // TODO : navigate to friend profile
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = "Friend Icon",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .align(Alignment.CenterHorizontally),
+                )
 
-            Text(
-                text = friendName,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis, // If name is too long, it will be cut
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+                Text(
+                    text = friendName,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // If name is too long, it will be cut
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
         }
 
     }
@@ -273,6 +291,12 @@ fun FriendItem(friendID: Int, modifier: Modifier = Modifier) {
 
 //////////////////////////////////////////////////////////////////////////////////
 //                               Previews
+
+@PreviewScreenSizes
+@Composable
+fun SocialScreenPreview() {
+    SocialScreen(rememberNavController())
+}
 
 @Preview
 @Composable
@@ -289,5 +313,5 @@ fun LeagueItemPreview() {
 @Preview
 @Composable
 fun FriendItemPreview() {
-    FriendItem(26)
+    FriendItem(navController = rememberNavController(),26)
 }

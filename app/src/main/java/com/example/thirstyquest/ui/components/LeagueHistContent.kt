@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
 
-data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String)
+data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String, val heure: String)
 
 @Composable
 fun LeagueHistScreenContent(leagueID: Int) {
@@ -41,19 +41,20 @@ fun LeagueHistScreenContent(leagueID: Int) {
 fun HistList() {
     // TODO : get all publications with leagueID, sorted by date (most recent first)
     val hist = listOf(
-        Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025"),
-        Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
-        Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
-        Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
-        Publication(5, "Ricard du midi", 1, "12:26 13/02/2025"),
-        Publication(6, "Double IPA qui arrache", 4, "16:52 13/02/2025"),
-        Publication(7, "Bouteille de vin en mode classe", 18, "21:30 14/02/2025"),
-        Publication(8, "Ricard pur x_x", 14, "19:15 15/02/2025"),
-        Publication(9, "La potion de Shrek", 8, "01:26 15/02/2025"),
-        Publication(10, "Pinte à la Voie Maltée", 74, "10:28 16/02/2025")
+        Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00" ),
+        Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00"),
+        Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12"),
+        Publication(4, "Binch de malade", 2, "13/02/2025", "02:26"),
+        Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26"),
+        Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52"),
+        Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30"),
+        Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15"),
+        Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26"),
+        Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28")
     )
 
-    val sortedHist = hist.sortedByDescending { it.date }
+    // sort by date then time
+    val sortedHist = hist.sortedWith(compareBy({ it.date }, { it.heure })).reversed()
     var publicationNum = 0
 
     Column {
@@ -114,19 +115,16 @@ fun histItem(publication: Publication, publicationNum: Int) {
             )
         }
 
-
         Spacer(modifier = Modifier.weight(1f))
 
         Column {
-            // publication.date is "HH:MM DD/MM/YYYY", get two strings from it
-            val date = publication.date.split(" ")
             Text(
-                text = date[0],
+                text = publication.date,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.align(Alignment.End)
             )
             Text(
-                text = date[1],
+                text = publication.heure,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
