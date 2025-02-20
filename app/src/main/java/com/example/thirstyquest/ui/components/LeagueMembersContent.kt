@@ -2,6 +2,9 @@ package com.example.thirstyquest.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -125,8 +128,12 @@ fun MemberItem(navController: NavController, member: Member, position: Int) {
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = Icons.Filled.Person, contentDescription = "Profil", modifier = Modifier.size(40.dp))
-
+        Image(
+            painter = painterResource(id = R.drawable.pdp),
+            contentDescription = "Profil",
+            modifier = Modifier
+                .size(40.dp)
+        )
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {

@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens.social
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
@@ -171,11 +173,11 @@ fun LeagueItem(navController: NavController, leagueID: Int) {
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // TODO: get league image
-        Icon(
-            imageVector = Icons.Filled.Menu,
-            contentDescription = "Ligue Icon",
-            modifier = Modifier.size(40.dp)
+        // TODO: get league image------------------------------------------------------------------------------------
+        Image(
+            painter = painterResource(id = R.drawable.league_logo),
+            contentDescription = "Profil",
+            modifier = Modifier.size(60.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -265,11 +267,11 @@ fun FriendItem(navController: NavController, friendID: Int,  modifier: Modifier 
                     navController.navigate(Screen.LeagueContent.name + "/$friendID")    // TODO : navigate to friend profile
                 }
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
+               Image(
+                    painter = painterResource(id = R.drawable.pdp),
                     contentDescription = "Friend Icon",
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(70.dp)
                         .align(Alignment.CenterHorizontally),
                 )
 
