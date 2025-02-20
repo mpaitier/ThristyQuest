@@ -4,14 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavController) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -21,13 +22,14 @@ fun SettingsScreen() {
             text = "Paramètres",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
+            color = primaryColor,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         SettingsOption(
             title = "Mode sombre",
             description = "Activer ou désactiver le mode sombre de l'application",
-            onClick = { /* Action pour activer/désactiver le mode sombre */ }
+            onClick = {  }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -35,7 +37,7 @@ fun SettingsScreen() {
         SettingsOption(
             title = "Notifications",
             description = "Gérer les notifications de l'application",
-            onClick = { /* Action pour gérer les notifications */ }
+            onClick = { }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -43,10 +45,11 @@ fun SettingsScreen() {
         SettingsOption(
             title = "Langue",
             description = "Changer la langue de l'application",
-            onClick = { /* Action pour changer la langue */ }
+            onClick = {}
         )
     }
 }
+
 
 @Composable
 fun SettingsOption(
@@ -54,10 +57,14 @@ fun SettingsOption(
     description: String,
     onClick: () -> Unit
 ) {
+    val secondaryColor = MaterialTheme.colorScheme.secondary
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
-        onClick = onClick
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = secondaryColor)
+
     ) {
         Column(
             modifier = Modifier

@@ -12,7 +12,7 @@ import com.example.thirstyquest.ui.screens.MainMenuScreen
 import com.example.thirstyquest.ui.screens.ProfileScreen
 import com.example.thirstyquest.ui.screens.social.SocialScreen
 import com.example.thirstyquest.ui.screens.social.LeagueContentScreen
-
+import com.example.thirstyquest.ui.screens.SettingsScreen
 @Composable
 fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
@@ -34,6 +34,11 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable(Screen.Social.name)
         {
             SocialScreen(navController)
+        }
+
+        composable(Screen.Settings.name)
+        {
+            SettingsScreen(navController)
         }
 
         composable(Screen.LeagueContent.name + "/{leagueId}",) {
