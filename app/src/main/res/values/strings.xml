@@ -17,4 +17,7 @@
     <string name="badge">Mes badges</string>
     <string name="stats">Mes statistiques</string>
     <string name="historique_personnel">Mes dernières boissons</string>
+    <string name="conso">Consommation</string>
+    <string name="pref">Préférence</string>
+    <string name="total">Total</string>
 </resources>

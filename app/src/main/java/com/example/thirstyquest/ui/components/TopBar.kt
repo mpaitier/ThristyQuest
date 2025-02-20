@@ -3,6 +3,8 @@ package com.example.thirstyquest.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
@@ -26,9 +28,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
-
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.theme.*
+
+
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,12 +42,10 @@ fun TopBar(navController: NavController) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.background
     var showDialog by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
-
     CenterAlignedTopAppBar(
-        modifier = Modifier.height((0.12*LocalConfiguration.current.screenHeightDp).dp),
+        modifier = Modifier.height((0.12 * LocalConfiguration.current.screenHeightDp).dp),
         title = {
             Text(
                 text = stringResource(id = R.string.app_name),
@@ -53,31 +56,35 @@ fun TopBar(navController: NavController) {
         },
         navigationIcon = {
             IconButton(onClick = { navController.navigate(Screen.Profile.name) }) {
-                Icon(
-                    imageVector = Icons.Filled.Face,
-                    contentDescription = "Profil"
+                Image(
+                    painter = painterResource(id = R.drawable.pdp),
+                    contentDescription = "Profil",
+                    modifier = Modifier.size(60.dp)
                 )
             }
+
         },
         actions = {
             if (currentBackStackEntry.value?.destination?.route == Screen.Profile.name) {
-                IconButton(onClick = { showDialog = true}) {
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = "Paramètres"
-                    )
-                    Icon(imageVector = Icons.Filled.Edit,
-                        contentDescription = "Modifier"
-                    )
-
+                IconButton(onClick = { showDialog = true }) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Modifier"
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "Paramètres"
+                        )
+                    }
                 }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = backgroundColor,
         )
-
     )
+
     if (showDialog) {
         ChangeProfilePictureDialog(
             onDismiss = { showDialog = false },
@@ -85,6 +92,8 @@ fun TopBar(navController: NavController) {
         )
     }
 }
+
+
 
 @Composable
 fun ChangeProfilePictureDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {

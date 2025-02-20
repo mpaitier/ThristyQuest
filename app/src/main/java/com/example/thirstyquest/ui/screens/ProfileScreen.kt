@@ -1,6 +1,7 @@
 package com.example.thirstyquest.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -11,6 +12,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -28,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
-//import com.example.thirstyquest.ui.components.MemberList
 import kotlinx.coroutines.launch
 
 @Composable
@@ -69,15 +70,91 @@ fun ProfileScreen(navController: NavController) {
             }
         }
 
-
     }
 
 }
 
 @Composable
 fun Screen0() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(stringResource(id = R.string.stats), fontSize = 24.sp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+    ) {
+        val primaryColor = MaterialTheme.colorScheme.primary
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = stringResource(id = R.string.conso),
+            fontSize = 20.sp,
+            color = primaryColor,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            StatItem("/Jour", "0.4")
+            StatItem("/Mois", "15")
+            StatItem("/Ans", "200")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(id = R.string.pref),
+            fontSize = 20.sp,
+            color = primaryColor,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            StatItem("Biere blonde", "71")
+            StatItem("Fire ball", "32")
+        }
+        Text(
+            text = stringResource(id = R.string.total),
+            fontSize = 20.sp,
+            color = primaryColor,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            StatItem("Boissons consommées", "310")
+        }
+    }
+}
+@Composable
+fun StatItem(label: String, value: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
