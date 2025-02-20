@@ -28,7 +28,7 @@ data class Publication(val ID: Int, val description: String, val user_ID: Int, v
 
 @Composable
 fun MainMenuScreen(navController: NavController) {
-    var showDialog by remember { mutableStateOf(false) } // État du dialogue
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
