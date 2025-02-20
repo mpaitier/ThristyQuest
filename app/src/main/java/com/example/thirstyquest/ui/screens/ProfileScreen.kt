@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens
 
+import android.app.AlertDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -25,12 +27,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.runtime.*
 import com.example.thirstyquest.R
 import kotlinx.coroutines.launch
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -188,16 +195,22 @@ fun ListBoisson() {
 
 @Composable
 fun ItemBoisson() {
-    Card(
+    var showDialog by remember { mutableStateOf(false) } // État pour afficher le dialog
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    Column(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .height(100.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+            .clickable { showDialog = true },
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        Card(
+            modifier = Modifier
+                .size(100.dp),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(4.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.yager),
@@ -206,8 +219,45 @@ fun ItemBoisson() {
                 contentScale = ContentScale.Crop
             )
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "Biere",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = primaryColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Gros Jäger", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.yager),
+                        contentDescription = "Imageboisson",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.", textAlign = TextAlign.Justify)
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Fermer")
+                }
+            }
+        )
     }
 }
+
 
 @Composable
 fun ListBadge() {
@@ -226,18 +276,49 @@ fun ListBadge() {
 
 @Composable
 fun ItemBadge() {
+    var showDialog by remember { mutableStateOf(false) } // État pour afficher le dialog
+
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .size(100.dp),
+            .size(100.dp)
+            .clickable { showDialog = true },
         shape = CircleShape,
+
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Box(
+        Image(
+            painter = painterResource(id = R.drawable.badge),
+            contentDescription = "badge",
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "Badge", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        }
+            contentScale = ContentScale.Crop
+        )
     }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Assiduité", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.badge),
+                        contentDescription = "badge",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Tu a bu les 7 jours de la semaine Bravo", textAlign = TextAlign.Justify)
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Fermer")
+                }
+            }
+        )
+    }
+
 }
