@@ -43,10 +43,14 @@ fun TopBar(navController: NavController) {
     CenterAlignedTopAppBar(
         title = {
             Text(
+                modifier = Modifier.clickable {
+                    navController.navigate(Screen.MainMenu.name)
+                },
                 text = stringResource(id = R.string.app_name),
                 fontSize = 40.sp,
                 textAlign = TextAlign.Center,
                 color = primaryColor
+
             )
         },
         navigationIcon = {
@@ -79,7 +83,6 @@ fun TopBar(navController: NavController) {
         )
     )
 
-
     if (showDialog) {
         ChangeProfilePictureDialog(
             onDismiss = { showDialog = false },
@@ -87,6 +90,7 @@ fun TopBar(navController: NavController) {
         )
     }
 }
+
 
 
 

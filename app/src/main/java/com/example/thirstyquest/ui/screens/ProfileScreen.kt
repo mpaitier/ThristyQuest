@@ -1,6 +1,11 @@
 package com.example.thirstyquest.ui.screens
 
-import android.app.AlertDialog
+
+
+
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.graphics.Color
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +17,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +44,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+
 
 
 data class Boisson(val name: String, val imageRes: Int, val description: String)
@@ -272,7 +281,33 @@ fun ItemBoisson(boisson: Boisson) {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(text = boisson.name, fontWeight = FontWeight.Bold) },
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = boisson.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(primaryColor, shape = CircleShape)
+                            .clickable { showDialog = false },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Fermer",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
+            },
             text = {
                 Column {
                     Image(
@@ -284,16 +319,16 @@ fun ItemBoisson(boisson: Boisson) {
                         contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = boisson.description, textAlign = TextAlign.Justify)
+                    Text(
+                        text = boisson.description,
+                        textAlign = TextAlign.Justify
+                    )
                 }
             },
-            confirmButton = {
-                Button(onClick = { showDialog = false }) {
-                    Text("Fermer")
-                }
-            }
+            confirmButton = {}
         )
     }
+
 }
 
 
@@ -314,8 +349,8 @@ fun ListBadge() {
 
 @Composable
 fun ItemBadge() {
-    var showDialog by remember { mutableStateOf(false) } // État pour afficher le dialog
-
+    var showDialog by remember { mutableStateOf(false) }
+    val primaryColor = MaterialTheme.colorScheme.primary
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -336,7 +371,33 @@ fun ItemBadge() {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(text = "Assiduité", fontWeight = FontWeight.Bold) },
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Assiduité",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(primaryColor, shape = CircleShape)
+                            .clickable { showDialog = false },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Fermer",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
+            },
             text = {
                 Column {
                     Image(
@@ -351,11 +412,7 @@ fun ItemBadge() {
                     Text(text = "Tu a bu les 7 jours de la semaine Bravo", textAlign = TextAlign.Justify)
                 }
             },
-            confirmButton = {
-                Button(onClick = { showDialog = false }) {
-                    Text("Fermer")
-                }
-            }
+            confirmButton = {}
         )
     }
 
