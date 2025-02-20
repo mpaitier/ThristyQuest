@@ -33,7 +33,10 @@ fun BottomNavBar(navController: NavController) {
 
     NavigationBar(
         containerColor = backgroundColor,
-        modifier = Modifier.height((0.1*LocalConfiguration.current.screenHeightDp).dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 

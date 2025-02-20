@@ -153,13 +153,14 @@ fun MemberItem(navController: NavController, member: Member, position: Int) {
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = "Profil",
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(25.dp),
                 tint = MaterialTheme.colorScheme.tertiary
             )
         }
 
         Text(
             "#${position}",
+            modifier = Modifier.padding(2.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.secondary
         )

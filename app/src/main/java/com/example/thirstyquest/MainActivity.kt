@@ -3,10 +3,12 @@ package com.example.thirstyquest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.navigation.AppNavigation
 import com.example.thirstyquest.ui.components.BottomNavBar
@@ -30,7 +32,8 @@ fun ThirstyQuestApp() {
 
     Scaffold(
         topBar = { TopBar(navController) },
-        bottomBar = { BottomNavBar(navController = navController) }
+        bottomBar = { BottomNavBar(navController) },
+        contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
         AppNavigation(
             navController = navController,
