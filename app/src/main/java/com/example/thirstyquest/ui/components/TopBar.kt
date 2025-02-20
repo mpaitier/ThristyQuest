@@ -41,8 +41,6 @@ fun TopBar(navController: NavController) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
     CenterAlignedTopAppBar(
-        modifier = Modifier
-            .height((0.10 * LocalConfiguration.current.screenHeightDp).dp),
         title = {
             Text(
                 text = stringResource(id = R.string.app_name),
