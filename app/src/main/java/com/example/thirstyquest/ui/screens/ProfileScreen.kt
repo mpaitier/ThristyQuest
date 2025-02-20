@@ -39,6 +39,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 
 
+data class Boisson(val name: String, val imageRes: Int, val description: String)
+
+
 @Composable
 fun ProfileScreen(navController: NavController) {
     val tabTitles = listOf(R.string.stats, R.string.collection,R.string.badge)
@@ -165,10 +168,7 @@ fun StatItem(label: String, value: String) {
     }
 }
 
-@Composable
-fun Screen1() {
-    ListBoisson()
-}
+
 
 @Composable
 fun Screen2() {
@@ -176,25 +176,62 @@ fun Screen2() {
 
 }
 
-
+@Composable
+fun Screen1() {
+    ListBoisson()
+}
 @Composable
 fun ListBoisson() {
-    val boissonList = List(20) { Unit }
+    // Liste des boissons avec des données d'exemple
+    val boissonList = listOf(
+        Boisson("Bière", R.drawable.yager, "Une bière rafraîchissante."),
+        Boisson("Vodka", R.drawable.vodka, "Une vodka premium."),
+        Boisson("Coca", R.drawable.yager, "Boisson gazeuse classique."),
+        Boisson("Jäger", R.drawable.yager, "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.")
+    )
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3), // 3 colonnes
-        contentPadding = PaddingValues(start = 20.dp, top = 15.dp),
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        items(boissonList) {
-            ItemBoisson()
+    // État pour le tri
+    var sortedList by remember { mutableStateOf(boissonList) }
+    var isSortedAsc by remember { mutableStateOf(true) }
+
+    // Fonction de tri
+    fun sortBoissons(ascending: Boolean) {
+        sortedList = if (ascending) {
+            boissonList.sortedBy { it.name }
+        } else {
+            boissonList.sortedByDescending { it.name }
+        }
+    }
+
+    // Bouton pour trier
+    Column {
+        // Bouton de tri
+        Button(
+            onClick = {
+                isSortedAsc = !isSortedAsc
+                sortBoissons(isSortedAsc)
+            },
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = if (isSortedAsc) "Trier par ordre décroissant" else "Trier par ordre croissant")
+        }
+
+        // Affichage des boissons triées dans une grille
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3), // 3 colonnes
+            contentPadding = PaddingValues(start = 20.dp, top = 15.dp),
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            items(sortedList) { boisson ->
+                ItemBoisson(boisson = boisson)
+            }
         }
     }
 }
 
 
 @Composable
-fun ItemBoisson() {
+fun ItemBoisson(boisson: Boisson) {
     var showDialog by remember { mutableStateOf(false) } // État pour afficher le dialog
 
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -213,8 +250,8 @@ fun ItemBoisson() {
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.yager),
-                contentDescription = "Verre d'alcool",
+                painter = painterResource(id = boisson.imageRes),
+                contentDescription = boisson.name,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
@@ -223,7 +260,7 @@ fun ItemBoisson() {
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Biere",
+            text = boisson.name,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = primaryColor,
@@ -234,19 +271,19 @@ fun ItemBoisson() {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(text = "Gros Jäger", fontWeight = FontWeight.Bold) },
+            title = { Text(text = boisson.name, fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     Image(
-                        painter = painterResource(id = R.drawable.yager),
-                        contentDescription = "Imageboisson",
+                        painter = painterResource(id = boisson.imageRes),
+                        contentDescription = boisson.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp),
                         contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.", textAlign = TextAlign.Justify)
+                    Text(text = boisson.description, textAlign = TextAlign.Justify)
                 }
             },
             confirmButton = {
