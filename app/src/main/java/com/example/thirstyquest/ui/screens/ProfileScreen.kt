@@ -101,7 +101,7 @@ fun Screen0() {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = stringResource(id = R.string.conso),
+            text = stringResource(R.string.conso),
             fontSize = 20.sp,
             color = primaryColor,
             fontWeight = FontWeight.Bold
@@ -113,15 +113,15 @@ fun Screen0() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem("/Jour", "0.4")
-            StatItem("/Mois", "15")
-            StatItem("/Ans", "200")
+            StatItem("L/Jour", "0.4")
+            StatItem("L/Mois", "15")
+            StatItem("L/An", "200")
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(id = R.string.pref),
+            text = stringResource(R.string.pref),
             fontSize = 20.sp,
             color = primaryColor,
             fontWeight = FontWeight.Bold
@@ -137,7 +137,7 @@ fun Screen0() {
             StatItem("Fire ball", "32")
         }
         Text(
-            text = stringResource(id = R.string.total),
+            text = stringResource(R.string.total),
             fontSize = 20.sp,
             color = primaryColor,
             fontWeight = FontWeight.Bold
