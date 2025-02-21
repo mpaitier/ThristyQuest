@@ -1,10 +1,13 @@
 package com.example.thirstyquest.ui.screens.social
 
+import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,8 +27,11 @@ import androidx.compose.ui.text.withStyle
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
+import com.example.thirstyquest.navigation.Screen
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 
@@ -36,11 +42,10 @@ import com.example.thirstyquest.ui.components.LeagueStatsScreenContent
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun LeagueContentScreen(leagueID: Int, navController: NavController) {
-    val pagerState = rememberPagerState(
-        initialPage = 1
-    )
-
+    val pagerState = rememberPagerState(initialPage = 1)
     val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current  // for share intent
 
     Column(
         modifier = Modifier
@@ -49,7 +54,19 @@ fun LeagueContentScreen(leagueID: Int, navController: NavController) {
     ) {
         LeagueTopBar(navController, leagueID)
         Spacer(modifier = Modifier.height(16.dp))
-        LeagueInfo(leagueID, onShareClick = { /* Share league code */ })
+        LeagueInfo(
+            leagueID,
+            onShareClick = { shareMessage ->
+                val shareIntent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, shareMessage)
+                    type = "text/plain"
+                }
+
+                val chooserIntent = Intent.createChooser(shareIntent, "Partager via")
+                context.startActivity(chooserIntent)
+            }
+        )
         Spacer(modifier = Modifier.height(16.dp))
         Divider()
         Spacer(modifier = Modifier.height(16.dp))
@@ -71,14 +88,18 @@ fun LeagueContentScreen(leagueID: Int, navController: NavController) {
     }
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composables
 
 // ------------------------------ League Top Bar ------------------------------
 @Composable
 fun LeagueTopBar(navController: NavController, leagueID: Int) {
-    val leagueName = "Ligue $leagueID"        // TODO : get league name with leagueID
+    var showDialog by remember { mutableStateOf(false) }
+
+    val leagueName = "Ligue $leagueID"          // TODO : get league name with leagueID
+    val leagueOwnerId = 2                       // TODO : get league's owner's ID  with leagueID
+    val ownID = leagueID                        // TODO : get own ID
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,9 +129,23 @@ fun LeagueTopBar(navController: NavController, leagueID: Int) {
         )
 
         // TODO : navigate to league settings & visible only if user is owner
-        IconButton(onClick = { /* Modifier la ligue */ }) {
-            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
+        if(ownID == leagueOwnerId) {
+            IconButton(onClick = { showDialog = true }) {
+                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
+            }
         }
+    }
+
+    if (showDialog) {
+        ModifyLeagueDialog(
+            onDismiss = { showDialog = false },
+            onValidate = { leagueName ->
+                showDialog = false
+                // TODO : modify league's name
+                // TODO : modify league's picture
+            },
+            leagueID = leagueID
+        )
     }
 }
 
@@ -118,15 +153,27 @@ fun LeagueTopBar(navController: NavController, leagueID: Int) {
 @Composable
 fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
     // TODO : get informations with leagueID
-    val leagueCode =  "ABCD"
+    val leagueCode =  "ABCD"  // Vous allez récupérer ce code avec leagueID
     val currentLevel = 3
     val nextLevel = 4
     val currentXP = 900
     val requiredXP = 1000
 
-    Column (
-        modifier = Modifier.height(126.dp)
+    Column(
+        modifier = Modifier.height(100.dp)
     ) {
+        // League XP progress
+        Text(
+            text = stringResource(id = R.string.league_level),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+        LeagueXPProgress(currentLevel, nextLevel, currentXP, requiredXP)
+        Spacer(modifier = Modifier.height(18.dp))
+
         // League code & share button
         Row(
             modifier = Modifier
@@ -145,25 +192,24 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge
             )
-
-            IconButton(onClick = { onShareClick(leagueCode) }) {
+            Spacer(modifier = Modifier.width(40.dp))
+            // Share button
+            IconButton(
+                onClick = {
+                    val leagueName = "Scrott League"
+                    val shareMessage =
+                        "Viens rejoindre la ligue $leagueName sur Thirsty Quest et partageons nos aventures de consommation ! \uD83C\uDF7B\n" +
+                                "Voici mon code de ligue : $leagueCode\n"
+                    onShareClick(shareMessage)
+                },
+                modifier = Modifier.size(16.dp)
+            ) {
                 Icon(imageVector = Icons.Filled.Share, contentDescription = "Share")
             }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        // League XP progress
-        Text(
-            text = stringResource(id = R.string.league_level),
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LeagueXPProgress(currentLevel, nextLevel, currentXP, requiredXP)
     }
 }
+
 // ------------------------------ League XP Progress ------------------------------
 @Composable
 fun LeagueXPProgress(currentLevel: Int, nextLevel: Int, currentXP: Int, requiredXP: Int) {
@@ -225,6 +271,105 @@ fun BottomDots(pagerState: PagerState) {
     }
 }
 
+//
+@Composable
+fun ModifyLeagueDialog(
+    onDismiss: () -> Unit,
+    onValidate: (String) -> Unit,
+    leagueID: Int
+) {
+    var leagueName by remember { mutableStateOf("Ligue $leagueID") }          // TODO : get league name with leagueID
+    // TODO : get league picture with leagueID
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    contentAlignment = Alignment.BottomEnd,
+                    modifier = Modifier.size(140.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                    }
+
+                    // Add picture button
+                    IconButton(
+                        onClick = { /* TODO: Add picture selection */ },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .offset(x = 8.dp, y = 8.dp)
+                            .background(MaterialTheme.colorScheme.tertiary, CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AddCircleOutline,
+                            contentDescription = "Add picture",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // League's name entry
+                OutlinedTextField(
+                    value = leagueName,
+                    onValueChange = { newLeagueName -> leagueName = newLeagueName },
+                    label = { Text(stringResource(R.string.league_add_name)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Cancel & validate buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Cancel button
+                    Button(
+                        onClick = { onDismiss() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+
+                    // Validate button
+                    Button(
+                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName) },  // TODO : Add picture save
+                        enabled = leagueName.isNotBlank(),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.validate))
+                    }
+                }
+            }
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 //                               Previews
