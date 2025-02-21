@@ -2,6 +2,7 @@ package com.example.thirstyquest.ui.screens.social
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -39,56 +40,136 @@ import androidx.compose.foundation.verticalScroll
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.interaction.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.LocalDrink
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.screens.AddDrinkDialog
 
 @Composable
 fun SocialScreen(navController: NavController) {
-    val friendNumber = 13 // TODO : replace 13 by the user's friends count
-    val leagueNumber = 7 // TODO : replace 7 by the user's leagues count
+    var showDialog by remember { mutableStateOf(false) }
+    var showCreateLeagueDialog by remember { mutableStateOf(false) }
+
+    val friendNumber = 13 // TODO : replace with actual user's friends count
+    val leagueNumber = 7 // TODO : replace with actual user's leagues count
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp, 8.dp, 16.dp, 4.dp)
-
     ) {
         val primaryColor = MaterialTheme.colorScheme.primary
         SearchBar()
 
         Spacer(modifier = Modifier.height(12.dp))
-        // TODO : Row & Icon to add a new league
-        Text(
-            text = stringResource(id = R.string.leagues) + " (" + leagueNumber + ")",
-            fontSize = 20.sp,
-            color = primaryColor
-        )
+
+        // League section
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.leagues) + " ($leagueNumber)",
+                fontSize = 20.sp,
+                color = primaryColor
+            )
+
+            IconButton(
+                onClick = { showDialog = true },
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircleOutline,
+                    contentDescription = "Ajouter une ligue",
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
         LeagueList(navController, leagueNumber)
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = stringResource(id = R.string.friends) + " (" + friendNumber + ")",
+            text = stringResource(id = R.string.friends) + " ($friendNumber)",
             fontSize = 20.sp,
             color = primaryColor
         )
         Spacer(modifier = Modifier.height(12.dp))
         FriendsList(navController, friendNumber)
     }
+
+    // Add league dialog
+    if (showDialog) {
+        AddLeagueDialog(
+            onDismiss = { showDialog = false },
+            onCreateLeague = {
+                showDialog = false
+                showCreateLeagueDialog = true
+            },
+            onJoinLeague = { leagueCode ->
+                showDialog = false
+
+                val newLeagueID = addToLeagueList(leagueCode)
+                navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
+            }
+        )
+    }
+
+    // Create a league dialog
+    if (showCreateLeagueDialog) {
+        CreateLeagueDialog(
+            onDismiss = { showCreateLeagueDialog = false },
+            onValidate = { leagueName ->
+                showCreateLeagueDialog = false
+
+                val newLeagueID = createLeague(leagueName)
+                navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
+            }
+        )
+    }
 }
 
+fun createLeague(leagueName: String): Int
+{
+    // TODO : Create a new league with values
+    return 69 // Random value
+}
+
+fun addToLeagueList(leagueCode: String): Int
+{
+    // TODO : Add league to user's list
+    return 69 // Random value
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composables
 // ------------------------------ Research section ------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar() {
+fun SearchBar()
+{
     val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
@@ -129,11 +210,15 @@ fun SearchBar() {
 // --------------------------------- League List ---------------------------------
 
 @Composable
-fun LeagueList(navController: NavController, leagueNumber: Int) {
+fun LeagueList(
+    navController: NavController,
+    leagueNumber: Int
+)
+{
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height((0.23f*LocalConfiguration.current.screenHeightDp).dp)
+            .height((0.26f*LocalConfiguration.current.screenHeightDp).dp)
             .verticalScroll(rememberScrollState()) // Enable manual scroll
     ) {
         Column {
@@ -149,7 +234,11 @@ fun LeagueList(navController: NavController, leagueNumber: Int) {
 
 
 @Composable
-fun LeagueItem(navController: NavController, leagueID: Int) {
+fun LeagueItem(
+    navController: NavController,
+    leagueID: Int
+)
+{
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -196,7 +285,8 @@ fun LeagueItem(navController: NavController, leagueID: Int) {
         Icon(
             imageVector = Icons.Filled.Person,
             contentDescription = "Person Icon",
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier.size(30.dp),
+            tint = MaterialTheme.colorScheme.secondary
         )
 
         Text(
@@ -206,8 +296,9 @@ fun LeagueItem(navController: NavController, leagueID: Int) {
         )
         Icon(
             imageVector = Icons.Filled.Star,
-            contentDescription = "Person Icon",
-            modifier = Modifier.size(30.dp)
+            contentDescription = "Star Icon",
+            modifier = Modifier.size(30.dp),
+            tint = MaterialTheme.colorScheme.secondary
         )
     }
 }
@@ -215,7 +306,11 @@ fun LeagueItem(navController: NavController, leagueID: Int) {
 // --------------------------------- Friends List ---------------------------------
 
 @Composable
-fun FriendsList(navController: NavController, friendNumber: Int) {
+fun FriendsList(
+    navController: NavController,
+    friendNumber: Int
+)
+{
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
     ){
@@ -244,8 +339,15 @@ fun FriendsList(navController: NavController, friendNumber: Int) {
 
 }
 
+// --------------------------------- Friends Item ---------------------------------
+
 @Composable
-fun FriendItem(navController: NavController, friendID: Int,  modifier: Modifier = Modifier) {
+fun FriendItem(
+    navController: NavController,
+    friendID: Int,
+    modifier: Modifier = Modifier
+)
+{
     val interactionSource = remember { MutableInteractionSource() }
 
     val friendName = "Ami $friendID" // TODO : get the friend name
@@ -290,6 +392,188 @@ fun FriendItem(navController: NavController, friendID: Int,  modifier: Modifier 
 
     }
 }
+///////////////////////////////////// Dialog /////////////////////////////////////
+// --------------------------------- Add League PopUp ---------------------------------
+
+@Composable
+fun AddLeagueDialog(
+    onDismiss: () -> Unit,
+    onCreateLeague: () -> Unit,
+    onJoinLeague: (String) -> Unit
+)
+{
+    var leagueCode by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+    val maxCodeLength = 6
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Create a league
+                Button(
+                    onClick = onCreateLeague,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = stringResource(id = R.string.league_create))
+                }
+
+                Divider(color = MaterialTheme.colorScheme.onBackground)
+
+                // Enter league's code
+                OutlinedTextField(
+                    value = leagueCode,
+                    onValueChange = {
+                        if (it.length <= maxCodeLength) {
+                            leagueCode = it
+                            showError = false
+                        }
+                    },
+                    label = { Text(text = stringResource(id = R.string.league_enter_code)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        capitalization = KeyboardCapitalization.Characters
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (showError) {
+                    Text(
+                        text = stringResource(R.string.league_code_condition),
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp
+                    )
+                }
+
+                // Join league button
+                Button(
+                    onClick = {
+                        if (leagueCode.length == maxCodeLength) {
+                            onJoinLeague(leagueCode)
+                        } else {
+                            showError = true
+                        }
+                    },
+                    enabled = leagueCode.length == maxCodeLength,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.league_join))
+                }
+            }
+        }
+    )
+}
+
+// --------------------------------- Add League PopUp ---------------------------------
+
+@Composable
+fun CreateLeagueDialog(
+    onDismiss: () -> Unit,
+    onValidate: (String) -> Unit
+) {
+    var leagueName by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    contentAlignment = Alignment.BottomEnd,
+                    modifier = Modifier.size(140.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                    }
+
+                    // Add picture button
+                    IconButton(
+                        onClick = { /* TODO: Add picture selection */ },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .offset(x = 8.dp, y = 8.dp)
+                            .background(MaterialTheme.colorScheme.tertiary, CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AddCircleOutline,
+                            contentDescription = "Add picture",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // League's name entry
+                OutlinedTextField(
+                    value = leagueName,
+                    onValueChange = { leagueName = it },
+                    label = { Text(stringResource(R.string.league_add_name)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Cancel & validate buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Cancel button
+                    Button(
+                        onClick = { onDismiss() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+
+                    // Validate button
+                    Button(
+                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName) },  // TODO : Add picture save
+                        enabled = leagueName.isNotBlank(),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.validate))
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //                               Previews

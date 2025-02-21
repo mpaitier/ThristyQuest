@@ -40,7 +40,7 @@ fun MainMenuScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Mini Menu "Top boissons"
-            Text(stringResource(id = R.string.top_boissons), fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+            Text(stringResource(id = R.string.top_drinks), fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -69,15 +69,15 @@ fun MainMenuScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Icon(Icons.Filled.CameraAlt, contentDescription = stringResource(id = R.string.ajouter_boisson))
+                    Icon(Icons.Filled.CameraAlt, contentDescription = stringResource(id = R.string.add_drink))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(id = R.string.ajouter_boisson), fontSize = 18.sp)
+                    Text(stringResource(id = R.string.add_drink), fontSize = 18.sp)
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
 
             // Historique des boissons
-            Text(stringResource(id = R.string.historique_personnel), fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
+            Text(stringResource(id = R.string.personal_hist), fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
 
             Column(
                 modifier = Modifier
@@ -133,12 +133,12 @@ fun AddDrinkDialog(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(0.8f),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(id = R.string.ajouter), fontSize = 16.sp)
+                Text(stringResource(id = R.string.add), fontSize = 16.sp)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.annuler))
+                Text(stringResource(id = R.string.cancel))
             }
         },
         text = {
