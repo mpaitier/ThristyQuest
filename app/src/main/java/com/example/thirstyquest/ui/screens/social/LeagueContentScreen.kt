@@ -204,7 +204,7 @@ fun BottomDots(pagerState: PagerState) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(4.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         repeat(pageCount) { index ->
