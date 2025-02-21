@@ -196,7 +196,7 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
             // Share button
             IconButton(
                 onClick = {
-                    val leagueName = "Scrott League"
+                    val leagueName = "Alcooliques anonymes"
                     val shareMessage =
                         "Viens rejoindre la ligue $leagueName sur Thirsty Quest et partageons nos aventures de consommation ! \uD83C\uDF7B\n" +
                                 "Voici mon code de ligue : $leagueCode\n"
