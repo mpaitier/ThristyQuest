@@ -1,8 +1,5 @@
 package com.example.thirstyquest.ui.screens
 
-
-
-
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.graphics.Color
 
@@ -47,10 +44,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 
-
-
 data class Boisson(val name: String, val imageRes: Int, val description: String)
-
 
 @Composable
 fun ProfileScreen(navController: NavController) {

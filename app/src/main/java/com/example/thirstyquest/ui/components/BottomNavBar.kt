@@ -52,15 +52,9 @@ fun BottomNavBar(navController: NavController) {
                 },
                 selected = isSelected,
                 onClick = {
-                    if (currentRoute != screen.name) {
-                        navController.navigate(screen.name) {
-                            // Disable access to previous screen ; thx Flacelière Matthieu
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                    navController.navigate(screen.name) {
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
@@ -72,4 +66,3 @@ fun BottomNavBar(navController: NavController) {
         }
     }
 }
-
