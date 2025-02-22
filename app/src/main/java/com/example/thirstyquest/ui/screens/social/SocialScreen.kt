@@ -39,6 +39,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.interaction.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.AddCircleOutline
@@ -63,6 +66,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.screens.AddDrinkDialog
+import com.example.thirstyquest.ui.screens.ItemBoisson
 
 @Composable
 fun SocialScreen(navController: NavController) {
@@ -311,29 +315,16 @@ fun FriendsList(
     friendNumber: Int
 )
 {
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth()
-    ){
-        items((friendNumber/3)+1) { index -> // TODO : get the user's friends informations
-            LazyRow (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ){
-                items(3) { index2 ->
-                    if(index * 3 + index2 < friendNumber) {
-                        FriendItem(
-                            navController= navController,
-                            friendID = index * 3 + index2 + 1
-                        )
-                    }
-                    else {
-                        FriendItem(
-                            navController= navController,
-                            friendID = -1
-                        )
-                    }
-                }
-            }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3), // 3 colonnes
+        contentPadding = PaddingValues(start = 20.dp, top = 15.dp),
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        items(friendNumber) { friendID ->
+            FriendItem(
+                navController= navController,
+                friendID = friendID
+            )
         }
     }
 

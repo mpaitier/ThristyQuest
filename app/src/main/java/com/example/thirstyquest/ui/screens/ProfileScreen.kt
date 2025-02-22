@@ -251,13 +251,14 @@ fun ItemBoisson(boisson: Boisson) {
             modifier = Modifier
                 .size(100.dp),
             shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(Color(0xFFFFFFFF))
         ) {
             Image(
                 painter = painterResource(id = boisson.imageRes),
                 contentDescription = boisson.name,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         }
 
