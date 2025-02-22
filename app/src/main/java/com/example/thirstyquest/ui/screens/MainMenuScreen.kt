@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.foundation.clickable
 import com.example.thirstyquest.R
 
 
@@ -29,6 +30,7 @@ data class Publication(val ID: Int, val description: String, val user_ID: Int, v
 @Composable
 fun MainMenuScreen(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
+    var selectedBoisson by remember { mutableStateOf<Publication?>(null) }
 
     Box(
         modifier = Modifier
@@ -46,7 +48,7 @@ fun MainMenuScreen(navController: NavController) {
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp) // Gère l’espacement entre les boissons
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TopDrinkItem(Icons.Filled.WineBar, "Vin rouge", "3 000 points")
                 TopDrinkItem(Icons.Filled.LocalDrink, "Bière rouge", "2 800 points")
@@ -57,7 +59,7 @@ fun MainMenuScreen(navController: NavController) {
 
             // Bouton Ajouter une consommation
             Button(
-                onClick = { showDialog = true }, // Ouvrir le dialogue
+                onClick = { showDialog = true },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(100.dp)
@@ -89,12 +91,7 @@ fun MainMenuScreen(navController: NavController) {
                     Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
                     Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
                     Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
-                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025"),
-                    Publication(6, "Double IPA qui arrache", 4, "16:52 13/02/2025"),
-                    Publication(7, "Bouteille de vin en mode classe", 18, "21:30 14/02/2025"),
-                    Publication(8, "Ricard pur x_x", 14, "19:15 15/02/2025"),
-                    Publication(9, "La potion de Shrek", 8, "01:26 15/02/2025"),
-                    Publication(10, "Pinte à la Voie Maltée", 74, "10:28 16/02/2025")
+                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025")
                 )
 
                 val sortedHist = hist.sortedByDescending { it.date }
@@ -106,6 +103,7 @@ fun MainMenuScreen(navController: NavController) {
                             .padding(vertical = 4.dp)
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .padding(8.dp)
+                            .clickable { selectedBoisson = publication } // Ajout du clic pour afficher les détails
                     ) {
                         histItem(publication)
                     }
@@ -114,9 +112,13 @@ fun MainMenuScreen(navController: NavController) {
         }
     }
 
-    // Affichage du dialogue
     if (showDialog) {
         AddDrinkDialog(onDismiss = { showDialog = false })
+    }
+
+    // Affichage des détails de la boisson sélectionnée
+    selectedBoisson?.let {
+        AffichageBoissonHisto(boisson = it, onDismiss = { selectedBoisson = null })
     }
 }
 
@@ -234,4 +236,23 @@ fun histItem(publication: Publication) {
             )
         }
     }
+}
+
+@Composable
+fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(boisson.description, fontSize = 20.sp) },
+        text = {
+            Column {
+                Text("Date: ${boisson.date}")
+                Text("ID utilisateur: ${boisson.user_ID}")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Fermer")
+            }
+        }
+    )
 }
