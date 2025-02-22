@@ -44,9 +44,9 @@ fun MainMenuScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height((0.23f* LocalConfiguration.current.screenHeightDp).dp)
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp) // Gère l’espacement entre les boissons
             ) {
                 TopDrinkItem(Icons.Filled.WineBar, "Vin rouge", "3 000 points")
                 TopDrinkItem(Icons.Filled.LocalDrink, "Bière rouge", "2 800 points")
