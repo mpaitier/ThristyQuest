@@ -56,25 +56,36 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.getDrawable
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.components.Member
 import com.example.thirstyquest.ui.screens.AddDrinkDialog
 import com.example.thirstyquest.ui.screens.ItemBoisson
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import kotlinx.coroutines.delay
 
 @Composable
 fun SocialScreen(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val friendNumber = 13 // TODO : replace with actual user's friends count
-    val leagueNumber = 7 // TODO : replace with actual user's leagues count
+    val friendNumber = 13                                                                           // TODO : replace with actual user's friends count
+    val leagueNumber = 7                                                                            // TODO : replace with actual user's leagues count
 
     Column(
         modifier = Modifier
@@ -83,45 +94,52 @@ fun SocialScreen(navController: NavController) {
             .padding(16.dp, 8.dp, 16.dp, 4.dp)
     ) {
         val primaryColor = MaterialTheme.colorScheme.primary
-        SearchBar()
+
+        SearchBar(searchQuery, onQueryChange = { searchQuery = it })
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // League section
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        // If no user's entry, show user's league & friends
+        if (searchQuery.isBlank()) {
+            // League list
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.leagues) + " ($leagueNumber)",
+                    fontSize = 20.sp,
+                    color = primaryColor
+                )
+
+                IconButton(
+                    onClick = { showDialog = true },
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AddCircleOutline,
+                        contentDescription = "Ajouter une ligue",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            LeagueList(navController, leagueNumber)
+            // Friend list
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = stringResource(id = R.string.leagues) + " ($leagueNumber)",
+                text = stringResource(id = R.string.friends) + " ($friendNumber)",
                 fontSize = 20.sp,
                 color = primaryColor
             )
-
-            IconButton(
-                onClick = { showDialog = true },
-                modifier = Modifier.size(28.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AddCircleOutline,
-                    contentDescription = "Ajouter une ligue",
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
-            }
+            Spacer(modifier = Modifier.height(12.dp))
+            FriendsList(navController, friendNumber)
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        LeagueList(navController, leagueNumber)
-
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = stringResource(id = R.string.friends) + " ($friendNumber)",
-            fontSize = 20.sp,
-            color = primaryColor
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        FriendsList(navController, friendNumber)
+        // If searching, show matching people
+        else {
+            SearchResultsList(searchQuery)
+        }
     }
 
     // Add league dialog
@@ -172,44 +190,34 @@ fun addToLeagueList(leagueCode: String): Int
 // ------------------------------ Research section ------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar()
-{
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val secondaryColor = MaterialTheme.colorScheme.secondary
-    val tertiaryColor = MaterialTheme.colorScheme.tertiary
-    val outlineColor = MaterialTheme.colorScheme.outline
-    val backgroundColor = MaterialTheme.colorScheme.background
-
-    var searchQuery by remember { mutableStateOf("") }
-
+fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
     OutlinedTextField(
         value = searchQuery,
-        onValueChange = { searchQuery = it },
+        onValueChange = onQueryChange,
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .background(Color.White, shape = CircleShape),
         leadingIcon = {
             Icon(
-                tint = tertiaryColor,
+                tint = MaterialTheme.colorScheme.tertiary,
                 imageVector = Icons.Filled.Search,
                 contentDescription = "Rechercher"
             )
         },
-        placeholder = {
-            Text(text = stringResource(id = R.string.research))
-        },
+        placeholder = { Text(text = stringResource(id = R.string.research)) },
         shape = CircleShape,
         singleLine = true,
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = outlineColor,
-            focusedBorderColor = primaryColor,
-            unfocusedBorderColor = secondaryColor,
-            containerColor = backgroundColor
+            focusedTextColor = MaterialTheme.colorScheme.onBackground,
+            unfocusedTextColor = MaterialTheme.colorScheme.outline,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor =  MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.background
         )
     )
 }
+
 
 // --------------------------------- League List ---------------------------------
 
@@ -341,50 +349,211 @@ fun FriendItem(
 {
     val interactionSource = remember { MutableInteractionSource() }
 
-    val friendName = "Ami $friendID" // TODO : get the friend name
+    val friendName = "Ami $friendID"                                                                // TODO : get the friend name
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .width(100.dp)
             .padding(8.dp)
     ) {
-        // TODO : get friend profile picture
-        if (friendID == -1) {
-            Spacer(modifier = Modifier.size(60.dp))
-        }
-        else
-        {
-            Column (
-                modifier = Modifier.clickable (interactionSource = interactionSource, indication = null)
-                {
-                    navController.navigate(Screen.LeagueContent.name + "/$friendID")    // TODO : navigate to friend profile
-                }
-            ) {
-               Image(
-                    painter = painterResource(id = R.drawable.pdp),
-                    contentDescription = "Friend Icon",
-                    modifier = Modifier
-                        .size(70.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
-
-                Text(
-                    text = friendName,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // If name is too long, it will be cut
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                                                                                                    // TODO : get friend profile picture
+        Column (
+            modifier = Modifier.clickable (interactionSource = interactionSource, indication = null)
+            {
+                navController.navigate(Screen.LeagueContent.name + "/$friendID")              // TODO : navigate to friend profile
             }
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.pdp),
+                contentDescription = "Friend Icon",
+                modifier = Modifier
+                    .size(70.dp)
+                    .align(Alignment.CenterHorizontally),
+            )
 
+            Text(
+                text = friendName,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis, // If name is too long, it will be cut
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
     }
 }
+
+// --------------------------------- Search results ---------------------------------
+data class Users(val ID: Int, val name: String, val level: Int, val isFriend: Boolean)
+@Composable
+fun SearchResultsList(query: String) {
+    val userList = listOf(
+        Users(ID = 1, name = "Alex", level = 12, isFriend = true),
+        Users(ID = 2, name = "Alexa", level = 8, isFriend = false),
+        Users(ID = 3, name = "Alexander", level = 15, isFriend = true),
+        Users(ID = 4, name = "Alexis", level = 5, isFriend = false),
+        Users(ID = 5, name = "Ben", level = 20, isFriend = true),
+        Users(ID = 6, name = "Benjamin", level = 3, isFriend = false),
+        Users(ID = 7, name = "Benedict", level = 11, isFriend = true),
+        Users(ID = 8, name = "Benny", level = 7, isFriend = false),
+        Users(ID = 9, name = "Charlie", level = 14, isFriend = true),
+        Users(ID = 10, name = "Charlotte", level = 9, isFriend = false),
+        Users(ID = 11, name = "Charlene", level = 17, isFriend = true),
+        Users(ID = 12, name = "Charles", level = 6, isFriend = false),
+        Users(ID = 13, name = "Dan", level = 19, isFriend = true),
+        Users(ID = 14, name = "Daniel", level = 4, isFriend = false),
+        Users(ID = 15, name = "Danielle", level = 13, isFriend = true),
+        Users(ID = 16, name = "Danny", level = 10, isFriend = false),
+        Users(ID = 17, name = "Eli", level = 16, isFriend = true),
+        Users(ID = 18, name = "Elijah", level = 5, isFriend = false),
+        Users(ID = 19, name = "Elisa", level = 21, isFriend = true),
+        Users(ID = 20, name = "Elise", level = 2, isFriend = false),
+        Users(ID = 21, name = "Sam", level = 18, isFriend = true),
+        Users(ID = 22, name = "Samuel", level = 7, isFriend = false),
+        Users(ID = 23, name = "Samantha", level = 22, isFriend = true),
+        Users(ID = 24, name = "Samson", level = 1, isFriend = false),
+        Users(ID = 26, name = "Lulu", level = 100, isFriend = true)
+    )
+
+    // Filter user's research
+    val filteredUsers = userList.filter { it.name.contains(query, ignoreCase = true) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+    ) {
+        Text(
+            text = "Résultats pour \"$query\"",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        filteredUsers.forEach { user ->
+            SearchResultsItem(user = user, query = query)
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+}
+
+// --------------------------------- Search results ---------------------------------
+@Composable
+fun SearchResultsItem(user: Users, query: String) {
+    var isFriend by remember { mutableStateOf(user.isFriend) } // to change isFriend value with buttons
+    var isAnimating by remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.pdp),
+            contentDescription = "Profil",
+            modifier = Modifier
+                .size(50.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // In user's name, query is in bold
+        val annotatedName = buildAnnotatedString {
+            val startIndex = user.name.indexOf(query, ignoreCase = true)
+            if (startIndex != -1) {
+                append(user.name.substring(0, startIndex))
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(user.name.substring(startIndex, startIndex + query.length))  // query is bold
+                }
+                append(user.name.substring(startIndex + query.length))
+            } else {
+                append(user.name)
+            }
+        }
+        Text(
+            text = annotatedName,
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Spacer(modifier = Modifier.weight(1F))
+
+        IconButton(
+            onClick = {
+                if (!isAnimating) {  // Disable mulitple click during animation
+                    isAnimating = true
+                }
+            },
+            modifier = Modifier.size(45.dp)
+        ) {
+            when {
+                isAnimating && !isFriend -> {           // filling animation
+                    Image(
+                        painter = rememberDrawablePainter(
+                            drawable = getDrawable(
+                                LocalContext.current,
+                                R.drawable.anim_beer_filling
+                            )
+                        ),
+                        contentDescription = "Filling beer",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .fillMaxSize()
+                    )
+                    LaunchedEffect(Unit) {
+                        delay(1000)
+                        isAnimating = false
+                        isFriend = true
+                    }
+                }
+
+                isAnimating && isFriend -> {            // emptying animation
+                    Image(
+                        painter = rememberDrawablePainter(
+                            drawable = getDrawable(
+                                LocalContext.current,
+                                R.drawable.anim_beer_emptying
+                            )
+                        ),
+                        contentDescription = "Emptying beer",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .fillMaxSize()
+                    )
+                    LaunchedEffect(Unit) {
+                        delay(1000)
+                        isAnimating = false
+                        isFriend = false
+                    }
+                }
+
+                isFriend -> { // show full glass
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_beer_full),
+                        contentDescription = "Beer full",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .fillMaxSize()
+                    )
+                }
+
+                else -> {   // show empty glass
+                    Image(
+                        painter = painterResource(id = R.drawable.icon_beer_empty),
+                        contentDescription = "Beer empty",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
+}
+
 ///////////////////////////////////// Dialog /////////////////////////////////////
-// --------------------------------- Add League PopUp ---------------------------------
+// --------------------------------- Add League Dialog ---------------------------------
 
 @Composable
 fun AddLeagueDialog(
@@ -465,7 +634,7 @@ fun AddLeagueDialog(
     )
 }
 
-// --------------------------------- Add League PopUp ---------------------------------
+// --------------------------------- Add League Dialog ---------------------------------
 
 @Composable
 fun CreateLeagueDialog(
@@ -570,12 +739,6 @@ fun CreateLeagueDialog(
 @Composable
 fun SocialScreenPreview() {
     SocialScreen(rememberNavController())
-}
-
-@Preview
-@Composable
-fun SearchBarPreview() {
-    SearchBar()
 }
 
 @Preview

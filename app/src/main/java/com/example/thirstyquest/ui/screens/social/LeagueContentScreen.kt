@@ -160,7 +160,7 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
     val requiredXP = 1000
 
     Column(
-        modifier = Modifier.height(100.dp)
+        modifier = Modifier.height(110.dp)
     ) {
         // League XP progress
         Text(
