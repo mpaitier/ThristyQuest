@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens.social
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -443,6 +445,8 @@ fun SearchResultsList(query: String) {
 fun SearchResultsItem(user: Users, query: String) {
     var isFriend by remember { mutableStateOf(user.isFriend) } // to change isFriend value with buttons
     var isAnimating by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -481,6 +485,7 @@ fun SearchResultsItem(user: Users, query: String) {
 
         IconButton(
             onClick = {
+                focusManager.clearFocus()
                 if (!isAnimating) {  // Disable mulitple click during animation
                     isAnimating = true
                 }
@@ -505,6 +510,11 @@ fun SearchResultsItem(user: Users, query: String) {
                         delay(1000)
                         isAnimating = false
                         isFriend = true
+                        Toast.makeText(
+                            context,
+                            "${user.name} ${context.getString(R.string.friend_added)}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
 
@@ -525,6 +535,11 @@ fun SearchResultsItem(user: Users, query: String) {
                         delay(1000)
                         isAnimating = false
                         isFriend = false
+                        Toast.makeText(
+                            context,
+                            "${user.name} ${context.getString(R.string.friend_deleted)}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
 

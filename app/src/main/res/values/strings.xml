@@ -32,4 +32,6 @@
     <string name="validate">Valider</string>
     <string name="liters">Litres</string>
     <string name="drinks">Verres</string>
+    <string name="friend_added"> est maintenant ton ami(e) 🍻</string>
+    <string name="friend_deleted"> n\'est plus ton ami(e) ❌</string>
 </resources>
