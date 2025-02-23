@@ -135,7 +135,7 @@ fun SocialScreen(navController: NavController) {
                 fontSize = 20.sp,
                 color = primaryColor
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             FriendsList(navController, friendNumber)
         }
         // If searching, show matching people
@@ -360,7 +360,7 @@ fun FriendItem(
     ) {
                                                                                                     // TODO : get friend profile picture
         Column (
-            modifier = Modifier.clickable (interactionSource = interactionSource, indication = null)
+            modifier = Modifier.clickable(interactionSource = interactionSource, indication = null)
             {
                 navController.navigate(Screen.LeagueContent.name + "/$friendID")              // TODO : navigate to friend profile
             }
