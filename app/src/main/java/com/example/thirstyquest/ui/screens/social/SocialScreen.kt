@@ -279,7 +279,7 @@ fun LeagueItem(
         // TODO: get league image------------------------------------------------------------------------------------
         Image(
             painter = painterResource(id = R.drawable.league_logo),
-            contentDescription = "Profil",
+            contentDescription = "Image de ligue",
             modifier = Modifier.size(60.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))

@@ -61,7 +61,8 @@ fun LeagueMembersScreenContent(navController: NavController,leagueID: Int) {
 
 // ------------------------------ League Member List ------------------------------
 @Composable
-fun MemberList(navController: NavController) {
+fun MemberList(navController: NavController)
+{
     // TODO : get members with leagueID
     val members = listOf(
         Member(26,"Mathias", 10),
@@ -110,7 +111,8 @@ fun MemberList(navController: NavController) {
 
 // ------------------------------ League Member Item ------------------------------
 @Composable
-fun MemberItem(navController: NavController, member: Member, position: Int) {
+fun MemberItem(navController: NavController, member: Member, position: Int)
+{
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 

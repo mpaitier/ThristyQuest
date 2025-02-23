@@ -34,4 +34,7 @@
     <string name="drinks">Verres</string>
     <string name="friend_added"> est maintenant ton ami(e) 🍻</string>
     <string name="friend_deleted"> n\'est plus ton ami(e) ❌</string>
+    <string name="bath">Baignoires</string>
+    <string name="olymp_pool">Piscines olympiques</string>
+    <string name="tank_truck">Camions citerne</string>
 </resources>
