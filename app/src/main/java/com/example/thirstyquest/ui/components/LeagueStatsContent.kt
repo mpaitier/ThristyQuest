@@ -59,7 +59,7 @@ fun LeagueStatsList(leagueID: Int) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .padding(16.dp, 8.dp, 16.dp, 0.dp)
             .verticalScroll(rememberScrollState())
     ) {
         // =========================================================================================
