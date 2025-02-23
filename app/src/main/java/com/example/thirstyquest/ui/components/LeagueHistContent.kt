@@ -12,11 +12,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,23 +32,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
 
 data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String, val heure: String)
 
 @Composable
 fun LeagueHistScreenContent(leagueID: Int) {
-    HistList()
+    HistList(leagueID = leagueID)
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composables
-// TODO : Box pour stocker les éléments de l'historique
-// TODO : Element historique: icone + nom + (date / qui)
 
 @Composable
-fun HistList() {
-    // TODO : get all publications with leagueID, sorted by date (most recent first)
+fun HistList(leagueID: Int)
+{
+                                                                                                    // TODO : get all publications with leagueID, sorted by date (most recent first)
     val hist = listOf(
         Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00" ),
         Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00"),
@@ -54,17 +62,45 @@ fun HistList() {
         Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28")
     )
 
+    var isDescending by remember { mutableStateOf(true) }
     // sort by date then time
-    val sortedHist = hist.sortedWith(compareBy({ it.date }, { it.heure })).reversed()
+    var sortedHist = if (isDescending) {
+        hist.sortedWith(compareBy({ it.date }, { it.heure })).reversed()
+    } else {
+        hist.sortedWith(compareBy({ it.date }, { it.heure }))
+    }
     var publicationNum = 0
 
     Column {
-        Text(
-            text = stringResource(id = R.string.league_history),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
+        Row (verticalAlignment = Alignment.CenterVertically)
+        {
+            Text(
+                text = stringResource(id = R.string.league_history),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.weight(1F))
+            IconButton(
+                onClick = { isDescending = !isDescending }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.AccessTime,
+                        contentDescription = "Clock",
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Icon(
+                        imageVector = if (isDescending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
+                        contentDescription = "Order by time",
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(
@@ -85,11 +121,12 @@ fun HistList() {
 }
 
 @Composable
-fun histItem(publication: Publication, publicationNum: Int) {
-    // TODO : Add picture
-    // TODO : Make picture clickable and navigate to publication details
-    // TODO : Make user's name clickable and navigate to user's profile
-    val name = "Membre n°${publication.user_ID}"        // TODO : get member name with user_ID
+fun histItem(publication: Publication, publicationNum: Int)
+{
+                                                                                                    // TODO : Add picture
+                                                                                                    // TODO : Make picture clickable and navigate to publication details
+                                                                                                    // TODO : Make user's name clickable and navigate to user's profile
+    val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,7 +144,8 @@ fun histItem(publication: Publication, publicationNum: Int) {
         Column {
             Text(
                 publication.description,
-                style = MaterialTheme.typography.bodyLarge,     // TODO : Make text bigger
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 18.sp,
                 color = if (publicationNum % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
             )
             Text(
