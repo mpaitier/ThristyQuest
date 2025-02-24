@@ -15,6 +15,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +32,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.lazy.LazyColumn
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -42,9 +44,31 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.thirstyquest.ui.components.Publication
 
-data class Boisson(val name: String, val imageRes: Int, val description: String)
+data class Boisson(val name: String,
+                   val imageRes: Int,
+                   val description: String,
+                   val level: Int,
+                   val points: Int,
+                   val nextLevelPoints: Int)
+
+val hist = listOf(
+    Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere" ),
+    Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur"),
+    Publication(3, "Jaggger chez Croguy", 84, "12/02/2025", "20:12","Jäger"),
+    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26","Biere"),
+    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26","Ricard"),
+    Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52","Biere"),
+    Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30", "Vin Rouge"),
+    Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard"),
+    Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière"),
+    Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere")
+)
+
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -187,10 +211,11 @@ fun Screen1() {
 @Composable
 fun ListBoisson() {
     val boissonList = listOf(
-        Boisson("Bière", R.drawable.biere, "Une bière rafraîchissante."),
-        Boisson("Vodka", R.drawable.vodka, "Une vodka premium."),
-        Boisson("Coca", R.drawable.coca, "Boisson gazeuse classique."),
-        Boisson("Jäger", R.drawable.yager, "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.")
+        Boisson("Biere", R.drawable.biere, "Une bière rafraîchissante.",10, 70, 80),
+        Boisson("Vodka", R.drawable.vodka, "Une vodka premium.",3, 9, 10),
+        Boisson("Coca", R.drawable.coca, "Boisson gazeuse classique.",1, 1, 3),
+        Boisson("Jäger", R.drawable.yager, "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.",21, 103, 120),
+        Boisson("Ricard",R.drawable.ricard,"Pastis à base d'anis, de réglisse et d'herbes de Provence.",3,7,10)
     )
     var sortedList by remember { mutableStateOf(boissonList) }
     var isSortedAsc by remember { mutableStateOf(true) }
@@ -282,11 +307,6 @@ fun ItemBoisson(boisson: Boisson) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = boisson.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
                     Box(
                         modifier = Modifier
                             .size(32.dp)
@@ -314,19 +334,137 @@ fun ItemBoisson(boisson: Boisson) {
                         contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
-                        text = boisson.description,
+                        text = "Nom : ${boisson.name}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Description : ${boisson.description}",
                         textAlign = TextAlign.Justify
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Niveau : ${boisson.level}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    LevelProgressBar(boisson.points, boisson.nextLevelPoints)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val filteredHist = hist.filter { it.category == boisson.name } // Filtrage
+                    if (filteredHist.isNotEmpty()) {
+                        Text(
+                            text = "Historique :",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        filteredHist.forEachIndexed { index, publication ->
+                            histItem(publication, index)
+                        }
+                    } else {
+                        Text(text = "Aucun historique trouvé.", )
+                    }
                 }
             },
-            confirmButton = {}
+            confirmButton = {},
+            containerColor = Color.White
         )
     }
-
 }
 
 
+@Composable
+fun LevelProgressBar(currentXP: Int, maxXP: Int) {
+    val progress = currentXP.toFloat() / maxXP.toFloat()
+    val backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(30.dp)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        LinearProgressIndicator(
+            progress = progress,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp),
+            color = tertiaryColor,
+            trackColor = backgroundColor
+        )
+
+        Text(
+            text = "$currentXP / $maxXP",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun histItem(publication: Publication, publicationNum: Int)
+{
+    // TODO : Add picture
+    // TODO : Make picture clickable and navigate to publication details
+    // TODO : Make user's name clickable and navigate to user's profile
+    val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.AccountBox,
+            contentDescription = "Publication picture",
+            modifier = Modifier.size(80.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column (modifier = Modifier.weight(1f)) {
+            Text(
+                publication.description,
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 18.sp,
+                color = if (publicationNum % 2 == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+
+                )
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.tertiary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Column {
+            Text(
+                text = publication.date,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.align(Alignment.End)
+            )
+            Text(
+                text = publication.heure,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
 @Composable
 fun ListBadge() {
     val boissonList = List(11) { Unit }

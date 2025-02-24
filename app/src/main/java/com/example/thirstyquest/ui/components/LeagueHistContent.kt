@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
 
-data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String, val heure: String)
+data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String, val heure: String, val category: String)
 
 @Composable
 fun LeagueHistScreenContent(leagueID: Int) {
@@ -51,16 +51,16 @@ fun HistList(leagueID: Int)
 {
                                                                                                     // TODO : get all publications with leagueID, sorted by date (most recent first)
     val hist = listOf(
-        Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00" ),
-        Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00"),
-        Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12"),
-        Publication(4, "Binch de malade", 2, "13/02/2025", "02:26"),
-        Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26"),
-        Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52"),
-        Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30"),
-        Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15"),
-        Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26"),
-        Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28")
+        Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere" ),
+        Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur"),
+        Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12","Moscow Mule"),
+        Publication(4, "Binch de malade", 2, "13/02/2025", "02:26","Biere"),
+        Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26","Ricard"),
+        Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52","Biere"),
+        Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30", "Vin Rouge"),
+        Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard"),
+        Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière"),
+        Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere")
     )
 
     var isDescending by remember { mutableStateOf(true) }
