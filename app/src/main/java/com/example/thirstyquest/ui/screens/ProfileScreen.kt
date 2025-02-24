@@ -2,7 +2,8 @@ package com.example.thirstyquest.ui.screens
 
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.graphics.Color
-
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,17 +46,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.thirstyquest.ui.components.Publication
 
+//----------DATA--------
 data class Boisson(val name: String,
                    val imageRes: Int,
                    val description: String,
                    val level: Int,
                    val points: Int,
                    val nextLevelPoints: Int)
-
 val hist = listOf(
     Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere" ),
     Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur"),
@@ -67,6 +69,45 @@ val hist = listOf(
     Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard"),
     Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière"),
     Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere")
+)
+data class Badge(
+    val name: String,
+    val descriptions: List<String>,
+    val currentLevel: Int,
+    val maxLevel: Int,
+    val progress: Int
+)
+val badgeList = listOf(
+    Badge(
+        name = "Connaisseur",
+        descriptions = listOf("Goûter 5 boissons différentes", "Goûter 10 boissons différentes", "Goûter 20 boissons différentes"),
+        currentLevel = 2,
+        maxLevel = 3,
+        progress = 11
+    ),
+    Badge(
+        name = "Explorateur",
+        descriptions = listOf("Découvrir 2 bars uniques", "Découvrir 5 bars uniques", "Découvrir 10 bars uniques"),
+        currentLevel = 3,
+        maxLevel = 3,
+        progress = 12
+    ),
+    Badge(
+        name = "Explorateur",
+        descriptions = listOf("Découvrir 2 bars uniques", "Découvrir 5 bars uniques", "Découvrir 10 bars uniques"),
+        currentLevel = 1,
+        maxLevel = 3,
+        progress = 3
+    ),
+    Badge(
+            name = "Explorateur",
+        descriptions = listOf("Boire 3 jours de la semaine", "Boire 5 jours de la semaine", "Boire 7 jours de la semaine"),
+        currentLevel = 3,
+        maxLevel = 3,
+        progress = 7
+)
+
+
 )
 
 
@@ -112,6 +153,7 @@ fun ProfileScreen(navController: NavController) {
 
 }
 
+//--------------- ECRAN 0---------------
 @Composable
 fun Screen0() {
     Column(
@@ -196,18 +238,12 @@ fun StatItem(label: String, value: String) {
     }
 }
 
-
-
-@Composable
-fun Screen2() {
-    ListBadge()
-
-}
-
+//--------------- ECRAN 1---------------
 @Composable
 fun Screen1() {
     ListBoisson()
 }
+
 @Composable
 fun ListBoisson() {
     val boissonList = listOf(
@@ -257,7 +293,6 @@ fun ListBoisson() {
         }
     }
 }
-
 
 @Composable
 fun ItemBoisson(boisson: Boisson) {
@@ -380,7 +415,6 @@ fun ItemBoisson(boisson: Boisson) {
     }
 }
 
-
 @Composable
 fun LevelProgressBar(currentXP: Int, maxXP: Int) {
     val progress = currentXP.toFloat() / maxXP.toFloat()
@@ -413,8 +447,7 @@ fun LevelProgressBar(currentXP: Int, maxXP: Int) {
 }
 
 @Composable
-fun histItem(publication: Publication, publicationNum: Int)
-{
+fun histItem(publication: Publication, publicationNum: Int) {
     // TODO : Add picture
     // TODO : Make picture clickable and navigate to publication details
     // TODO : Make user's name clickable and navigate to user's profile
@@ -465,43 +498,51 @@ fun histItem(publication: Publication, publicationNum: Int)
         }
     }
 }
+
+//--------------- ECRAN 2---------------
+@Composable
+fun Screen2() {
+    ListBadge()
+
+}
 @Composable
 fun ListBadge() {
-    val boissonList = List(11) { Unit }
-
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3), // 3 colonnes
+        columns = GridCells.Fixed(3),
         contentPadding = PaddingValues(start = 20.dp, top = 15.dp),
         modifier = Modifier.fillMaxHeight()
     ) {
-        items(boissonList) {
-            ItemBadge()
+        items(badgeList) { badge ->
+            ItemBadge(badge)
         }
     }
 }
 
 @Composable
-fun ItemBadge() {
+fun ItemBadge(badge: Badge) {
     var showDialog by remember { mutableStateOf(false) }
     val primaryColor = MaterialTheme.colorScheme.primary
+    val badgeIcons = listOf(R.drawable.badge_bronze, R.drawable.badge_argent, R.drawable.badge_or)
+
     Card(
         modifier = Modifier
             .padding(8.dp)
             .size(100.dp)
             .clickable { showDialog = true },
         shape = CircleShape,
-
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.badge),
-            contentDescription = "badge",
+            painter = painterResource(id = badgeIcons[badge.currentLevel - 1]),
+            contentDescription = badge.name,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
     }
 
     if (showDialog) {
+        val pagerState = rememberPagerState { 3 }
+
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
@@ -511,7 +552,7 @@ fun ItemBadge() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Assiduité",
+                        text = badge.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -532,21 +573,52 @@ fun ItemBadge() {
                 }
             },
             text = {
-                Column {
-                    Image(
-                        painter = painterResource(id = R.drawable.badge),
-                        contentDescription = "badge",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        contentScale = ContentScale.Fit
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HorizontalPager(
+                        state = pagerState
+                    ) { page ->
+                        val isUnlocked = page + 1 <= badge.currentLevel
+                        Image(
+                            painter = painterResource(id = badgeIcons[page]),
+                            contentDescription = "Badge niveau ${page + 1}",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp)
+                                .alpha(if (isUnlocked) 1f else 0.3f),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        repeat(3) { index ->
+                            val color = if (index == pagerState.currentPage) Color.Black else Color.Gray
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(6.dp)
+                                    .background(color, shape = CircleShape)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = badge.descriptions[pagerState.currentPage],
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Tu a bu les 7 jours de la semaine Bravo", textAlign = TextAlign.Justify)
                 }
             },
             confirmButton = {}
         )
     }
-
 }
