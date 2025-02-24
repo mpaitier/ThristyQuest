@@ -618,7 +618,9 @@ fun ItemBadge(badge: Badge) {
                     )
                 }
             },
-            confirmButton = {}
+            confirmButton = {},
+            containerColor = Color.White
+
         )
     }
 }

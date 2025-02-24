@@ -7,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,7 +53,6 @@ fun TopBar(navController: NavController) {
                 fontSize = 40.sp,
                 textAlign = TextAlign.Center,
                 color = primaryColor
-
             )
         },
         navigationIcon = {
@@ -83,39 +85,87 @@ fun TopBar(navController: NavController) {
         )
     )
 
+
     if (showDialog) {
-        ChangeProfilePictureDialog(
+        EditProfileDialog(
+            firstName = "Mathias",
+            lastName = "Paitier",
+            age = "21",
             onDismiss = { showDialog = false },
-            onConfirm = {}
+            onSave = { newFirstName, newLastName, newAge ->
+
+                showDialog = false
+            }
         )
     }
 }
 
-
-
-
-
-
-
 @Composable
-fun ChangeProfilePictureDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+fun EditProfileDialog(
+    firstName: String,
+    lastName: String,
+    age: String,
+    onDismiss: () -> Unit,
+    onSave: (String, String, String) -> Unit
+) {
+    var newFirstName by remember { mutableStateOf(firstName) }
+    var newLastName by remember { mutableStateOf(lastName) }
+    var newAge by remember { mutableStateOf(age) }
+
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Changer la photo de profil", fontWeight = FontWeight.Bold) },
-        text = { Text("Souhaitez-vous changer votre photo de profil ?") },
+        title = { Text("Modifier le profil", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                TextButton(onClick = {}) {
+                    Text("Changer la photo de profil")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = newFirstName,
+                    onValueChange = { newFirstName = it },
+                    label = { Text("Prénom") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = newLastName,
+                    onValueChange = { newLastName = it },
+                    label = { Text("Nom") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = newAge,
+                    onValueChange = { newAge = it },
+                    label = { Text("Âge") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
         confirmButton = {
             TextButton(onClick = {
-                onConfirm()
+                onSave(newFirstName, newLastName, newAge)
                 onDismiss()
             }) {
-                Text("Oui")
+                Text("Enregistrer")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Non")
+            TextButton(onClick = {
+                onDismiss()
+            }) {
+                Text("Annuler")
             }
-        }
+        },
+        containerColor = Color.White
     )
 }
 
