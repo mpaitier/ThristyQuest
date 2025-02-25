@@ -55,6 +55,8 @@ fun SettingsScreen(navController: NavController) {
             onCheckedChange = { areNotificationsEnabled = it }
         )
         Spacer(modifier = Modifier.height(16.dp))
+        AboutSection()
+        Spacer(modifier = Modifier.height(16.dp))
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -109,9 +111,24 @@ fun SettingsSwitchOption(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange,
                 colors = SwitchDefaults.colors(
-                    checkedTrackColor = MaterialTheme.colorScheme.tertiary  // Couleur de la piste en mode désactivé
+                    checkedTrackColor = MaterialTheme.colorScheme.tertiary
                 )
             )
+        }
+    }
+}
+
+@Composable
+fun AboutSection() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "À propos", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "ThirstyQuest est une application de suivi de consommation de boissons alcoolisées. Compare toi à tes amis et découvre tes stats !")
         }
     }
 }
