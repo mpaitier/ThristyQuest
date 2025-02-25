@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,8 +31,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.lazy.LazyColumn
-
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -46,8 +44,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.thirstyquest.ui.components.Publication
 
@@ -254,36 +252,70 @@ fun ListBoisson() {
         Boisson("Ricard",R.drawable.ricard,"Pastis à base d'anis, de réglisse et d'herbes de Provence.",3,7,10)
     )
     var sortedList by remember { mutableStateOf(boissonList) }
-    var isSortedAsc by remember { mutableStateOf(true) }
+    var isAscending by remember { mutableStateOf(true) }
+    var selectedSort by remember { mutableStateOf("Level") }
+    var expanded by remember { mutableStateOf(false) }
 
-    fun sortBoissons(ascending: Boolean) {
-        sortedList = if (ascending) {
-            boissonList.sortedBy { it.name }
+    fun sortBoissons(type: String) {
+        if (selectedSort == type) {
+            isAscending = !isAscending // Inverse l'ordre si on reclique sur le même type
         } else {
-            boissonList.sortedByDescending { it.name }
+            selectedSort = type
+            isAscending = true // Par défaut, on trie en croissant sur un nouveau type de tri
+        }
+
+        sortedList = when (selectedSort) {
+            "Nom" -> if (isAscending) boissonList.sortedBy { it.name } else boissonList.sortedByDescending { it.name }
+            "Level" -> if (isAscending) boissonList.sortedBy { it.level } else boissonList.sortedByDescending { it.level }
+            else -> boissonList
         }
     }
 
+    val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.secondary
 
-    // TODO : placer un ordre par consommation à la place de l'ordre alphabetique inverse lorsque la base de donnée sera là
     Column {
+        // MENU DÉROULANT
+        Box(modifier = Modifier.padding(16.dp)) {
+            Button(
+                onClick = { expanded = true },
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+            ) {
+                Text(text = "Trier par : $selectedSort (${if (isAscending) "⬆️" else "⬇️"})")
+            }
 
-        Button(
-            onClick = {
-                isSortedAsc = !isSortedAsc
-                sortBoissons(isSortedAsc)
-            },
-            modifier = Modifier.padding(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = secondaryColor,
-            )
-        ) {
-            Text(text = if (isSortedAsc) "Trier par ordre décroissant" else "Trier par ordre croissant")
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(secondaryColor)
+
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Nom") },
+                    onClick = {
+                        sortBoissons("Nom")
+                        expanded = false
+                    },
+                    colors = MenuDefaults.itemColors(
+                        textColor = Color.White
+                    )
+
+                )
+                DropdownMenuItem(
+                    text = { Text("Level") },
+                    onClick = {
+                        sortBoissons("Level")
+                        expanded = false
+                    },
+                    colors = MenuDefaults.itemColors(
+                        textColor = Color.White
+                    )
+                )
+            }
         }
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3), // 3 colonnes
+            columns = GridCells.Fixed(3),
             contentPadding = PaddingValues(start = 20.dp, top = 15.dp),
             modifier = Modifier.fillMaxHeight()
         ) {
