@@ -357,12 +357,12 @@ fun FriendItem(
         modifier = Modifier
             .width(100.dp)
             .padding(8.dp)
-    ) {
-                                                                                                    // TODO : get friend profile picture
+    )
+    {                                                                                               // TODO : get friend profile picture
         Column (
             modifier = Modifier.clickable(interactionSource = interactionSource, indication = null)
             {
-                navController.navigate(Screen.LeagueContent.name + "/$friendID")              // TODO : navigate to friend profile
+                navController.navigate(Screen.FriendProfile.name + "/$friendID")              // TODO : navigate to friend profile
             }
         ) {
             Image(
@@ -443,11 +443,6 @@ fun SearchResultsList(query: String) {
 // --------------------------------- Search results ---------------------------------
 @Composable
 fun SearchResultsItem(user: Users, query: String) {
-    var isFriend by remember { mutableStateOf(user.isFriend) } // to change isFriend value with buttons
-    var isAnimating by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -482,86 +477,96 @@ fun SearchResultsItem(user: Users, query: String) {
         )
 
         Spacer(modifier = Modifier.weight(1F))
+        AddFriendButton(isFriend = user.isFriend, userName = user.name)
 
-        IconButton(
-            onClick = {
-                focusManager.clearFocus()
-                if (!isAnimating) {  // Disable mulitple click during animation
-                    isAnimating = true
-                }
-            },
-            modifier = Modifier.size(45.dp)
-        ) {
-            when {
-                isAnimating && !isFriend -> {           // filling animation
-                    Image(
-                        painter = rememberDrawablePainter(
-                            drawable = getDrawable(
-                                LocalContext.current,
-                                R.drawable.anim_beer_filling
-                            )
-                        ),
-                        contentDescription = "Filling beer",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .fillMaxSize()
-                    )
-                    LaunchedEffect(Unit) {
-                        delay(1000)
-                        isAnimating = false
-                        isFriend = true
-                        Toast.makeText(
-                            context,
-                            "${user.name} ${context.getString(R.string.friend_added)}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+    }
+}
 
-                isAnimating && isFriend -> {            // emptying animation
-                    Image(
-                        painter = rememberDrawablePainter(
-                            drawable = getDrawable(
-                                LocalContext.current,
-                                R.drawable.anim_beer_emptying
-                            )
-                        ),
-                        contentDescription = "Emptying beer",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .fillMaxSize()
-                    )
-                    LaunchedEffect(Unit) {
-                        delay(1000)
-                        isAnimating = false
-                        isFriend = false
-                        Toast.makeText(
-                            context,
-                            "${user.name} ${context.getString(R.string.friend_deleted)}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+@Composable
+fun AddFriendButton(isFriend: Boolean, userName: String) {
+    var isFriend by remember { mutableStateOf(isFriend)} // to change isFriend value with buttons
+    var isAnimating by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
-                isFriend -> { // show full glass
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_beer_full),
-                        contentDescription = "Beer full",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .fillMaxSize()
-                    )
+    IconButton(
+        onClick = {
+            focusManager.clearFocus()
+            if (!isAnimating) {  // Disable mulitple click during animation
+                isAnimating = true
+            }
+        },
+        modifier = Modifier.size(45.dp)
+    ) {
+        when {
+            isAnimating && !isFriend -> {           // filling animation
+                Image(
+                    painter = rememberDrawablePainter(
+                        drawable = getDrawable(
+                            LocalContext.current,
+                            R.drawable.anim_beer_filling
+                        )
+                    ),
+                    contentDescription = "Filling beer",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .fillMaxSize()
+                )
+                LaunchedEffect(Unit) {
+                    delay(1000)
+                    isAnimating = false
+                    isFriend = true
+                    Toast.makeText(
+                        context,
+                        "${userName} ${context.getString(R.string.friend_added)}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+            }
 
-                else -> {   // show empty glass
-                    Image(
-                        painter = painterResource(id = R.drawable.icon_beer_empty),
-                        contentDescription = "Beer empty",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .fillMaxSize()
-                    )
+            isAnimating && isFriend -> {            // emptying animation
+                Image(
+                    painter = rememberDrawablePainter(
+                        drawable = getDrawable(
+                            LocalContext.current,
+                            R.drawable.anim_beer_emptying
+                        )
+                    ),
+                    contentDescription = "Emptying beer",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .fillMaxSize()
+                )
+                LaunchedEffect(Unit) {
+                    delay(1000)
+                    isAnimating = false
+                    isFriend = false
+                    Toast.makeText(
+                        context,
+                        "${userName} ${context.getString(R.string.friend_deleted)}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+            }
+
+            isFriend -> { // show full glass
+                Image(
+                    painter = painterResource(id = R.drawable.icon_beer_full),
+                    contentDescription = "Beer full",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .fillMaxSize()
+                )
+            }
+
+            else -> {   // show empty glass
+                Image(
+                    painter = painterResource(id = R.drawable.icon_beer_empty),
+                    contentDescription = "Beer empty",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .fillMaxSize()
+                )
             }
         }
     }

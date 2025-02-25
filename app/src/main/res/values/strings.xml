@@ -15,9 +15,12 @@
     <string name="top_drinks">Top boissons</string>
     <string name="add">Ajouter</string>
     <string name="cancel">Annuler</string>
-    <string name="collection">Ma collection</string>
-    <string name="badge">Mes badges</string>
-    <string name="stats">Mes statistiques</string>
+    <string name="my_collection">Ma collection</string>
+    <string name="collec">La collection</string>
+    <string name="my_badge">Mes badges</string>
+    <string name="badge">Les badges</string>
+    <string name="my_stats">Mes statistiques</string>
+    <string name="stats">Les statistiques</string>
     <string name="personal_hist">Mes dernières boissons</string>
     <string name="conso">Consommation</string>
     <string name="league_conso">Consommation de la ligue</string>
@@ -55,4 +58,11 @@
     <string name="social_advantage1">Suit tes amis pour découvrir leurs aventures alcoolisées !</string>
     <string name="social_advantage2">Connecte toi à d\'autres utilisateurs à travers la compétition de ligues !</string>
     <string name="social_advantage3">Enregistre ta collection d\'alcools et compare la à tes amis !</string>
+    <string name="friend_profile">Profil ami</string>
+    <string name="see_more">Voir plus</string>
+    <string name="publi">Publications</string>
+    <string name="followers">Abonnés</string>
+    <string name="following">Abonnements</string>
+    <string name="contacts">Abonnés et abonnements</string>
+    <string name="close">Fermer</string>
 </resources>

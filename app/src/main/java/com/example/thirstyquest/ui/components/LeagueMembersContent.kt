@@ -127,7 +127,7 @@ fun MemberItem(navController: NavController, member: Member, position: Int)
             .background(if (isPressed) MaterialTheme.colorScheme.outlineVariant else Color.Transparent)
             .clickable (interactionSource = interactionSource, indication = null)
             {
-                navController.navigate(Screen.LeagueContent.name + "/$friendID")    // TODO : navigate to friend profile
+                navController.navigate(Screen.FriendProfile.name + "/$friendID")              // TODO : navigate to friend profile
             },
         verticalAlignment = Alignment.CenterVertically
     ) {

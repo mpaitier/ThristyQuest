@@ -80,35 +80,7 @@ fun MainMenuScreen(navController: NavController) {
 
             // Historique des boissons
             Text(stringResource(id = R.string.personal_hist), fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                val hist = listOf(
-                    Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025"),
-                    Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
-                    Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
-                    Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
-                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025")
-                )
-
-                val sortedHist = hist.sortedByDescending { it.date }
-
-                sortedHist.forEach { publication ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                            .padding(8.dp)
-                            .clickable { selectedBoisson = publication } // Ajout du clic pour afficher les détails
-                    ) {
-                        histItem(publication)
-                    }
-                }
-            }
+            HistList(selectedBoisson)
         }
     }
 
@@ -255,4 +227,37 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
             }
         }
     )
+}
+
+@Composable
+fun HistList(selectedBoisson: Publication?){
+    var selectedBoisson by remember { mutableStateOf(selectedBoisson) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+        val hist = listOf(
+            Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025"),
+            Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
+            Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
+            Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
+            Publication(5, "Ricard du midi", 1, "12:26 13/02/2025")
+        )
+
+        val sortedHist = hist.sortedByDescending { it.date }
+
+        sortedHist.forEach { publication ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                    .padding(8.dp)
+                    .clickable { selectedBoisson = publication } // Ajout du clic pour afficher les détails
+            ) {
+                histItem(publication)
+            }
+        }
+    }
 }

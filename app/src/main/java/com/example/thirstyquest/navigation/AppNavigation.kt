@@ -16,6 +16,7 @@ import com.example.thirstyquest.ui.screens.social.LeagueContentScreen
 import com.example.thirstyquest.ui.screens.SettingsScreen
 import com.example.thirstyquest.ui.screens.SignInScreen
 import com.example.thirstyquest.ui.screens.SignUpScreen
+import com.example.thirstyquest.ui.screens.social.FriendProfileScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -66,7 +67,16 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             SettingsScreen(navController)
         }
 
-
+        composable(Screen.FriendProfile.name + "/{userId}",) {
+                backStackEntry ->
+            val userID = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+            if (userID != null) {
+                FriendProfileScreen(userID = userID, navController = navController)
+            }
+            else {
+                Log.e("Navigation", "leagueID is null")
+            }
+        }
 
 
     }

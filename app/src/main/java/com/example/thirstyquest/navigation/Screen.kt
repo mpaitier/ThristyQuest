@@ -11,5 +11,6 @@ enum class Screen(@StringRes val title: Int) {
     LeagueContent(title = R.string.league_content),
     Login(title = R.string.login),
     SignIn(title = R.string.sign_in),
-    SignUp(title = R.string.sign_up)
+    SignUp(title = R.string.sign_up),
+    FriendProfile(title = R.string.friend_profile)
 }
