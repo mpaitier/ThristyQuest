@@ -56,7 +56,7 @@ fun TopBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.navigate(Screen.Profile.name) }) {
+            IconButton(onClick = { navController.navigate(Screen.Login.name) }) {
                 Image(
                     painter = painterResource(id = R.drawable.pdp),
                     contentDescription = "Profil",
@@ -114,11 +114,17 @@ fun EditProfileDialog(
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Modifier le profil", fontWeight = FontWeight.Bold) },
+        title = {
+            Text(
+                "Modifier le profil",
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer // Couleur du texte
+            )
+        },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 TextButton(onClick = {}) {
-                    Text("Changer la photo de profil")
+                    Text("Changer la photo de profil", color = MaterialTheme.colorScheme.primary)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -126,7 +132,7 @@ fun EditProfileDialog(
                 OutlinedTextField(
                     value = newFirstName,
                     onValueChange = { newFirstName = it },
-                    label = { Text("Prénom") },
+                    label = { Text("Prénom", color = MaterialTheme.colorScheme.onPrimaryContainer) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -135,7 +141,7 @@ fun EditProfileDialog(
                 OutlinedTextField(
                     value = newLastName,
                     onValueChange = { newLastName = it },
-                    label = { Text("Nom") },
+                    label = { Text("Nom", color = MaterialTheme.colorScheme.onPrimaryContainer) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -144,7 +150,7 @@ fun EditProfileDialog(
                 OutlinedTextField(
                     value = newAge,
                     onValueChange = { newAge = it },
-                    label = { Text("Âge") },
+                    label = { Text("Âge", color = MaterialTheme.colorScheme.onPrimaryContainer) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -155,18 +161,17 @@ fun EditProfileDialog(
                 onSave(newFirstName, newLastName, newAge)
                 onDismiss()
             }) {
-                Text("Enregistrer")
+                Text("Enregistrer", color = MaterialTheme.colorScheme.primary)
             }
         },
         dismissButton = {
-            TextButton(onClick = {
-                onDismiss()
-            }) {
-                Text("Annuler")
+            TextButton(onClick = { onDismiss() }) {
+                Text("Annuler", color = MaterialTheme.colorScheme.primary)
             }
         },
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.primaryContainer // Couleur de fond
     )
+
 }
 
 @Preview

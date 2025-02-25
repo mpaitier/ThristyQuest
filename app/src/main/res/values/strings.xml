@@ -37,4 +37,22 @@
     <string name="bath">Baignoires</string>
     <string name="olymp_pool">Piscines olympiques</string>
     <string name="tank_truck">Camions citerne</string>
+    <string name="login">Se connecter</string>
+    <string name="sign_in">Connexion</string>
+    <string name="sign_up">Inscription</string>
+    <string name="connect">Connexion</string>
+    <string name="sign_in_id">Email ou pseudo</string>
+    <string name="first_name">Prénom</string>
+    <string name="last_name">Nom</string>
+    <string name="pseudo">Surnom</string>
+    <string name="email">Email</string>
+    <string name="birthdate">Date de naissance</string>
+    <string name="password">Mot de passe</string>
+    <string name="forgot_pwd">Mot de passe oublié ?</string>
+    <string name="essentials_info">Informations essentielles</string>
+    <string name="complementary_info">Informations complémentaires</string>
+    <string name="unlock_social">Débloque les fonctionnalités sociales de Thirsty Quest</string>
+    <string name="social_advantage1">Suit tes amis pour découvrir leurs aventures alcoolisées !</string>
+    <string name="social_advantage2">Connecte toi à d\'autres utilisateurs à travers la compétition de ligues !</string>
+    <string name="social_advantage3">Enregistre ta collection d\'alcools et compare la à tes amis !</string>
 </resources>

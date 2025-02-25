@@ -2,7 +2,7 @@ package com.example.thirstyquest.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// 🌞 Mode Clair
+// Mode Clair
 val md_theme_light_primary = Color(0xFF00635E)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFF0E8F89)
@@ -24,11 +24,11 @@ val md_theme_light_onSurfaceVariant = Color(0xFF4D4D4D)
 val md_theme_light_outline = Color(0xFF757575)
 
 
-
+// Mode sombre
 val md_theme_dark_primary = Color(0xFF00A79D)
 val md_theme_dark_onPrimary = Color(0xFF00332E)
 val md_theme_dark_primaryContainer = Color(0xFF004D40)
-val md_theme_dark_onPrimaryContainer = Color(0xFF00E5FF)
+val md_theme_dark_onPrimaryContainer = Color(0xFFFFFFFF)    // 0xFF00E5FF
 val md_theme_dark_secondary = Color(0xFF80CBC4)
 val md_theme_dark_onSecondary = Color(0xFF004D40)
 val md_theme_dark_secondaryContainer = Color(0xFF004D40)
