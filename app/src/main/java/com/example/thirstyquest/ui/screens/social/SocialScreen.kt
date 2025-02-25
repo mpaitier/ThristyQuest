@@ -672,36 +672,7 @@ fun CreateLeagueDialog(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    contentAlignment = Alignment.BottomEnd,
-                    modifier = Modifier.size(140.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-
-                    }
-
-                    // Add picture button
-                    IconButton(
-                        onClick = { /* TODO: Add picture selection */ },
-                        modifier = Modifier
-                            .size(48.dp)
-                            .offset(x = 8.dp, y = 8.dp)
-                            .background(MaterialTheme.colorScheme.tertiary, CircleShape)
-                            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.AddCircleOutline,
-                            contentDescription = "Add picture",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
+                AddPicture()
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -743,6 +714,40 @@ fun CreateLeagueDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AddPicture() {                                                                                  // TODO : ajouter l'image enregistré dans la DB
+    Box(
+        contentAlignment = Alignment.BottomEnd,
+        modifier = Modifier.size(140.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center
+        ) {
+
+        }
+
+        // Add picture button
+        IconButton(
+            onClick = { /* TODO: Add picture selection */ },
+            modifier = Modifier
+                .size(48.dp)
+                .offset(x = 8.dp, y = 8.dp)
+                .background(MaterialTheme.colorScheme.tertiary, CircleShape)
+                .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.AddCircleOutline,
+                contentDescription = "Add picture",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }

@@ -9,4 +9,7 @@ enum class Screen(@StringRes val title: Int) {
     Social(title = R.string.social),
     Settings(title = R.string.settings),
     LeagueContent(title = R.string.league_content),
+    Login(title = R.string.login),
+    SignIn(title = R.string.sign_in),
+    SignUp(title = R.string.sign_up)
 }
