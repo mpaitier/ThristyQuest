@@ -3,6 +3,8 @@ package com.example.thirstyquest.ui.screens
 
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -52,7 +54,22 @@ fun SettingsScreen(navController: NavController) {
             isChecked = areNotificationsEnabled,
             onCheckedChange = { areNotificationsEnabled = it }
         )
+        Spacer(modifier = Modifier.height(16.dp))
 
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Button(
+                onClick = {  }, // Fonction de déconnexion
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(imageVector = Icons.Filled.Logout, contentDescription = "Déconnexion")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Déconnexion")
+            }
+        }
     }
 }
 @Composable
