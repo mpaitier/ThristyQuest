@@ -159,7 +159,7 @@ fun histItem(publication: Publication, publicationNum: Int, navController: NavCo
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.clickable (interactionSource = interactionSource, indication = null)
                 {
-                    navController.navigate(Screen.FriendProfile.name + "/$publication.user_ID")              // TODO : navigate to friend profile
+                    navController.navigate(Screen.FriendProfile.name + "/${publication.user_ID}")              // TODO : navigate to friend profile
                 },
             )
         }
