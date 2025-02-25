@@ -171,7 +171,7 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        LeagueXPProgress(currentLevel, nextLevel, currentXP, requiredXP)
+        LeagueXPProgressBar(currentLevel, nextLevel, currentXP, requiredXP)
         Spacer(modifier = Modifier.height(18.dp))
 
         // League code & share button
@@ -212,7 +212,7 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
 
 // ------------------------------ League XP Progress ------------------------------
 @Composable
-fun LeagueXPProgress(currentLevel: Int, nextLevel: Int, currentXP: Int, requiredXP: Int) {
+fun LeagueXPProgressBar(currentLevel: Int, nextLevel: Int, currentXP: Int, requiredXP: Int) {
     val progress = currentXP.toFloat() / requiredXP
 
     Column {
@@ -389,5 +389,5 @@ fun PreviewLeagueInfo() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewLeagueXPProgress() {
-    LeagueXPProgress(currentLevel = 3, nextLevel = 4, currentXP = 600, requiredXP = 1000)
+    LeagueXPProgressBar(currentLevel = 3, nextLevel = 4, currentXP = 600, requiredXP = 1000)
 }
