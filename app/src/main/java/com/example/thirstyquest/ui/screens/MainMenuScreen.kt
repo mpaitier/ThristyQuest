@@ -250,15 +250,23 @@ fun histItem(publication: Publication) {
 fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(boisson.description, fontSize = 20.sp) },
+        title = {
+            Text(
+                text = boisson.description,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Image circulaire avec une taille standard
+                // Image circulaire
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(120.dp)
                         .clip(CircleShape)
                         .background(Color.LightGray),
                     contentAlignment = Alignment.Center
@@ -266,30 +274,49 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
                     Image(
                         painter = painterResource(id = boisson.photo),
                         contentDescription = "Image de la boisson",
-                        modifier = Modifier.size(100.dp) // Taille standard
+                        modifier = Modifier.size(110.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Date: ${boisson.date}")
+                // Points
+                Text(
+                    text = "Points: ${boisson.nbrPoints}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-                // Affichage sur la même ligne
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Prix: ${boisson.prix} €", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
-                    Spacer(modifier = Modifier.weight(1F))
-                    Text("Points: ${boisson.nbrPoints}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary)
-                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Date
+                Text(
+                    text = "Date: ${boisson.date}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Prix
+                Text(
+                    text = "Prix: ${boisson.prix} €",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Fermer")
+                Text("Fermer", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
-        }
+        },
+        modifier = Modifier.padding(16.dp)
     )
 }
+
+
 
