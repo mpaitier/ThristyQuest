@@ -230,9 +230,9 @@ fun histItem(publication: Publication) {
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Filled.LocalDrink,
-            contentDescription = "Boisson",
+        Image(
+            painter = painterResource(id = publication.photo),
+            contentDescription = "Image de la boisson",
             modifier = Modifier.size(40.dp)
         )
 
@@ -240,9 +240,7 @@ fun histItem(publication: Publication) {
 
         Column {
             Text(publication.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-            Text("Prix: ${publication.prix} €", style = MaterialTheme.typography.bodyMedium)
-            Text("Points: ${publication.nbrPoints}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-            Text(publication.date, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+            Text("Points: ${publication.nbrPoints}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
         }
     }
 }
@@ -252,25 +250,15 @@ fun histItem(publication: Publication) {
 fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(
-                boisson.description,
-                fontSize = 24.sp,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-        },
+        title = { Text(boisson.description, fontSize = 20.sp) },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Image circulaire agrandie
+                // Image circulaire avec une taille standard
                 Box(
                     modifier = Modifier
-                        .size(140.dp)
+                        .size(100.dp)
                         .clip(CircleShape)
                         .background(Color.LightGray),
                     contentAlignment = Alignment.Center
@@ -278,22 +266,30 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
                     Image(
                         painter = painterResource(id = boisson.photo),
                         contentDescription = "Image de la boisson",
-                        modifier = Modifier.size(140.dp)
+                        modifier = Modifier.size(100.dp) // Taille standard
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Date: ${boisson.date}", fontSize = 18.sp)
-                Text("Prix: ${boisson.prix} €", fontSize = 18.sp)
-                Text("Points: ${boisson.nbrPoints}", fontSize = 18.sp)
+                Text("Date: ${boisson.date}")
+
+                // Affichage sur la même ligne
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Prix: ${boisson.prix} €", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+                    Spacer(modifier = Modifier.weight(1F))
+                    Text("Points: ${boisson.nbrPoints}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.secondary)
+                }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Fermer", fontSize = 18.sp)
+                Text("Fermer")
             }
-        },
-        modifier = Modifier.fillMaxWidth(0.9f) // Agrandissement du menu
+        }
     )
 }
+
