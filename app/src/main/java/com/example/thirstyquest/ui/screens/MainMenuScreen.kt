@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,10 +22,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.example.thirstyquest.R
 
 
-data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String)
+data class Publication(
+    val ID: Int,
+    val description: String,
+    val user_ID: Int,
+    val date: String,
+    val prix: Double,
+    val photo: Int,
+    val nbrPoints: Int
+)
+
 
 
 @Composable
@@ -87,12 +102,13 @@ fun MainMenuScreen(navController: NavController) {
                     .verticalScroll(rememberScrollState())
             ) {
                 val hist = listOf(
-                    Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025"),
-                    Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025"),
-                    Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025"),
-                    Publication(4, "Binch de malade", 2, "02:26 13/02/2025"),
-                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025")
+                    Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025", 5.50, R.drawable.biere, 50),
+                    Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025", 6.00, R.drawable.biere, 60),
+                    Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025", 8.50, R.drawable.vodka, 80),
+                    Publication(4, "Binch de malade", 2, "02:26 13/02/2025", 4.00, R.drawable.biere, 40),
+                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025", 3.00, R.drawable.ricard, 30)
                 )
+
 
                 val sortedHist = hist.sortedByDescending { it.date }
 
@@ -208,7 +224,6 @@ fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: St
 
 @Composable
 fun histItem(publication: Publication) {
-    // Création d'un item d'historique avec une description et une date
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -216,7 +231,7 @@ fun histItem(publication: Publication) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Filled.LocalDrink,  // Icone générique pour les boissons
+            imageVector = Icons.Filled.LocalDrink,
             contentDescription = "Boisson",
             modifier = Modifier.size(40.dp)
         )
@@ -224,35 +239,61 @@ fun histItem(publication: Publication) {
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {
-            Text(
-                publication.description,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = publication.date,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary
-            )
+            Text(publication.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+            Text("Prix: ${publication.prix} €", style = MaterialTheme.typography.bodyMedium)
+            Text("Points: ${publication.nbrPoints}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            Text(publication.date, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
         }
     }
 }
+
 
 @Composable
 fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(boisson.description, fontSize = 20.sp) },
+        title = {
+            Text(
+                boisson.description,
+                fontSize = 24.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
-            Column {
-                Text("Date: ${boisson.date}")
-                Text("ID utilisateur: ${boisson.user_ID}")
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Image circulaire agrandie
+                Box(
+                    modifier = Modifier
+                        .size(140.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = boisson.photo),
+                        contentDescription = "Image de la boisson",
+                        modifier = Modifier.size(140.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text("Date: ${boisson.date}", fontSize = 18.sp)
+                Text("Prix: ${boisson.prix} €", fontSize = 18.sp)
+                Text("Points: ${boisson.nbrPoints}", fontSize = 18.sp)
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Fermer")
+                Text("Fermer", fontSize = 18.sp)
             }
-        }
+        },
+        modifier = Modifier.fillMaxWidth(0.9f) // Agrandissement du menu
     )
 }
