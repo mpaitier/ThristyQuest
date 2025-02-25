@@ -1,5 +1,7 @@
 package com.example.thirstyquest.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.navigation.Screen
 
 data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String, val heure: String, val category: String)
 
@@ -123,6 +126,7 @@ fun histItem(publication: Publication, publicationNum: Int, navController: NavCo
                                                                                                     // TODO : Make picture clickable and navigate to publication details
                                                                                                     // TODO : Make user's name clickable and navigate to user's profile
     val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,7 +156,11 @@ fun histItem(publication: Publication, publicationNum: Int, navController: NavCo
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.tertiary,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.clickable (interactionSource = interactionSource, indication = null)
+                {
+                    navController.navigate(Screen.FriendProfile.name + "/$publication.user_ID")              // TODO : navigate to friend profile
+                },
             )
         }
 
