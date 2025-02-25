@@ -15,6 +15,7 @@ import com.example.thirstyquest.ui.components.BottomNavBar
 import com.example.thirstyquest.ui.components.TopBar
 import com.example.thirstyquest.ui.theme.ThirstyQuestTheme
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 @Composable
 fun ThirstyQuestApp() {
@@ -42,3 +44,38 @@ fun ThirstyQuestApp() {
     }
 }
 
+
+
+
+
+/*
+@Composable
+fun ThirstyQuestApp() {
+    var isDarkMode by rememberSaveable { mutableStateOf(false) }
+
+    MyAppTheme(darkTheme = isDarkMode) {
+        val navController = rememberNavController()
+
+        Scaffold(
+            topBar = { TopBar(navController) },
+            bottomBar = { BottomNavBar(navController) },
+            contentWindowInsets = WindowInsets(0.dp)
+        ) { innerPadding ->
+            AppNavigation(
+                navController = navController,
+                modifier = Modifier.padding(innerPadding),
+                isDarkMode = isDarkMode,
+                onThemeChange = { isDarkMode = it }
+            )
+        }
+    }
+}
+
+@Composable
+fun MyAppTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme(),
+        typography = Typography,
+        content = content
+    )
+}*/

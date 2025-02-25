@@ -1,17 +1,26 @@
 package com.example.thirstyquest.ui.screens
 
-import androidx.compose.runtime.Composable
+
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+
 
 @Composable
 fun SettingsScreen(navController: NavController) {
     val primaryColor = MaterialTheme.colorScheme.primary
+
+    // States for Switches
+    var isDarkMode by remember { mutableStateOf(false) }
+    var areNotificationsEnabled by remember { mutableStateOf(true) }
+
 
     Column(
         modifier = Modifier
@@ -26,45 +35,41 @@ fun SettingsScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        SettingsOption(
+        // Mode sombre switch
+        SettingsSwitchOption(
             title = "Mode sombre",
             description = "Activer ou désactiver le mode sombre de l'application",
-            onClick = {  }
+            isChecked = isDarkMode,
+            onCheckedChange = { isDarkMode = it }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SettingsOption(
+        // Notifications switch
+        SettingsSwitchOption(
             title = "Notifications",
-            description = "Gérer les notifications de l'application",
-            onClick = { }
+            description = "Activer ou désactiver les notifications",
+            isChecked = areNotificationsEnabled,
+            onCheckedChange = { areNotificationsEnabled = it }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        SettingsOption(
-            title = "Langue",
-            description = "Changer la langue de l'application",
-            onClick = {}
-        )
     }
 }
-
-
 @Composable
-fun SettingsOption(
+fun SettingsSwitchOption(
     title: String,
     description: String,
-    onClick: () -> Unit
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
 ) {
-    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
-        onClick = onClick,
         colors = CardDefaults.cardColors(
-            containerColor = secondaryColor)
-
+            containerColor = primaryColor
+        )
     ) {
         Column(
             modifier = Modifier
@@ -80,6 +85,15 @@ fun SettingsOption(
             Text(
                 text = description,
                 fontSize = 16.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Switch(
+                checked = isChecked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = MaterialTheme.colorScheme.tertiary  // Couleur de la piste en mode désactivé
+                )
             )
         }
     }
