@@ -111,7 +111,7 @@ val badgeList = listOf(
 
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val tabTitles = listOf(R.string.stats, R.string.collection,R.string.badge)
+    val tabTitles = listOf(R.string.my_stats, R.string.my_collection,R.string.my_badge)
     val pagerState = rememberPagerState { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
 
