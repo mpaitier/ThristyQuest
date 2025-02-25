@@ -34,21 +34,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.thirstyquest.R
 
 data class Publication(val ID: Int, val description: String, val user_ID: Int, val date: String, val heure: String, val category: String)
 
 @Composable
-fun LeagueHistScreenContent(leagueID: Int) {
-    HistList(leagueID = leagueID)
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//                                Composables
-
-@Composable
-fun HistList(leagueID: Int)
-{
+fun LeagueHistScreenContent(leagueID: Int, navController: NavController) {
                                                                                                     // TODO : get all publications with leagueID, sorted by date (most recent first)
     val hist = listOf(
         Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere" ),
@@ -112,7 +104,7 @@ fun HistList(leagueID: Int)
 
             Column {
                 sortedHist.forEach { publication ->
-                    histItem(publication, publicationNum)
+                    histItem(publication, publicationNum, navController)
                     publicationNum++
                 }
             }
@@ -121,8 +113,11 @@ fun HistList(leagueID: Int)
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+//                                Composables
+
 @Composable
-fun histItem(publication: Publication, publicationNum: Int)
+fun histItem(publication: Publication, publicationNum: Int, navController: NavController)
 {
                                                                                                     // TODO : Add picture
                                                                                                     // TODO : Make picture clickable and navigate to publication details
