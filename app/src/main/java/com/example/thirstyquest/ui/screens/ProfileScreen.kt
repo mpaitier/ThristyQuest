@@ -115,8 +115,6 @@ fun ProfileScreen(navController: NavController) {
     val pagerState = rememberPagerState { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
 
-   //val items = List(12) { it}
-
     LaunchedEffect(Unit) {
         pagerState.scrollToPage(1)
     }

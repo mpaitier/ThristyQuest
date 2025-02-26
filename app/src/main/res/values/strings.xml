@@ -1,45 +1,15 @@
 <resources>
+    <!-- ======== Principale ======== -->
     <string name="app_name">Thirsty Quest</string>
     <string name="profile">Profil</string>
     <string name="social">Social</string>
     <string name="settings">Settings</string>
-    <string name="research">Rechercher un ami ...</string>
-    <string name="leagues">Mes ligues</string>
-    <string name="friends">Mes amis</string>
-    <string name="league_content">Contenu de la ligue</string>
-    <string name="league_members">Membres de la ligue </string>
-    <string name="league_stats">Statistiques de la ligue</string>
-    <string name="league_level">Niveau de la ligue</string>
+    <!-- ======== Home ======== -->
     <string name="league_history">Historique des publications</string>
     <string name="add_drink">Ajouter une boisson</string>
     <string name="top_drinks">Top boissons</string>
     <string name="add">Ajouter</string>
-    <string name="cancel">Annuler</string>
-    <string name="my_collection">Ma collection</string>
-    <string name="collec">La collection</string>
-    <string name="my_badge">Mes badges</string>
-    <string name="badge">Les badges</string>
-    <string name="my_stats">Mes statistiques</string>
-    <string name="stats">Les statistiques</string>
-    <string name="personal_hist">Mes dernières boissons</string>
-    <string name="conso">Consommation</string>
-    <string name="league_conso">Consommation de la ligue</string>
-    <string name="pref">Préférences</string>
-    <string name="league_pref">Préférences de la ligue</string>
-    <string name="total">Total</string>
-    <string name="league_create">Créer une nouvelle ligue</string>
-    <string name="league_enter_code">Entrer le code de la ligue</string>
-    <string name="league_add_name">Entrer le nom de la ligue</string>
-    <string name="league_join">Rejoindre la ligue</string>
-    <string name="league_code_condition">Le code doit contenir exactement 6 caractères</string>
-    <string name="validate">Valider</string>
-    <string name="liters">Litres</string>
-    <string name="drinks">Verres</string>
-    <string name="friend_added"> est maintenant ton ami(e) 🍻</string>
-    <string name="friend_deleted"> n\'est plus ton ami(e) ❌</string>
-    <string name="bath">Baignoires</string>
-    <string name="olymp_pool">Piscines olympiques</string>
-    <string name="tank_truck">Camions citerne</string>
+    <!-- ======== Login ======== -->
     <string name="login">Se connecter</string>
     <string name="sign_in">Connexion</string>
     <string name="sign_up">Inscription</string>
@@ -58,11 +28,47 @@
     <string name="social_advantage1">Suit tes amis pour découvrir leurs aventures alcoolisées !</string>
     <string name="social_advantage2">Connecte toi à d\'autres utilisateurs à travers la compétition de ligues !</string>
     <string name="social_advantage3">Enregistre ta collection d\'alcools et compare la à tes amis !</string>
+    <!-- ======== Profil et amis ======== -->
+    <string name="my_collection">Ma collection</string>
+    <string name="collec">La collection</string>
+    <string name="my_badge">Mes badges</string>
+    <string name="badge">Les badges</string>
+    <string name="my_stats">Mes statistiques</string>
+    <string name="stats">Les statistiques</string>
+    <string name="personal_hist">Mes dernières boissons</string>
+    <string name="conso">Consommation</string>
+    <string name="pref">Préférences</string>
+    <string name="total">Total</string>
+    <string name="validate">Valider</string>
+    <string name="friend_added"> est maintenant ton ami(e) 🍻</string>
+    <string name="friend_deleted"> n\'est plus ton ami(e) ❌</string>
     <string name="friend_profile">Profil ami</string>
     <string name="see_more">Voir plus</string>
     <string name="publi">Publications</string>
     <string name="followers">Abonnés</string>
     <string name="following">Abonnements</string>
     <string name="contacts">Abonnés et abonnements</string>
+    <!--- ======== Ligues ======== -->
+    <string name="research">Rechercher un ami ...</string>
+    <string name="leagues">Mes ligues</string>
+    <string name="friends">Mes amis</string>
+    <string name="league_content">Contenu de la ligue</string>
+    <string name="league_members">Membres de la ligue </string>
+    <string name="league_stats">Statistiques de la ligue</string>
+    <string name="league_level">Niveau de la ligue</string>
+    <string name="league_pref">Préférences de la ligue</string>
+    <string name="league_conso">Consommation de la ligue</string>
+    <string name="league_create">Créer une nouvelle ligue</string>
+    <string name="league_enter_code">Entrer le code de la ligue</string>
+    <string name="league_add_name">Entrer le nom de la ligue</string>
+    <string name="league_join">Rejoindre la ligue</string>
+    <string name="league_code_condition">Le code doit contenir exactement 6 caractères</string>
+    <string name="bath">Baignoires</string>
+    <string name="olymp_pool">Piscines olympiques</string>
+    <string name="tank_truck">Camions citerne</string>
+    <!-- ======== Commun  ========-->
+    <string name="cancel">Annuler</string>
     <string name="close">Fermer</string>
+    <string name="liters">Litres</string>
+    <string name="drinks">Verres</string>
 </resources>
