@@ -124,12 +124,9 @@ fun LeagueHistScreenContent(leagueID: Int, navController: NavController) {
 //                                Composables
 
 @Composable
-fun histItem(publication: Publication, publicationNum: Int, navController: NavController) {
-                                                                                                    // TODO : Add picture
-                                                                                                    // TODO : Make picture clickable and navigate to publication details
-                                                                                                    // TODO : Make user's name clickable and navigate to user's profile
-                                                                                                    // TODO : get member name with user_ID
-    val name = "Membre n°${publication.user_ID}"
+fun histItem(publication: Publication, publicationNum: Int, navController: NavController)
+{
+    val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
     val interactionSource = remember { MutableInteractionSource() }
     var showPublicationDialog by remember { mutableStateOf(false) }
 
