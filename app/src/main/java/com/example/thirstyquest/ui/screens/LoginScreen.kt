@@ -1,7 +1,7 @@
 package com.example.thirstyquest.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +55,14 @@ import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.screens.social.AddPicture
+import java.text.SimpleDateFormat
+import java.util.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.window.Popup
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -97,8 +106,6 @@ fun LoginScreen(navController: NavController) {
                 Text(stringResource(R.string.sign_up))
             }
         }
-
-
     }
 }
 
@@ -175,8 +182,6 @@ fun SignUpScreen(navController: NavController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-
-
         // Complementary informations
         Text(
             text = stringResource(R.string.complementary_info),
@@ -185,32 +190,29 @@ fun SignUpScreen(navController: NavController) {
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         AddPicture() // Ajout de la photo de profil
-
-        OutlinedTextField(
-            value = firstName,
-            onValueChange = { firstName = it },
-            label = { Text(stringResource(R.string.first_name) ) },
-            modifier = Modifier.fillMaxWidth()
-        )
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = lastName,
-            onValueChange = { lastName = it },
-            label = { Text(stringResource(R.string.last_name)) },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Row {
+            OutlinedTextField(
+                value = firstName,
+                onValueChange = { firstName = it },
+                label = { Text(stringResource(R.string.first_name)) },
+                modifier = Modifier.weight(0.5F)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedTextField(
+                value = lastName,
+                onValueChange = { lastName = it },
+                label = { Text(stringResource(R.string.last_name)) },
+                modifier = Modifier.weight(0.5F)
+            )
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = birthDate,
-            onValueChange = { birthDate = it },
-            label = { Text(stringResource(R.string.birthdate)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Intégration de la logique du DatePickerDocked avec le label de R.string.birthdate
+        DatePickerDocked(birthDate = birthDate, onDateSelected = { birthDate = it })
 
         // Validation
         Spacer(modifier = Modifier.height(32.dp))
@@ -223,6 +225,72 @@ fun SignUpScreen(navController: NavController) {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerDocked(birthDate: String, onDateSelected: (String) -> Unit)
+// From : https://developer.android.com/develop/ui/compose/components/datepickers?hl=fr#docked
+{
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    val selectedDate = datePickerState.selectedDateMillis?.let {
+        convertMillisToDate(it)
+    } ?: birthDate
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedDate,
+            onValueChange = { },
+            label = { Text(stringResource(R.string.birthdate)) },
+            readOnly = true,
+            trailingIcon = {
+                IconButton(onClick = { showDatePicker = !showDatePicker }) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = "Select date"
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .clickable(onClick = { showDatePicker = true })
+        )
+
+        if (showDatePicker) {
+            Popup(
+                onDismissRequest = { showDatePicker = false },
+                alignment = Alignment.TopStart
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = 64.dp)
+                        .shadow(elevation = 4.dp)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(16.dp)
+                ) {
+                    DatePicker(
+                        state = datePickerState,
+                        showModeToggle = false
+                    )
+                }
+            }
+        }
+
+        LaunchedEffect(selectedDate) {
+            onDateSelected(selectedDate)
+        }
+    }
+}
+
+fun convertMillisToDate(millis: Long): String {
+    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
+}
+
 
 
 @Composable

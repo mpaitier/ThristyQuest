@@ -55,14 +55,7 @@ import com.example.thirstyquest.navigation.Screen
 data class Member(val ID: Int, val name: String, val level: Int)
 
 @Composable
-fun LeagueMembersScreenContent(navController: NavController,leagueID: Int) {
-    MemberList(navController = navController,)
-}
-
-// ------------------------------ League Member List ------------------------------
-@Composable
-fun MemberList(navController: NavController)
-{
+fun LeagueMembersScreenContent(leagueID: Int, navController: NavController) {
     // TODO : get members with leagueID
     val members = listOf(
         Member(26,"Mathias", 10),
@@ -172,12 +165,6 @@ fun MemberItem(navController: NavController, member: Member, position: Int)
 
 //////////////////////////////////////////////////////////////////////////////////
 //                               Previews
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMemberList() {
-    MemberList(navController = rememberNavController(),)
-}
 
 @Preview(showBackground = true)
 @Composable

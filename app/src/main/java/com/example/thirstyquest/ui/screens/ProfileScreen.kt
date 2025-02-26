@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,7 +48,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
-import com.example.thirstyquest.ui.components.Publication
+import com.example.thirstyquest.ui.screens.Publication
 
 //----------DATA--------
 data class Boisson(val name: String,
@@ -57,16 +58,16 @@ data class Boisson(val name: String,
                    val points: Int,
                    val nextLevelPoints: Int)
 val hist = listOf(
-    Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere" ),
-    Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur"),
-    Publication(3, "Jaggger chez Croguy", 84, "12/02/2025", "20:12","Jäger"),
-    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26","Biere"),
-    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26","Ricard"),
-    Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52","Biere"),
-    Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30", "Vin Rouge"),
-    Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard"),
-    Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière"),
-    Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere")
+    Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere", 5.50, R.drawable.biere, 50),
+    Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur",6.50, R.drawable.vodka, 50),
+    Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12","Moscow Mule",8.50, R.drawable.vodka, 50),
+    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26","Biere",6.0, R.drawable.biere, 50),
+    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26","Ricard",11.0, R.drawable.ricard, 50),
+    Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52","Biere",5.50, R.drawable.biere, 50),
+    Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30", "Vin Rouge",9.70, R.drawable.ricard, 50),
+    Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard",5.50, R.drawable.ricard, 50),
+    Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière",16.0, R.drawable.vodka, 50),
+    Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere",4.50, R.drawable.biere, 50)
 )
 data class Badge(
     val name: String,
@@ -103,12 +104,11 @@ val badgeList = listOf(
         currentLevel = 3,
         maxLevel = 3,
         progress = 7
+    )
 )
 
-
-)
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                      Composable
 @Composable
 fun ProfileScreen(navController: NavController) {
     val tabTitles = listOf(R.string.my_stats, R.string.my_collection,R.string.my_badge)
@@ -139,38 +139,33 @@ fun ProfileScreen(navController: NavController) {
             modifier = Modifier.weight(1f)
         ) { page ->
             when (page) {
-                0 -> Screen0()
-                1 -> Screen1()
-                2 -> Screen2()
+                0 -> UserStatsScreen()
+                1 -> UserCollectionScreen()
+                2 -> UserBadgesScreen()
             }
         }
-
     }
-
 }
 
 //--------------- ECRAN 0---------------
 @Composable
-fun Screen0() {
+fun UserStatsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        val primaryColor = MaterialTheme.colorScheme.primary
-
         Spacer(modifier = Modifier.height(12.dp))
-
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Consommation part
         Text(
             text = stringResource(R.string.conso),
             fontSize = 20.sp,
-            color = primaryColor,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(modifier = Modifier.height(12.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -181,16 +176,15 @@ fun Screen0() {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Preferencies part
         Text(
             text = stringResource(R.string.pref),
             fontSize = 20.sp,
-            color = primaryColor,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(modifier = Modifier.height(12.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -198,20 +192,21 @@ fun Screen0() {
             StatItem("Biere blonde", "71")
             StatItem("Fire ball", "32")
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Total part
         Text(
             text = stringResource(R.string.total),
             fontSize = 20.sp,
-            color = primaryColor,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(modifier = Modifier.height(12.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem("Boissons consommées", "310")
+            StatItem(stringResource(R.string.consummed_drink), "310")
         }
     }
 }
@@ -236,30 +231,27 @@ fun StatItem(label: String, value: String) {
 
 //--------------- ECRAN 1---------------
 @Composable
-fun Screen1() {
-    ListBoisson()
-}
+fun UserCollectionScreen() {
+    val userID = 26 // TODO : get user's ID
 
-@Composable
-fun ListBoisson() {
-    val boissonList = listOf(
-        Boisson("Biere", R.drawable.biere, "Une bière rafraîchissante.",10, 70, 80),
-        Boisson("Vodka", R.drawable.vodka, "Une vodka premium.",3, 9, 10),
-        Boisson("Coca", R.drawable.coca, "Boisson gazeuse classique.",1, 1, 3),
-        Boisson("Jäger", R.drawable.yager, "Le goût incomparable du Jägermeister résulte d' un mélange parfait d'herbes, d'épices et de notes d'agrumes . Des composants d'agrumes acidulés comme l'écorce d'orange se marient à des herbes aromatiques comme le gingembre, l'anis étoilé et le clou de girofle, accompagnés d'une pointe de réglisse.",21, 103, 120),
-        Boisson("Ricard",R.drawable.ricard,"Pastis à base d'anis, de réglisse et d'herbes de Provence.",3,7,10)
+    val boissonList = listOf( // TODO : récupérer les vraies valeurs
+        Boisson("Biere", R.drawable.biere, "Une bière rafraîchissante.", 10, 70, 80),
+        Boisson("Vodka", R.drawable.vodka, "Une vodka premium.", 3, 9, 10),
+        Boisson("Coca", R.drawable.coca, "Boisson gazeuse classique.", 1, 1, 3),
+        Boisson("Jäger", R.drawable.yager, "Un mélange parfait d'herbes, d'épices et de notes d'agrumes.", 21, 103, 120),
+        Boisson("Ricard", R.drawable.ricard, "Pastis à base d'anis, de réglisse et d'herbes de Provence.", 3, 7, 10)
     )
+
     var sortedList by remember { mutableStateOf(boissonList) }
     var isAscending by remember { mutableStateOf(true) }
     var selectedSort by remember { mutableStateOf("Level") }
-    var expanded by remember { mutableStateOf(false) }
 
     fun sortBoissons(type: String) {
         if (selectedSort == type) {
             isAscending = !isAscending // Inverse l'ordre si on reclique sur le même type
         } else {
             selectedSort = type
-            isAscending = true // Par défaut, on trie en croissant sur un nouveau type de tri
+            isAscending = true // Par défaut, tri croissant sur un nouveau type
         }
 
         sortedList = when (selectedSort) {
@@ -269,48 +261,9 @@ fun ListBoisson() {
         }
     }
 
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val secondaryColor = MaterialTheme.colorScheme.secondary
-
     Column {
-        // MENU DÉROULANT
-        Box(modifier = Modifier.padding(16.dp)) {
-            Button(
-                onClick = { expanded = true },
-                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
-            ) {
-                Text(text = "Trier par : $selectedSort (${if (isAscending) "⬆️" else "⬇️"})")
-            }
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.background(secondaryColor)
-
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Nom") },
-                    onClick = {
-                        sortBoissons("Nom")
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = Color.White
-                    )
-
-                )
-                DropdownMenuItem(
-                    text = { Text("Level") },
-                    onClick = {
-                        sortBoissons("Level")
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = Color.White
-                    )
-                )
-            }
-        }
+        // Ajout du bouton de tri
+        SortButton(selectedSort, isAscending) { sortBoissons(it) }
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -323,6 +276,44 @@ fun ListBoisson() {
         }
     }
 }
+
+@Composable // Created composable to make it reusable
+fun SortButton(selectedSort: String, isAscending: Boolean, onSortSelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.padding(16.dp)) {
+        Button(
+            onClick = { expanded = true },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text(text = "Trier par : $selectedSort (${if (isAscending) "⬆️" else "⬇️"})")
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary)
+        ) {
+            DropdownMenuItem(
+                text = { Text("Nom") },
+                onClick = {
+                    onSortSelected("Nom")
+                    expanded = false
+                },
+                colors = MenuDefaults.itemColors(textColor = Color.White)
+            )
+            DropdownMenuItem(
+                text = { Text("Level") },
+                onClick = {
+                    onSortSelected("Level")
+                    expanded = false
+                },
+                colors = MenuDefaults.itemColors(textColor = Color.White)
+            )
+        }
+    }
+}
+
 
 @Composable
 fun ItemBoisson(boisson: Boisson) {
@@ -337,6 +328,7 @@ fun ItemBoisson(boisson: Boisson) {
             .clickable { showDialog = true },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Drink picture
         Card(
             modifier = Modifier
                 .size(100.dp),
@@ -353,7 +345,6 @@ fun ItemBoisson(boisson: Boisson) {
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-
         Text(
             text = boisson.name,
             fontSize = 18.sp,
@@ -363,90 +354,14 @@ fun ItemBoisson(boisson: Boisson) {
             modifier = Modifier.fillMaxWidth()
         )
     }
+
     if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(primaryColor, shape = CircleShape)
-                            .clickable { showDialog = false },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Fermer",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.White
-                        )
-                    }
-                }
-            },
-            text = {
-                Column {
-                    Image(
-                        painter = painterResource(id = boisson.imageRes),
-                        contentDescription = boisson.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Nom : ${boisson.name}",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Description : ${boisson.description}",
-                        textAlign = TextAlign.Justify
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Niveau : ${boisson.level}",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    LevelProgressBar(boisson.points, boisson.nextLevelPoints)
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    val filteredHist = hist.filter { it.category == boisson.name } // Filtrage
-                    if (filteredHist.isNotEmpty()) {
-                        Text(
-                            text = "Historique :",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        filteredHist.forEachIndexed { index, publication ->
-                            histItem(publication, index)
-                        }
-                    } else {
-                        Text(text = "Aucun historique trouvé.", )
-                    }
-                }
-            },
-            confirmButton = {},
-            containerColor = Color.White
-        )
+        DrinkDialog(onDismiss = {showDialog=false}, boisson = boisson, hist = hist)
     }
 }
 
 @Composable
-fun LevelProgressBar(currentXP: Int, maxXP: Int) {
+fun DrinkXPProgressBar(currentXP: Int, maxXP: Int) {
     val progress = currentXP.toFloat() / maxXP.toFloat()
     val backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
@@ -522,7 +437,7 @@ fun histItem(publication: Publication, publicationNum: Int) {
                 modifier = Modifier.align(Alignment.End)
             )
             Text(
-                text = publication.heure,
+                text = publication.hour,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -531,7 +446,7 @@ fun histItem(publication: Publication, publicationNum: Int) {
 
 //--------------- ECRAN 2---------------
 @Composable
-fun Screen2() {
+fun UserBadgesScreen() {
     ListBadge()
 
 }
@@ -571,86 +486,180 @@ fun ItemBadge(badge: Badge) {
     }
 
     if (showDialog) {
-        val pagerState = rememberPagerState { 3 }
+        BadgeDialog(onDismiss = {showDialog=false}, badge, badgeIcons)
+    }
+}
 
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//                             Dialog
+@Composable
+fun DrinkDialog (
+    onDismiss: () -> Unit,
+    boisson: Boisson,
+    hist: List<Publication>
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
                 ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Fermer",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.White
+                    )
+                }
+            }
+        },
+        text = {
+            Column {
+                Image(
+                    painter = painterResource(id = boisson.imageRes),
+                    contentDescription = boisson.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Nom : ${boisson.name}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Description : ${boisson.description}",
+                    textAlign = TextAlign.Justify
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Niveau : ${boisson.level}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                DrinkXPProgressBar(boisson.points, boisson.nextLevelPoints)
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val filteredHist = hist.filter { it.category == boisson.name } // Filtrage
+                if (filteredHist.isNotEmpty()) {
                     Text(
-                        text = badge.name,
+                        text = "Historique :",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(primaryColor, shape = CircleShape)
-                            .clickable { showDialog = false },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Fermer",
-                            modifier = Modifier.size(20.dp),
-                            tint = Color.White
-                        )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    filteredHist.forEachIndexed { index, publication ->
+                        histItem(publication, index)
                     }
+                } else {
+                    Text(text = "Aucun historique trouvé.")
                 }
-            },
-            text = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
+            }
+        },
+        confirmButton = {},
+        containerColor = Color.White
+    )
+}
+
+@Composable
+fun BadgeDialog(
+    onDismiss: () -> Unit,
+    badge: Badge, // Un objet Badge contenant toutes les informations
+    badgeIcons: List<Int> // Liste d'icônes pour les badges
+) {
+    val pagerState = rememberPagerState { 3 }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = badge.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    HorizontalPager(
-                        state = pagerState
-                    ) { page ->
-                        val isUnlocked = page + 1 <= badge.currentLevel
-                        Image(
-                            painter = painterResource(id = badgeIcons[page]),
-                            contentDescription = "Badge niveau ${page + 1}",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(150.dp)
-                                .alpha(if (isUnlocked) 1f else 0.3f),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        repeat(3) { index ->
-                            val color = if (index == pagerState.currentPage) Color.Black else Color.Gray
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .padding(6.dp)
-                                    .background(color, shape = CircleShape)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = badge.descriptions[pagerState.currentPage],
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 8.dp)
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Fermer",
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.White
                     )
                 }
-            },
-            confirmButton = {},
-            containerColor = Color.White
+            }
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                HorizontalPager(state = pagerState) { page ->
+                    val isUnlocked = page + 1 <= badge.currentLevel
+                    Image(
+                        painter = painterResource(id = badgeIcons[page]),
+                        contentDescription = "Badge niveau ${page + 1}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .alpha(if (isUnlocked) 1f else 0.3f),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
 
-        )
-    }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(3) { index ->
+                        val color = if (index == pagerState.currentPage) Color.Black else Color.Gray
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(6.dp)
+                                .background(color, shape = CircleShape)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = badge.descriptions[pagerState.currentPage],
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        },
+        confirmButton = {},
+        containerColor = Color.White
+    )
 }
