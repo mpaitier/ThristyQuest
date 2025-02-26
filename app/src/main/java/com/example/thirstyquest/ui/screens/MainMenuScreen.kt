@@ -33,19 +33,17 @@ import java.util.Locale
 import com.example.thirstyquest.R
 import java.text.SimpleDateFormat
 
-
 data class Publication(
     val ID: Int,
     val description: String,
     val user_ID: Int,
     val date: String,
-    val heure: String,
-    val prix: Double,
+    val hour: String,
+    val category: String,
+    val price: Double,
     val photo: Int,
-    val nbrPoints: Int
+    val points: Int
 )
-
-
 
 @Composable
 fun MainMenuScreen(navController: NavController) {
@@ -107,16 +105,14 @@ fun MainMenuScreen(navController: NavController) {
                     .verticalScroll(rememberScrollState())
             ) {
                 val hist = listOf(
-                    Publication(1, "Pinte au Bistrot", 26, "12/02/2025", "19:00", 5.50, R.drawable.biere, 50),
-                    Publication(2, "Pinte chez Moe's", 12, "12/02/2025", "20:00", 6.00, R.drawable.biere, 60),
-                    Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12", 8.50, R.drawable.vodka, 80),
-                    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26", 4.00, R.drawable.biere, 40),
-                    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26", 3.00, R.drawable.ricard, 30)
+                    Publication(1, "Pinte au Bistrot", 26, "12/02/2025", "19:00","Biere",5.50, R.drawable.biere, 50),
+                    Publication(2, "Pinte chez Moe's", 12, "12/02/2025", "20:00","Biere",6.00, R.drawable.biere, 60),
+                    Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12", "Moscow Mule",8.50, R.drawable.vodka, 80),
+                    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26", "Biere", 4.00, R.drawable.biere, 40),
+                    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26", "Ricard", 3.00, R.drawable.ricard, 30)
                 )
 
-
-
-                val sortedHist = hist.sortedByDescending { it.date + it.heure }
+                val sortedHist = hist.sortedByDescending { it.date + it.hour }
 
                 sortedHist.forEach { publication ->
                     Box(
@@ -246,7 +242,7 @@ fun histItem(publication: Publication) {
 
         Column {
             Text(publication.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-            Text("Points: ${publication.nbrPoints}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+            Text("Points: ${publication.points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
         }
     }
 }
@@ -255,7 +251,7 @@ fun histItem(publication: Publication) {
 @Composable
 fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
 
-    val dateTimeString = "${boisson.date} ${boisson.heure}"
+    val dateTimeString = "${boisson.date} ${boisson.hour}"
     val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRENCH)
     val parsedDate = inputFormat.parse(dateTimeString) ?: ""
 
@@ -297,7 +293,7 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
 
                 // Points
                 Text(
-                    text = "Points: ${boisson.nbrPoints}",
+                    text = "Points: ${boisson.points}",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -317,7 +313,7 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
 
                 // Prix
                 Text(
-                    text = "Prix: ${boisson.prix} €",
+                    text = "Prix: ${boisson.price} €",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface

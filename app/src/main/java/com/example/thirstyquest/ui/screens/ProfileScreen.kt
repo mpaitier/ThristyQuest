@@ -48,7 +48,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
-import com.example.thirstyquest.ui.components.Publication
+import com.example.thirstyquest.ui.screens.Publication
 
 //----------DATA--------
 data class Boisson(val name: String,
@@ -58,16 +58,16 @@ data class Boisson(val name: String,
                    val points: Int,
                    val nextLevelPoints: Int)
 val hist = listOf(
-    Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere" ),
-    Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur"),
-    Publication(3, "Jaggger chez Croguy", 84, "12/02/2025", "20:12","Jäger"),
-    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26","Biere"),
-    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26","Ricard"),
-    Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52","Biere"),
-    Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30", "Vin Rouge"),
-    Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard"),
-    Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière"),
-    Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere")
+    Publication(1, "Pinte de bête rouge au Bistrot", 26, "12/02/2025", "19:00","Biere", 5.50, R.drawable.biere, 50),
+    Publication(2, "Aguardiente chez Moe's", 12, "12/02/2025", "20:00","Liqueur",6.50, R.drawable.vodka, 50),
+    Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12","Moscow Mule",8.50, R.drawable.vodka, 50),
+    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26","Biere",6.0, R.drawable.biere, 50),
+    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26","Ricard",11.0, R.drawable.ricard, 50),
+    Publication(6, "Double IPA qui arrache", 4, "13/02/2025", "16:52","Biere",5.50, R.drawable.biere, 50),
+    Publication(7, "Bouteille de vin en mode classe", 18, "14/02/2025", "21:30", "Vin Rouge",9.70, R.drawable.ricard, 50),
+    Publication(8, "Ricard pur x_x", 14, "15/02/2025", "19:15","Ricard",5.50, R.drawable.ricard, 50),
+    Publication(9, "La potion de Shrek", 8, "15/02/2025", "01:26","Cimetière",16.0, R.drawable.vodka, 50),
+    Publication(10, "Pinte à la Voie Maltée", 74, "16/02/2025", "10:28","Biere",4.50, R.drawable.biere, 50)
 )
 data class Badge(
     val name: String,
@@ -439,7 +439,7 @@ fun histItem(publication: Publication, publicationNum: Int) {
                 modifier = Modifier.align(Alignment.End)
             )
             Text(
-                text = publication.heure,
+                text = publication.hour,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
