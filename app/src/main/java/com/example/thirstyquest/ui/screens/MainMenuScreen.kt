@@ -27,7 +27,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import com.example.thirstyquest.R
+import java.text.SimpleDateFormat
 
 
 data class Publication(
@@ -248,6 +252,13 @@ fun histItem(publication: Publication) {
 
 @Composable
 fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
+
+        val sdf = SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.FRENCH)
+        val date = sdf.parse(boisson.date)
+        val outputFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.FRENCH)
+        outputFormat.format(date)
+        val formattedDate = outputFormat.format(date ?: "")
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -290,9 +301,9 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Date
+                // Date formatée avec l'heure
                 Text(
-                    text = "Date: ${boisson.date}",
+                    text = "Date: $formattedDate", // Affichage de la date et de l'heure formatées
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -317,6 +328,8 @@ fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
         modifier = Modifier.padding(16.dp)
     )
 }
+
+
 
 
 
