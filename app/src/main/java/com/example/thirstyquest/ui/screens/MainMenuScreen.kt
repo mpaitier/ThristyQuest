@@ -39,6 +39,7 @@ data class Publication(
     val description: String,
     val user_ID: Int,
     val date: String,
+    val heure: String,
     val prix: Double,
     val photo: Int,
     val nbrPoints: Int
@@ -106,15 +107,16 @@ fun MainMenuScreen(navController: NavController) {
                     .verticalScroll(rememberScrollState())
             ) {
                 val hist = listOf(
-                    Publication(1, "Pinte au Bistrot", 26, "19:00 12/02/2025", 5.50, R.drawable.biere, 50),
-                    Publication(2, "Pinte chez Moe's", 12, "20:00 12/02/2025", 6.00, R.drawable.biere, 60),
-                    Publication(3, "Moscow Mule chez Croguy", 84, "20:12 12/02/2025", 8.50, R.drawable.vodka, 80),
-                    Publication(4, "Binch de malade", 2, "02:26 13/02/2025", 4.00, R.drawable.biere, 40),
-                    Publication(5, "Ricard du midi", 1, "12:26 13/02/2025", 3.00, R.drawable.ricard, 30)
+                    Publication(1, "Pinte au Bistrot", 26, "12/02/2025", "19:00", 5.50, R.drawable.biere, 50),
+                    Publication(2, "Pinte chez Moe's", 12, "12/02/2025", "20:00", 6.00, R.drawable.biere, 60),
+                    Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12", 8.50, R.drawable.vodka, 80),
+                    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26", 4.00, R.drawable.biere, 40),
+                    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26", 3.00, R.drawable.ricard, 30)
                 )
 
 
-                val sortedHist = hist.sortedByDescending { it.date }
+
+                val sortedHist = hist.sortedByDescending { it.date + it.heure }
 
                 sortedHist.forEach { publication ->
                     Box(
@@ -253,11 +255,13 @@ fun histItem(publication: Publication) {
 @Composable
 fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
 
-        val sdf = SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.FRENCH)
-        val date = sdf.parse(boisson.date)
-        val outputFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.FRENCH)
-        outputFormat.format(date)
-        val formattedDate = outputFormat.format(date ?: "")
+    val dateTimeString = "${boisson.date} ${boisson.heure}"
+    val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRENCH)
+    val parsedDate = inputFormat.parse(dateTimeString) ?: ""
+
+    val outputFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.FRENCH)
+    val formattedDate = outputFormat.format(parsedDate)
+
 
     AlertDialog(
         onDismissRequest = onDismiss,
