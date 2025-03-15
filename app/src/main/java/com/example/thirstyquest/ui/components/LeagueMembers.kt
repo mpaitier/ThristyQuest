@@ -7,12 +7,9 @@ import androidx.compose.ui.res.painterResource
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,13 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,46 +31,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.User
+import com.example.thirstyquest.data.members
 import com.example.thirstyquest.navigation.Screen
-
-// Data model for a member
-data class Member(val ID: Int, val name: String, val level: Int)
 
 @Composable
 fun LeagueMembersScreenContent(leagueID: Int, navController: NavController) {
     // TODO : get members with leagueID
-    val members = listOf(
-        Member(26,"Mathias", 10),
-        Member(12,"Romain", 38),
-        Member(84,"Paul", 6),
-        Member(2,"Goustan", 11),
-        Member(1,"Dimitri", 7),
-        Member(4,"Florent", 5),
-        Member(18,"Dorian", 12),
-        Member(14,"Killian", 9),
-        Member(8,"Damien", 4),
-        Member(74,"Mathis", 3),
-        Member(51,"Maxime", 2),
-        Member(42,"Vincent", 1),
-        Member(28,"Titouan", 13),
-        Member(47,"Antoine", 18),
-        Member(1,"Alexandre", 100)
-    )
+
     // Sort members by level
     val sortedMembers = members.sortedByDescending { it.level }
 
     var position = 1
     Column {
+        // Title
         Text(
             text = stringResource(R.string.league_members) + " (" + members.size + ")",
             style = MaterialTheme.typography.titleLarge,
@@ -87,16 +59,15 @@ fun LeagueMembersScreenContent(leagueID: Int, navController: NavController) {
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        Box(
+        // List of the league's members
+        Column (
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            Column {
-                sortedMembers.forEach { member ->
-                    MemberItem(navController, member, position)
-                    position++
-                }
+            sortedMembers.forEach { member ->
+                MemberItem(navController, member, position)
+                position++
             }
         }
     }
@@ -104,7 +75,7 @@ fun LeagueMembersScreenContent(leagueID: Int, navController: NavController) {
 
 // ------------------------------ League Member Item ------------------------------
 @Composable
-fun MemberItem(navController: NavController, member: Member, position: Int)
+fun MemberItem(navController: NavController, member: User, position: Int)
 {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -169,6 +140,6 @@ fun MemberItem(navController: NavController, member: Member, position: Int)
 @Preview(showBackground = true)
 @Composable
 fun PreviewMemberItem() {
-    MemberItem(navController = rememberNavController(), Member(26,"Alice", 10), 3)
-    MemberItem(navController = rememberNavController(), Member(12,"Bob", 9), 4)
+    MemberItem(navController = rememberNavController(), User(26,"Alice", 10, true), 3)
+    MemberItem(navController = rememberNavController(), User(12,"Bob", 9, false), 4)
 }

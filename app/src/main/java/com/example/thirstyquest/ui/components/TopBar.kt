@@ -1,28 +1,24 @@
 package com.example.thirstyquest.ui.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +28,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
-import com.example.thirstyquest.ui.theme.*
+import com.example.thirstyquest.ui.dialog.EditProfileDialog
+import com.example.thirstyquest.ui.dialog.LeagueEditDialog
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,82 +97,75 @@ fun TopBar(navController: NavController) {
     }
 }
 
+// ------------------------------ League Top Bar ------------------------------
 @Composable
-fun EditProfileDialog(
-    firstName: String,
-    lastName: String,
-    age: String,
-    onDismiss: () -> Unit,
-    onSave: (String, String, String) -> Unit
-) {
-    var newFirstName by remember { mutableStateOf(firstName) }
-    var newLastName by remember { mutableStateOf(lastName) }
-    var newAge by remember { mutableStateOf(age) }
+fun LeagueTopBar(navController: NavController, leagueID: Int) {
+    var showDialog by remember { mutableStateOf(false) }
 
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        title = {
-            Text(
-                "Modifier le profil",
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer // Couleur du texte
+    val leagueName = "Ligue $leagueID"          // TODO : get league name with leagueID
+    val leagueOwnerId = 2                       // TODO : get league's owner's ID  with leagueID
+    val ownID = leagueID                        // TODO : get own ID
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height((0.04166* LocalConfiguration.current.screenHeightDp).dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = { navController.popBackStack() }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back"
             )
-        },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                TextButton(onClick = {}) {
-                    Text("Changer la photo de profil", color = MaterialTheme.colorScheme.primary)
-                }
+        }
 
-                Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
-                OutlinedTextField(
-                    value = newFirstName,
-                    onValueChange = { newFirstName = it },
-                    label = { Text("Prénom", color = MaterialTheme.colorScheme.onPrimaryContainer) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+        Icon(imageVector = Icons.Filled.Menu,       // TODO : replace by league picture
+            contentDescription = "League picture",
+            modifier = Modifier.size(60.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
-                OutlinedTextField(
-                    value = newLastName,
-                    onValueChange = { newLastName = it },
-                    label = { Text("Nom", color = MaterialTheme.colorScheme.onPrimaryContainer) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+        Text(
+            text = leagueName,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f)
+        )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = newAge,
-                    onValueChange = { newAge = it },
-                    label = { Text("Âge", color = MaterialTheme.colorScheme.onPrimaryContainer) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
+        // TODO : navigate to league settings & visible only if user is owner
+        if(ownID == leagueOwnerId) {
+            IconButton(onClick = { showDialog = true }) {
+                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
             }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onSave(newFirstName, newLastName, newAge)
-                onDismiss()
-            }) {
-                Text("Enregistrer", color = MaterialTheme.colorScheme.primary)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text("Annuler", color = MaterialTheme.colorScheme.primary)
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.primaryContainer // Couleur de fond
-    )
+        }
+    }
 
+    if (showDialog) {
+        LeagueEditDialog(
+            onDismiss = { showDialog = false },
+            onValidate = { leagueName ->
+                showDialog = false
+                // TODO : modify league's name
+                // TODO : modify league's picture
+            },
+            leagueID = leagueID
+        )
+    }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//      Preview
 
 @Preview
 @Composable
 fun PreviewTopBar() {
     TopBar(navController = rememberNavController())
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewLeagueTopBar() {
+    LeagueTopBar(navController = rememberNavController(), leagueID = 12)
 }

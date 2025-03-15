@@ -1,9 +1,9 @@
 <resources>
-    <!-- ======== Principale ======== -->
+    <!-- ======== Main ======== -->
     <string name="app_name">Thirsty Quest</string>
     <string name="profile">Profil</string>
     <string name="social">Social</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Paramètres</string>
     <!-- ======== Home ======== -->
     <string name="league_history">Historique des publications</string>
     <string name="add_drink">Ajouter une boisson</string>
@@ -22,13 +22,11 @@
     <string name="birthdate">Date de naissance</string>
     <string name="password">Mot de passe</string>
     <string name="forgot_pwd">Mot de passe oublié ?</string>
-    <string name="essentials_info">Informations essentielles</string>
-    <string name="complementary_info">Informations complémentaires</string>
     <string name="unlock_social">Débloque les fonctionnalités sociales de Thirsty Quest</string>
     <string name="social_advantage1">Suit tes amis pour découvrir leurs aventures alcoolisées !</string>
     <string name="social_advantage2">Connecte toi à d\'autres utilisateurs à travers la compétition de ligues !</string>
     <string name="social_advantage3">Enregistre ta collection d\'alcools et compare la à tes amis !</string>
-    <!-- ======== Profil et amis ======== -->
+    <!-- ======== Profile & friends ======== -->
     <string name="my_collection">Ma collection</string>
     <string name="collec">La collection</string>
     <string name="my_badge">Mes badges</string>
@@ -48,7 +46,13 @@
     <string name="followers">Abonnés</string>
     <string name="following">Abonnements</string>
     <string name="contacts">Abonnés et abonnements</string>
-    <!--- ======== Ligues ======== -->
+    <!-- ======== Drink ======== -->
+    <string name="hist">Historique</string>
+    <string name="hist_not_found">Aucun historique trouvé</string>
+    <string name="name">Nom</string>
+    <string name="level">Niveau</string>
+    <string name="description">Description</string>
+    <!--- ======== League ======== -->
     <string name="research">Rechercher un ami ...</string>
     <string name="leagues">Mes ligues</string>
     <string name="friends">Mes amis</string>
@@ -66,8 +70,27 @@
     <string name="bath">Baignoires</string>
     <string name="olymp_pool">Piscines olympiques</string>
     <string name="tank_truck">Camions citerne</string>
-    <string name="consummed_drink">Boissons consommées</string>
-    <!-- ======== Commun  ========-->
+    <string name="consumed_drink">Boissons consommées</string>
+    <string name="whoDrinkTheMost">Le plus gros buveur</string>
+    <string name="whoDrinkTheLess">Le plus sobre</string>
+    <string name="whoPaysTheMost">Le plus généreux</string>
+    <string name="whoPaysTheLess">Le plus gros rat</string>
+    <string name="liters_per_day">L/jour</string>
+    <string name="liters_per_month">L/mois</string>
+    <string name="liters_per_year">L/an</string>
+    <string name="per_day">/jour</string>
+    <string name="per_month">/mois</string>
+    <string name="per_year">/an</string>
+    <string name="spent_money">€ dépensés</string>
+    <!-- ======== Settings  ========-->
+    <string name="dark_mode">Mode sombre</string>
+    <string name="dark_mode_detail">Activer ou désactiver le mode sombre de l\'application</string>
+    <string name="notif">Notifications</string>
+    <string name="notif_detail">Activer ou désactiver les notifications</string>
+    <string name="disconnect">Déconnexion</string>
+    <string name="about">À propos</string>
+    <string name="about_detail">ThirstyQuest est une application de suivi de consommation de boissons alcoolisées. Compare toi à tes amis et découvre tes stats !</string>
+    <!-- ======== Common  ========-->
     <string name="cancel">Annuler</string>
     <string name="close">Fermer</string>
     <string name="liters">Litres</string>

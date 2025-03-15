@@ -2,7 +2,6 @@ package com.example.thirstyquest.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,30 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
-import com.example.thirstyquest.ui.screens.StatItem
 
 @Composable
 fun LeagueStatsScreenContent(leagueID: Int) {
@@ -52,7 +36,7 @@ fun LeagueStatsScreenContent(leagueID: Int) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-//                                Composables
+//                                Composable
 @Composable
 fun LeagueStatsList(leagueID: Int) {
     Column(
@@ -63,7 +47,7 @@ fun LeagueStatsList(leagueID: Int) {
             .verticalScroll(rememberScrollState())
     ) {
         // =========================================================================================
-        LeagueStatsCategory(stringResource(R.string.league_members))
+        StatsCategory(stringResource(R.string.league_members))
         Spacer(modifier = Modifier.height(12.dp))
         val whoDrinkTheMost = "Alexandre"                                                           // TODO : get value with leagueID
         val whoDrinkTheMostLitersPerDay = 28                                                        // TODO : get value with leagueID
@@ -71,9 +55,9 @@ fun LeagueStatsList(leagueID: Int) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(8.dp))
-            LeagueStatItem2("Le plus gros buveur", whoDrinkTheMost)
+            StatsItemRowLabelFirst(stringResource(R.string.whoDrinkTheMost), whoDrinkTheMost)
             Spacer(modifier = Modifier.weight(1f))
-            LeagueStatItem("L/Jour", "$whoDrinkTheMostLitersPerDay")
+            StatsItemRowValueFirst(stringResource(R.string.liters_per_day), "$whoDrinkTheMostLitersPerDay")
         }
         val whoDrinkTheLess = "Vincent"                                                             // TODO : get value with leagueID
         val whoDrinkTheLessLitersPerDay = 0.006                                                     // TODO : get value with leagueID
@@ -81,22 +65,22 @@ fun LeagueStatsList(leagueID: Int) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(8.dp))
-            LeagueStatItem2("Le plus sobre", whoDrinkTheLess)
+            StatsItemRowLabelFirst(stringResource(R.string.whoDrinkTheLess), whoDrinkTheLess)
             Spacer(modifier = Modifier.weight(1f))
-            LeagueStatItem("L/Jour", "$whoDrinkTheLessLitersPerDay")
+            StatsItemRowValueFirst(stringResource(R.string.liters_per_day), "$whoDrinkTheLessLitersPerDay")
         }
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         Spacer(modifier = Modifier.height(10.dp))
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         val whoPaysTheMost = "Alexandre"                                                            // TODO : get value with leagueID
         val whoPaysTheMostTotal = 18900                                                             // TODO : get value with leagueID
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(8.dp))
-            LeagueStatItem2("Le plus généreux", whoPaysTheMost)
+            StatsItemRowLabelFirst(stringResource(R.string.whoPaysTheMost), whoPaysTheMost)
             Spacer(modifier = Modifier.weight(1f))
-            LeagueStatItem("€ dépensés", "$whoPaysTheMostTotal")
+            StatsItemRowValueFirst(stringResource(R.string.spent_money), "$whoPaysTheMostTotal")
         }
         val whoPaysTheLess = "Maxime"                                                               // TODO : get value with leagueID
         val whoPaysTheLessTotal = 2.30                                                              // TODO : get value with leagueID
@@ -104,13 +88,13 @@ fun LeagueStatsList(leagueID: Int) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Spacer(modifier = Modifier.width(8.dp))
-            LeagueStatItem2("Le plus gros rat", whoPaysTheLess)
+            StatsItemRowLabelFirst(stringResource(R.string.whoPaysTheLess), whoPaysTheLess)
             Spacer(modifier = Modifier.weight(1f))
-            LeagueStatItem("€ dépensés", "$whoPaysTheLessTotal")
+            StatsItemRowValueFirst(stringResource(R.string.spent_money), "$whoPaysTheLessTotal")
         }
         // =========================================================================================
         Spacer(modifier = Modifier.height(12.dp))
-        LeagueStatsCategory(stringResource(R.string.league_conso))
+        StatsCategory(stringResource(R.string.league_conso))
         Spacer(modifier = Modifier.height(12.dp))
         val litersPerDay = 5.2                                                                      // TODO : get value with leagueID
         Row( modifier = Modifier.fillMaxWidth()) {
@@ -123,9 +107,9 @@ fun LeagueStatsList(leagueID: Int) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                LeagueStatItem("/Jour", "$litersPerDay")
-                LeagueStatItem("/Mois", "${litersPerDay*30}")
-                LeagueStatItem("/An", "${litersPerDay*365}")
+                StatsItemRowValueFirst(stringResource(R.string.per_day), "$litersPerDay")
+                StatsItemRowValueFirst(stringResource(R.string.per_month), "${litersPerDay*(365.25/12)}")
+                StatsItemRowValueFirst(stringResource(R.string.per_year), "${litersPerDay*365.25}")
             }
         }
 
@@ -141,14 +125,14 @@ fun LeagueStatsList(leagueID: Int) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
 
-                LeagueStatItem("/Jour", "$drinksPerDay")
-                LeagueStatItem("/Mois", "${drinksPerDay * 30}")
-                LeagueStatItem("/An", "${drinksPerDay * 365}")
+                StatsItemRowValueFirst("/Jour", "$drinksPerDay")
+                StatsItemRowValueFirst("/Mois", "${drinksPerDay * 30}")
+                StatsItemRowValueFirst("/An", "${drinksPerDay * 365}")
             }
         }
         // =========================================================================================
         Spacer(modifier = Modifier.height(12.dp))
-        LeagueStatsCategory(stringResource(R.string.league_pref))
+        StatsCategory(stringResource(R.string.league_pref))
         Spacer(modifier = Modifier.height(12.dp))
         val firstDrink = "Cimetière"                                                                // TODO : get value with leagueID
         val secondDrink = "Ricard"                                                                  // TODO : get value with leagueID
@@ -161,14 +145,14 @@ fun LeagueStatsList(leagueID: Int) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            LeagueStatItem(firstDrink, "$firstDrinkValue")
-            LeagueStatItem(thirdDrink, "$secondDrinkValue")
-            LeagueStatItem(secondDrink, "$thirdDrinkValue")
+            StatsItemRowValueFirst(firstDrink, "$firstDrinkValue")
+            StatsItemRowValueFirst(thirdDrink, "$secondDrinkValue")
+            StatsItemRowValueFirst(secondDrink, "$thirdDrinkValue")
         }
 
         // =========================================================================================
         Spacer(modifier = Modifier.height(12.dp))
-        LeagueStatsCategory(stringResource(R.string.total))
+        StatsCategory(stringResource(R.string.total))
         val totalPaid = 16000
 
         val totalDrink = 1457.toDouble()
@@ -178,126 +162,8 @@ fun LeagueStatsList(leagueID: Int) {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LeagueStatItem("€ dépensés", "$totalPaid")
-            DrinkStats(totalLiters, totalDrink)
-        }
-    }
-}
-
-@Composable
-fun LeagueStatsCategory(category: String)
-{
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text = category,
-        fontSize = 20.sp,
-        color = MaterialTheme.colorScheme.primary,
-        fontStyle = FontStyle.Italic
-    )
-}
-
-@Composable
-fun LeagueStatItem(label: String, value: String)
-{
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
-}
-
-@Composable
-fun LeagueStatItem2(label: String, value: String)
-{
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.width(7.dp))
-        Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary
-        )
-    }
-}
-
-@Composable
-fun DrinkStats(totalLiters: Double, totalDrinks: Double)
-{
-    var selectedUnit by remember { mutableStateOf("Litres") }
-    var expanded by remember { mutableStateOf(false) }
-
-    // Liste des unités et conversion
-    val unitConversions = mapOf(
-        stringResource(R.string.liters) to 1.0,
-        stringResource(R.string.drinks) to 0.0,
-        stringResource(R.string.bath) to 150.0,
-        stringResource(R.string.tank_truck) to 40000.0,
-        stringResource(R.string.olymp_pool) to 2500000.0
-    )
-    var convertedValue = 0.0
-    if(unitConversions[selectedUnit] == 0.0){
-        convertedValue = totalDrinks
-    }
-    else {
-        convertedValue = totalLiters / (unitConversions[selectedUnit] ?: 1.0)
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Value
-        Text(
-            text = String.format("%.2f", convertedValue),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary
-        )
-
-        // Unit selection
-        Box {
-            TextButton(onClick = { expanded = true }) {
-                Text(selectedUnit, color = MaterialTheme.colorScheme.tertiary)
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ArrowBack else Icons.Filled.ArrowDownward,
-                    contentDescription = "Dropdown",
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                unitConversions.keys.forEach { unit ->
-                    DropdownMenuItem(
-                        text = { Text(unit) },
-                        onClick = {
-                            selectedUnit = unit
-                            expanded = false
-                        }
-                    )
-                }
-            }
+            StatsItemRowValueFirst(stringResource(R.string.spent_money), "$totalPaid")
+            StatsDrink(totalLiters, totalDrink)
         }
     }
 }

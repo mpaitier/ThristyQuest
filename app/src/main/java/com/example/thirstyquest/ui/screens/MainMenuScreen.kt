@@ -1,6 +1,5 @@
 package com.example.thirstyquest.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,39 +15,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import com.example.thirstyquest.R
-import java.text.SimpleDateFormat
+import com.example.thirstyquest.data.Publication
+import com.example.thirstyquest.ui.dialog.AddPublicationDialog
+import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
+import com.example.thirstyquest.ui.components.PublicationItemMenu
+import com.example.thirstyquest.data.PublicationHist
 
-data class Publication(
-    val ID: Int,
-    val description: String,
-    val user_ID: Int,
-    val date: String,
-    val hour: String,
-    val category: String,
-    val price: Double,
-    val photo: Int,
-    val points: Int
-)
 
 @Composable
-fun MainMenuScreen(navController: NavController) {
+fun MainMenuScreen() {
     var showDialog by remember { mutableStateOf(false) }
-    var selectedBoisson by remember { mutableStateOf<Publication?>(null) }
+    var selectedPublication by remember { mutableStateOf<Publication?>(null) }
 
     Box(
         modifier = Modifier
@@ -59,7 +41,7 @@ fun MainMenuScreen(navController: NavController) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Mini Menu "Top boissons"
+            // Show 3 best drinks
             Text(stringResource(id = R.string.top_drinks), fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
             Column(
                 modifier = Modifier
@@ -104,15 +86,8 @@ fun MainMenuScreen(navController: NavController) {
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
-                val hist = listOf(
-                    Publication(1, "Pinte au Bistrot", 26, "12/02/2025", "19:00","Biere",5.50, R.drawable.biere, 50),
-                    Publication(2, "Pinte chez Moe's", 12, "12/02/2025", "20:00","Biere",6.00, R.drawable.biere, 60),
-                    Publication(3, "Moscow Mule chez Croguy", 84, "12/02/2025", "20:12", "Moscow Mule",8.50, R.drawable.vodka, 80),
-                    Publication(4, "Binch de malade", 2, "13/02/2025", "02:26", "Biere", 4.00, R.drawable.biere, 40),
-                    Publication(5, "Ricard du midi", 1, "13/02/2025", "12:26", "Ricard", 3.00, R.drawable.ricard, 30)
-                )
 
-                val sortedHist = hist.sortedByDescending { it.date + it.hour }
+                val sortedHist = PublicationHist.sortedByDescending { it.date + it.hour }
 
                 sortedHist.forEach { publication ->
                     Box(
@@ -121,9 +96,9 @@ fun MainMenuScreen(navController: NavController) {
                             .padding(vertical = 4.dp)
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .padding(8.dp)
-                            .clickable { selectedBoisson = publication } // Ajout du clic pour afficher les détails
+                            .clickable { selectedPublication = publication } // Details on click
                     ) {
-                        histItem(publication)
+                        PublicationItemMenu(publication)
                     }
                 }
             }
@@ -131,81 +106,20 @@ fun MainMenuScreen(navController: NavController) {
     }
 
     if (showDialog) {
-        AddDrinkDialog(onDismiss = { showDialog = false })
+        AddPublicationDialog(onDismiss = { showDialog = false })
     }
 
-    // Affichage des détails de la boisson sélectionnée
-    selectedBoisson?.let {
-        AffichageBoissonHisto(boisson = it, onDismiss = { selectedBoisson = null })
+    // Show selected publication
+    selectedPublication?.let {
+        PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
-}
-
-@Composable
-fun AddDrinkDialog(onDismiss: () -> Unit) {
-    var drinkName by remember { mutableStateOf("") }
-    var drinkPrice by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button( //TODO faire en sorte que lorsqu'on clique sur valider, la boisson soit ajoutée au catalogue
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(0.8f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(id = R.string.add), fontSize = 16.sp)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.cancel))
-            }
-        },
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // TODO remplacer le logo par l'image quand je pourrais l'avoir
-                Box(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .background(Color.LightGray, RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Filled.LocalDrink, contentDescription = "Photo", tint = Color.DarkGray, modifier = Modifier.size(80.dp))
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // TODO ajouter les autres options, à voir comment on fait pour la catégorie et le lieu
-                OutlinedTextField(
-                    value = drinkName,
-                    onValueChange = { drinkName = it },
-                    label = { Text("Nom de la boisson") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Champ pour le prix de la boisson
-                OutlinedTextField(
-                    value = drinkPrice,
-                    onValueChange = { drinkPrice = it },
-                    label = { Text("Prix de la boisson (€)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        modifier = Modifier.padding(16.dp)
-    )
 }
 
 
 @Composable
-fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: String, points: String) {
+fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: String, points: String)
+{
+    // TODO : function takes top drink items in data base, we shouldn't need to declare them manually
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -222,114 +136,3 @@ fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: St
         Text(text = points, fontSize = 14.sp, color = Color.Gray)
     }
 }
-
-
-@Composable
-fun histItem(publication: Publication) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = publication.photo),
-            contentDescription = "Image de la boisson",
-            modifier = Modifier.size(40.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column {
-            Text(publication.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-            Text("Points: ${publication.points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
-        }
-    }
-}
-
-
-@Composable
-fun AffichageBoissonHisto(boisson: Publication, onDismiss: () -> Unit) {
-
-    val dateTimeString = "${boisson.date} ${boisson.hour}"
-    val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRENCH)
-    val parsedDate = inputFormat.parse(dateTimeString) ?: ""
-
-    val outputFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.FRENCH)
-    val formattedDate = outputFormat.format(parsedDate)
-
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = boisson.description,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-        },
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Image circulaire
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = boisson.photo),
-                        contentDescription = "Image de la boisson",
-                        modifier = Modifier.size(110.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Points
-                Text(
-                    text = "Points: ${boisson.points}",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Date formatée avec l'heure
-                Text(
-                    text = "Date: $formattedDate", // Affichage de la date et de l'heure formatées
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Prix
-                Text(
-                    text = "Prix: ${boisson.price} €",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Fermer", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-        },
-        modifier = Modifier.padding(16.dp)
-    )
-}
-
-
-
-
-

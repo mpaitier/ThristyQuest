@@ -4,18 +4,16 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.example.thirstyquest.ui.screens.LoginScreen
+import com.example.thirstyquest.ui.screens.profile.LoginScreen
 import com.example.thirstyquest.ui.screens.MainMenuScreen
-import com.example.thirstyquest.ui.screens.ProfileScreen
+import com.example.thirstyquest.ui.screens.profile.ProfileScreen
 import com.example.thirstyquest.ui.screens.social.SocialScreen
 import com.example.thirstyquest.ui.screens.social.LeagueContentScreen
-import com.example.thirstyquest.ui.screens.SettingsScreen
-import com.example.thirstyquest.ui.screens.SignInScreen
-import com.example.thirstyquest.ui.screens.SignUpScreen
+import com.example.thirstyquest.ui.screens.profile.SettingsScreen
+import com.example.thirstyquest.ui.screens.profile.SignInScreen
+import com.example.thirstyquest.ui.screens.profile.SignUpScreen
 import com.example.thirstyquest.ui.screens.social.FriendProfileScreen
 
 @Composable
@@ -28,7 +26,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
     ) {
         composable(Screen.MainMenu.name)
         {
-            MainMenuScreen(navController)
+            MainMenuScreen()
         }
 
 
@@ -60,7 +58,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
 
         composable(Screen.Profile.name)
         {
-            ProfileScreen(navController)
+            ProfileScreen()
         }
         composable(Screen.Settings.name)
         {

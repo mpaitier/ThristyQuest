@@ -1,9 +1,10 @@
-package com.example.thirstyquest.ui.screens
+package com.example.thirstyquest.ui.screens.profile
 
 
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,11 +14,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.example.thirstyquest.R
 
 
 @Composable
 fun SettingsScreen(navController: NavController) {
-    val primaryColor = MaterialTheme.colorScheme.primary
 
     // States for Switches
     var isDarkMode by remember { mutableStateOf(false) }
@@ -30,17 +32,17 @@ fun SettingsScreen(navController: NavController) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Paramètres",
+            text = stringResource(R.string.settings),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = primaryColor,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         // Mode sombre switch
         SettingsSwitchOption(
-            title = "Mode sombre",
-            description = "Activer ou désactiver le mode sombre de l'application",
+            title = stringResource(R.string.dark_mode),
+            description = stringResource(R.string.dark_mode_detail),
             isChecked = isDarkMode,
             onCheckedChange = { isDarkMode = it }
         )
@@ -49,8 +51,8 @@ fun SettingsScreen(navController: NavController) {
 
         // Notifications switch
         SettingsSwitchOption(
-            title = "Notifications",
-            description = "Activer ou désactiver les notifications",
+            title = stringResource(R.string.notif),
+            description = stringResource(R.string.notif_detail),
             isChecked = areNotificationsEnabled,
             onCheckedChange = { areNotificationsEnabled = it }
         )
@@ -67,13 +69,14 @@ fun SettingsScreen(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(imageVector = Icons.Filled.Logout, contentDescription = "Déconnexion")
+                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Déconnexion")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Déconnexion")
+                Text(text = stringResource(R.string.disconnect))
             }
         }
     }
 }
+
 @Composable
 fun SettingsSwitchOption(
     title: String,
@@ -81,13 +84,11 @@ fun SettingsSwitchOption(
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val tertiaryColor = MaterialTheme.colorScheme.tertiary
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = primaryColor
+            containerColor = MaterialTheme.colorScheme.primary
         )
     ) {
         Column(
@@ -126,9 +127,9 @@ fun AboutSection() {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "À propos", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.about), fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "ThirstyQuest est une application de suivi de consommation de boissons alcoolisées. Compare toi à tes amis et découvre tes stats !")
+            Text(text = stringResource(R.string.about_detail))
         }
     }
 }
