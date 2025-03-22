@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,9 +26,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.viewmodel.AuthState
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
+
+    val authState = authViewModel.authState.observeAsState()
+    LaunchedEffect(authState.value)
+    {
+        when(authState.value)
+        {
+            is AuthState.Authenticated -> navController.navigate(Screen.Profile.name)
+            else -> Unit
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

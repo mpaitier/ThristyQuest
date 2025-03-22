@@ -48,9 +48,10 @@ import com.example.thirstyquest.ui.dialog.CollectionDialog
 import com.example.thirstyquest.ui.dialog.FriendPublicationDialog
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.dialog.StatisticsDialog
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun FriendProfileScreen(userID: Int, navController: NavController)
+fun FriendProfileScreen(userID: Int, navController: NavController, authViewModel: AuthViewModel)
 {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }

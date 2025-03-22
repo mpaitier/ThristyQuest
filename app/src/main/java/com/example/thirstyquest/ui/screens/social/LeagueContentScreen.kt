@@ -22,9 +22,10 @@ import com.example.thirstyquest.ui.components.LeagueInfo
 import com.example.thirstyquest.ui.components.LeagueMembersScreenContent
 import com.example.thirstyquest.ui.components.LeagueStatsScreenContent
 import com.example.thirstyquest.ui.components.LeagueTopBar
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LeagueContentScreen(leagueID: Int, navController: NavController) {
+fun LeagueContentScreen(leagueID: Int, navController: NavController, authViewModel: AuthViewModel) {
     val pagerState = rememberPagerState(initialPage = 1)
 
     val context = LocalContext.current  // for share intent

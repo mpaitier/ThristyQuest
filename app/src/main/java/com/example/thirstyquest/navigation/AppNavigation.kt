@@ -15,30 +15,31 @@ import com.example.thirstyquest.ui.screens.profile.SettingsScreen
 import com.example.thirstyquest.ui.screens.profile.SignInScreen
 import com.example.thirstyquest.ui.screens.profile.SignUpScreen
 import com.example.thirstyquest.ui.screens.social.FriendProfileScreen
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
+fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
     NavHost(
         navController = navController,
         startDestination = Screen.MainMenu.name,
-        // startDestination = Screen.LeagueContent.name+"/3",  // to see changes faster
         modifier = modifier
     ) {
         composable(Screen.MainMenu.name)
         {
-            MainMenuScreen()
+            MainMenuScreen(authViewModel)
         }
 
 
         composable(Screen.Social.name)
         {
-            SocialScreen(navController)
+            SocialScreen(navController, authViewModel)
         }
-        composable(Screen.LeagueContent.name + "/{leagueId}",) {
+        composable(Screen.LeagueContent.name + "/{leagueId}",)
+        {
             backStackEntry ->
             val leagueID = backStackEntry.arguments?.getString("leagueId")?.toIntOrNull()
             if (leagueID != null) {
-                LeagueContentScreen(leagueID = leagueID, navController = navController)
+                LeagueContentScreen(leagueID = leagueID, navController = navController, authViewModel = authViewModel)
             }
             else {
                 Log.e("Navigation", "leagueID is null")
@@ -46,37 +47,39 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         }
 
 
-        composable(Screen.Login.name){
-            LoginScreen(navController)
+        composable(Screen.Login.name)
+        {
+            LoginScreen(navController, authViewModel)
         }
-        composable(Screen.SignIn.name) {
-            SignInScreen(navController)
+        composable(Screen.SignIn.name)
+        {
+            SignInScreen(navController, authViewModel)
         }
-        composable(Screen.SignUp.name) {
-            SignUpScreen(navController)
+        composable(Screen.SignUp.name)
+        {
+            SignUpScreen(navController, authViewModel)
         }
 
         composable(Screen.Profile.name)
         {
-            ProfileScreen()
+            ProfileScreen(navController, authViewModel)
         }
         composable(Screen.Settings.name)
         {
-            SettingsScreen(navController)
+            SettingsScreen(navController, authViewModel)
         }
 
-        composable(Screen.FriendProfile.name + "/{userId}",) {
+        composable(Screen.FriendProfile.name + "/{userId}",)
+        {
                 backStackEntry ->
             val userID = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
             if (userID != null) {
-                FriendProfileScreen(userID = userID, navController = navController)
+                FriendProfileScreen(userID = userID, navController = navController, authViewModel = authViewModel)
             }
             else {
                 Log.e("Navigation", "leagueID is null")
             }
         }
-
-
     }
 }
 

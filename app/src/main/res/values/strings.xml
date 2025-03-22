@@ -22,6 +22,8 @@
     <string name="birthdate">Date de naissance</string>
     <string name="password">Mot de passe</string>
     <string name="forgot_pwd">Mot de passe oublié ?</string>
+    <string name="no_account">Tu n\'as pas de compte ? Inscris-toi !</string>
+    <string name="already_account">Tu as déjà un compte ? Connecte toi !</string>
     <string name="unlock_social">Débloque les fonctionnalités sociales de Thirsty Quest</string>
     <string name="social_advantage1">Suit tes amis pour découvrir leurs aventures alcoolisées !</string>
     <string name="social_advantage2">Connecte toi à d\'autres utilisateurs à travers la compétition de ligues !</string>

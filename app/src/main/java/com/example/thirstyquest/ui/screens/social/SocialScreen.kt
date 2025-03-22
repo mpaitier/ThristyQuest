@@ -30,9 +30,10 @@ import com.example.thirstyquest.ui.components.SearchBar
 import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SocialScreen(navController: NavController) {
+fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -136,13 +137,4 @@ fun addToLeagueList(leagueCode: String): Int
 {
     // TODO : Add league to user's list
     return 69 // Random value
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//                               Previews
-
-@PreviewScreenSizes
-@Composable
-fun SocialScreenPreview() {
-    SocialScreen(rememberNavController())
 }

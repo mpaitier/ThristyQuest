@@ -13,18 +13,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import com.example.thirstyquest.R
+import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.viewmodel.AuthState
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel) {
 
     // States for Switches
     var isDarkMode by remember { mutableStateOf(false) }
     var areNotificationsEnabled by remember { mutableStateOf(true) }
 
+    val authState = authViewModel.authState.observeAsState()
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            is AuthState.Unauthenticated -> navController.navigate(Screen.Login.name)
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -65,7 +76,7 @@ fun SettingsScreen(navController: NavController) {
             contentAlignment = Alignment.BottomEnd
         ) {
             Button(
-                onClick = {  }, // Fonction de déconnexion
+                onClick = { authViewModel.signout() },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 modifier = Modifier.padding(16.dp)
             ) {

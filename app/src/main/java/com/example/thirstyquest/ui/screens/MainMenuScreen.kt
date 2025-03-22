@@ -25,10 +25,11 @@ import com.example.thirstyquest.ui.dialog.AddPublicationDialog
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import com.example.thirstyquest.ui.components.PublicationItemMenu
 import com.example.thirstyquest.data.PublicationHist
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
 @Composable
-fun MainMenuScreen() {
+fun MainMenuScreen(authViewModel: AuthViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
 

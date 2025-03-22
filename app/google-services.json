@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1067529095326",
+    "project_id": "thirsty-quest",
+    "storage_bucket": "thirsty-quest.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067529095326:android:90e68469c7a75db4fd138f",
+        "android_client_info": {
+          "package_name": "com.example.thirstyquest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1067529095326-jop3jfqab0eaj7n2n6mn3dg2d07upbgc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.thirstyquest",
+            "certificate_hash": "66b9f53a0f6bcea1a21dceb294a31d73ec5147c8"
+          }
+        },
+        {
+          "client_id": "1067529095326-ctnaecn8iqdj9t9t7u3n8f01d588m9bq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBone8DGZ4r9elTU-5aWgG206sDSv80Vrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1067529095326-ctnaecn8iqdj9t9t7u3n8f01d588m9bq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

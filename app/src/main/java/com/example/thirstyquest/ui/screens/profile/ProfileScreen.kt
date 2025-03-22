@@ -8,6 +8,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -18,6 +19,9 @@ import com.example.thirstyquest.ui.components.UserCollectionContent
 import com.example.thirstyquest.ui.components.UserBadgesContent
 import com.example.thirstyquest.ui.components.UserStatsContent
 import com.example.thirstyquest.data.PublicationHist
+import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.viewmodel.AuthState
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 //----------DATA--------
 
@@ -63,10 +67,18 @@ val badgeList = listOf(
 //                                      Composable
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     val tabTitles = listOf(R.string.my_stats, R.string.my_collection,R.string.my_badge)
     val pagerState = rememberPagerState { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
+
+    val authState = authViewModel.authState.observeAsState()
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            is AuthState.Unauthenticated -> navController.navigate(Screen.Login.name)
+            else -> Unit
+        }
+    }
 
     LaunchedEffect(Unit) {
         pagerState.scrollToPage(1)

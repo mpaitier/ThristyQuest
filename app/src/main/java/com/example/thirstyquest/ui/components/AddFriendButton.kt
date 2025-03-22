@@ -57,7 +57,7 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
                     isFriend = true
                     Toast.makeText(
                         context,
-                        "${userName} ${context.getString(R.string.friend_added)}",
+                        "$userName ${context.getString(R.string.friend_added)}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -82,7 +82,7 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
                     isFriend = false
                     Toast.makeText(
                         context,
-                        "${userName} ${context.getString(R.string.friend_deleted)}",
+                        "$userName ${context.getString(R.string.friend_deleted)}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

@@ -3,6 +3,7 @@ package com.example.thirstyquest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -14,22 +15,28 @@ import com.example.thirstyquest.navigation.AppNavigation
 import com.example.thirstyquest.ui.components.BottomNavBar
 import com.example.thirstyquest.ui.components.TopBar
 import com.example.thirstyquest.ui.theme.ThirstyQuestTheme
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val authViewModel : AuthViewModel by viewModels()
         setContent {
             ThirstyQuestTheme {
-                ThirstyQuestApp()
+                ThirstyQuestApp(authViewModel = authViewModel)
             }
         }
     }
+
 }
 
-
 @Composable
-fun ThirstyQuestApp() {
+fun ThirstyQuestApp(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -39,7 +46,8 @@ fun ThirstyQuestApp() {
     ) { innerPadding ->
         AppNavigation(
             navController = navController,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            authViewModel = authViewModel
         )
     }
 }
