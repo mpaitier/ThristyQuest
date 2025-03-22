@@ -34,7 +34,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         {
             SocialScreen(navController, authViewModel)
         }
-        composable(Screen.LeagueContent.name + "/{leagueId}",)
+        composable(Screen.LeagueContent.name + "/{leagueId}")
         {
             backStackEntry ->
             val leagueID = backStackEntry.arguments?.getString("leagueId")?.toIntOrNull()
@@ -69,7 +69,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
             SettingsScreen(navController, authViewModel)
         }
 
-        composable(Screen.FriendProfile.name + "/{userId}",)
+        composable(Screen.FriendProfile.name + "/{userId}")
         {
                 backStackEntry ->
             val userID = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
