@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.User
 import com.example.thirstyquest.data.userList
-import com.example.thirstyquest.ui.screens.social.AddFriendButton
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composables

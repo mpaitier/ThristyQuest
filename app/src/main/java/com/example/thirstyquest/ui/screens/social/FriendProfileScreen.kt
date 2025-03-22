@@ -42,6 +42,7 @@ import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.User
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.dialog.BadgeFriendDialog
 import com.example.thirstyquest.ui.dialog.CollectionDialog
 import com.example.thirstyquest.ui.dialog.FriendPublicationDialog

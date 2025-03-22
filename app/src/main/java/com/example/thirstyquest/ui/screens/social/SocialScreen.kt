@@ -1,7 +1,5 @@
 package com.example.thirstyquest.ui.screens.social
 
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -23,13 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.core.content.ContextCompat.getDrawable
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.FriendsList
@@ -38,9 +30,6 @@ import com.example.thirstyquest.ui.components.SearchBar
 import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun SocialScreen(navController: NavController) {
@@ -147,76 +136,6 @@ fun addToLeagueList(leagueCode: String): Int
 {
     // TODO : Add league to user's list
     return 69 // Random value
-}
-
-
-@Composable
-fun AddFriendButton(isFriend: Boolean, userName: String)
-{                                                                                                   // TODO : userName -> userID
-    // TODO : fix animation
-    var isFriend by remember { mutableStateOf(isFriend) }
-    var isAnimating by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-    val coroutineScope = rememberCoroutineScope()
-
-    IconButton(
-        onClick = {
-            focusManager.clearFocus()
-            if (!isAnimating) {
-                isAnimating = true
-                coroutineScope.launch {
-                    delay(1000)
-                    isAnimating = false
-                    isFriend = !isFriend
-                    Toast.makeText(
-                        context,
-                        "$userName ${context.getString(if (isFriend) R.string.friend_added else R.string.friend_deleted)}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        },
-        modifier = Modifier.size(45.dp)
-    ) {
-        when {
-            isAnimating && !isFriend -> {  // Filling animation
-                Image(
-                    painter = rememberDrawablePainter(
-                        drawable = getDrawable(LocalContext.current, R.drawable.anim_beer_filling)
-                    ),
-                    contentDescription = "Filling beer",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            isAnimating && isFriend -> {  // Emptying animation
-                Image(
-                    painter = rememberDrawablePainter(
-                        drawable = getDrawable(LocalContext.current, R.drawable.anim_beer_emptying)
-                    ),
-                    contentDescription = "Emptying beer",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            isFriend -> { // Full glass
-                Image(
-                    painter = painterResource(id = R.drawable.icon_beer_full),
-                    contentDescription = "Beer full",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            else -> {  // Empty glass
-                Image(
-                    painter = painterResource(id = R.drawable.icon_beer_empty),
-                    contentDescription = "Beer empty",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////
