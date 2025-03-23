@@ -29,23 +29,74 @@ import com.example.thirstyquest.data.User
 import com.example.thirstyquest.ui.screens.social.FollowItem
 import com.example.thirstyquest.data.followersList
 import com.example.thirstyquest.data.followingList
+import com.google.firebase.firestore.FirebaseFirestore
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+
 
 @Composable
-fun FollowDialog(userID: Int, onDismiss: () -> Unit, navController: NavController)
-{
-    // TODO : get real list with userID
+fun FollowDialog(userID: String, onDismiss: () -> Unit, navController: NavController) {
+    val db = FirebaseFirestore.getInstance()
 
-
+    // États pour stocker les données Firestore
+    var followersList by remember { mutableStateOf<List<User>>(emptyList()) }
+    var followingList by remember { mutableStateOf<List<User>>(emptyList()) }
     var showFollowers by remember { mutableStateOf(true) }
 
+    // 🔥 Récupérer les abonnés en temps réel
+    LaunchedEffect(userID) {
+        db.collection("users").document(userID).collection("followers")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("FIRESTORE", "Erreur de chargement des followers", e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val newList = mutableListOf<User>()
+                    snapshot.documents.forEach { doc ->
+                        val followerId = doc.id
+                        db.collection("users").document(followerId).get()
+                            .addOnSuccessListener { userDoc ->
+                                val user = userDoc.toObject(User::class.java)
+                                user?.let { newList.add(it) }
+                            }
+                    }
+                    followersList = newList
+                }
+            }
+    }
+
+// 🔥 Récupérer les suivis en temps réel
+    LaunchedEffect(userID) {
+        db.collection("users").document(userID).collection("following")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("FIRESTORE", "Erreur de chargement des following", e)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val newList = mutableListOf<User>()
+                    snapshot.documents.forEach { doc ->
+                        val followingId = doc.id
+                        db.collection("users").document(followingId).get()
+                            .addOnSuccessListener { userDoc ->
+                                val user = userDoc.toObject(User::class.java)
+                                user?.let { newList.add(it) }
+                            }
+                    }
+                    followingList = newList
+                }
+            }
+    }
+
+
+    // Interface utilisateur
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.contacts), fontWeight = FontWeight.Bold) },
+        title = { Text("Contacts", fontWeight = FontWeight.Bold) },
         text = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Switch button between followers & following
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Choix entre abonnés et suivis
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -56,7 +107,7 @@ fun FollowDialog(userID: Int, onDismiss: () -> Unit, navController: NavControlle
                             containerColor = if (showFollowers) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
                         )
                     ) {
-                        Text(stringResource(R.string.followers))
+                        Text("Abonnés")
                     }
                     Button(
                         onClick = { showFollowers = false },
@@ -64,11 +115,12 @@ fun FollowDialog(userID: Int, onDismiss: () -> Unit, navController: NavControlle
                             containerColor = if (!showFollowers) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
                         )
                     ) {
-                        Text(stringResource(R.string.following))
+                        Text("Suivis")
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                // Followers / following content
+
+                // Liste des abonnés ou des suivis
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -84,7 +136,7 @@ fun FollowDialog(userID: Int, onDismiss: () -> Unit, navController: NavControlle
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text(stringResource(R.string.close))
+                Text("Fermer")
             }
         }
     )
@@ -94,8 +146,8 @@ fun FollowDialog(userID: Int, onDismiss: () -> Unit, navController: NavControlle
 @Composable
 fun FollowersPage(followersList: List<User>, navController: NavController) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(followersList.size) { follower ->
-            FollowItem(followersList[follower], navController = navController)
+        items(followersList.size) { index ->
+            FollowItem(followersList[index], navController)
         }
     }
 }
@@ -103,8 +155,133 @@ fun FollowersPage(followersList: List<User>, navController: NavController) {
 @Composable
 fun FollowingPage(followingList: List<User>, navController: NavController) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(followingList.size) { follower ->
-            FollowItem(followingList[follower], navController = navController)
+        items(followingList.size) { index ->
+            FollowItem(followingList[index], navController)
         }
     }
+}
+
+@Composable
+fun FriendsPage(friendsList: List<User>, navController: NavController) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(friendsList.size) { index ->
+            FollowItem(friendsList[index], navController)
+        }
+    }
+}
+
+fun addUserToFirestore(userId: String, name: String, level: Int) {
+    val db = FirebaseFirestore.getInstance()
+    val user = User(userId, name, level, false)  // Pas encore d'amis
+
+    db.collection("users").document(userId)
+        .set(user)
+        .addOnSuccessListener { Log.d("FIRESTORE", "Utilisateur ajouté !") }
+        .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur d'ajout : ", e) }
+}
+fun getUsersFromFirestore() {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users")
+        .get()
+        .addOnSuccessListener { result ->
+            for (document in result) {
+                val user = document.toObject(User::class.java)
+                Log.d("FIRESTORE", "Utilisateur récupéré : $user")
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+        }
+}
+fun updateUserLevel(userId: String, newLevel: Int) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users")
+        .document(userId)
+        .update("level", newLevel)
+        .addOnSuccessListener {
+            Log.d("FIRESTORE", "Niveau mis à jour avec succès !")
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur lors de la mise à jour du niveau : ", e)
+        }
+}
+fun deleteUserFromFirestore(userId: String) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users")
+        .document(userId)
+        .delete()
+        .addOnSuccessListener {
+            Log.d("FIRESTORE", "Utilisateur supprimé avec succès !")
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur lors de la suppression de l'utilisateur : ", e)
+        }
+}
+fun sendFriendRequest(fromUserId: String, toUserId: String) {
+    val db = FirebaseFirestore.getInstance()
+
+    val request = hashMapOf("from" to fromUserId, "status" to "pending")
+
+    db.collection("users").document(toUserId)
+        .collection("friend_requests")
+        .document(fromUserId)
+        .set(request)
+        .addOnSuccessListener { Log.d("FIRESTORE", "Demande envoyée !") }
+        .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur : ", e) }
+}
+fun acceptFriendRequest(currentUserId: String, friendUserId: String) {
+    val db = FirebaseFirestore.getInstance()
+
+    val friendship = hashMapOf("since" to System.currentTimeMillis())
+
+    db.collection("users").document(currentUserId)
+        .collection("friends").document(friendUserId)
+        .get()
+        .addOnSuccessListener { document ->
+            if (!document.exists()) {
+                db.collection("users").document(currentUserId)
+                    .collection("friends").document(friendUserId)
+                    .set(friendship)
+
+                db.collection("users").document(friendUserId)
+                    .collection("friends").document(currentUserId)
+                    .set(friendship)
+
+                db.collection("users").document(currentUserId)
+                    .collection("friend_requests").document(friendUserId)
+                    .delete()
+                    .addOnSuccessListener { Log.d("FIRESTORE", "Ami ajouté !") }
+                    .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur : ", e) }
+            } else {
+                Log.d("FIRESTORE", "Cette amitié existe déjà.")
+            }
+        }
+}
+
+fun getFriends(userId: String, onResult: (List<User>) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users").document(userId)
+        .collection("friends")
+        .addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.e("FIRESTORE", "Erreur : ", e)
+                return@addSnapshotListener
+            }
+
+            val friends = mutableListOf<User>()
+            snapshot?.documents?.forEach { doc ->
+                val friendId = doc.id
+
+                db.collection("users").document(friendId).get()
+                    .addOnSuccessListener { friendDoc ->
+                        val friend = friendDoc.toObject(User::class.java)
+                        friend?.let { friends.add(it) }
+                        onResult(friends)  // Mettre à jour la liste
+                    }
+            }
+        }
 }
