@@ -8,7 +8,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.thirstyquest.R
 
 @Composable
-fun FriendPublicationDialog(userID: Int, onDismiss: () -> Unit) {
+fun FriendPublicationDialog(userID: String, onDismiss: () -> Unit) {
     // TODO : show userID's hist
     AlertDialog(
         onDismissRequest = onDismiss,

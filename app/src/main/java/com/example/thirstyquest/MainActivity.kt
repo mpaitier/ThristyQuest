@@ -16,6 +16,7 @@ import com.example.thirstyquest.ui.components.BottomNavBar
 import com.example.thirstyquest.ui.components.TopBar
 import com.example.thirstyquest.ui.theme.ThirstyQuestTheme
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class MainActivity : ComponentActivity() {

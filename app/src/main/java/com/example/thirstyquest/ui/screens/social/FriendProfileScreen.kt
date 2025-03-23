@@ -51,7 +51,7 @@ import com.example.thirstyquest.ui.dialog.StatisticsDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun FriendProfileScreen(userID: Int, navController: NavController, authViewModel: AuthViewModel)
+fun FriendProfileScreen(userID: String, navController: NavController, authViewModel: AuthViewModel)
 {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
@@ -120,7 +120,7 @@ fun FriendProfileScreen(userID: Int, navController: NavController, authViewModel
 //    Composable
 
 @Composable
-fun FriendProfileHeader(userID: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit)
+fun FriendProfileHeader(userID: String, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit)
 {
                                                                                                     // TODO : Get real values with userID
     // Information data
@@ -231,7 +231,7 @@ fun FriendProfileCategoryHeader(sectionTitle: String, onClick: () -> Unit)
 @Composable
 fun FollowItem(user: User, navController: NavController)
 {
-    val currentUserID = 2                                                                           // TODO : get user's ID
+    val currentUserID = "2"                                                                          // TODO : get user's ID
 
     fun navigateToProfile() {
         val destination = if (user.ID == currentUserID) {

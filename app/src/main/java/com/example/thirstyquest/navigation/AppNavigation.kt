@@ -72,7 +72,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable(Screen.FriendProfile.name + "/{userId}")
         {
                 backStackEntry ->
-            val userID = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+            val userID = backStackEntry.arguments?.getString("userId")
             if (userID != null) {
                 FriendProfileScreen(userID = userID, navController = navController, authViewModel = authViewModel)
             }

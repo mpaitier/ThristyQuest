@@ -127,7 +127,7 @@ fun BadgeDetailDialog(
 }
 
 @Composable
-fun BadgeFriendDialog(userID: Int, onDismiss: () -> Unit)
+fun BadgeFriendDialog(userID: String, onDismiss: () -> Unit)
 {                                                                                                   // TODO : set content
     AlertDialog(
         onDismissRequest = onDismiss,

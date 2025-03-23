@@ -81,7 +81,7 @@ fun MemberItem(navController: NavController, member: User, position: Int)
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val friendID = member.ID
-    val ownerID = 12
+    val ownerID = "12"
     // TODO : get league's owner ID
     Row(
         modifier = Modifier
@@ -140,6 +140,6 @@ fun MemberItem(navController: NavController, member: User, position: Int)
 @Preview(showBackground = true)
 @Composable
 fun PreviewMemberItem() {
-    MemberItem(navController = rememberNavController(), User(26,"Alice", 10, true), 3)
-    MemberItem(navController = rememberNavController(), User(12,"Bob", 9, false), 4)
+    MemberItem(navController = rememberNavController(), User("26","Alice", 10, true), 3)
+    MemberItem(navController = rememberNavController(), User("12","Bob", 9, false), 4)
 }

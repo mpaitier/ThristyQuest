@@ -8,7 +8,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.thirstyquest.R
 
 @Composable
-fun StatisticsDialog(userID: Int, onDismiss: () -> Unit)
+fun StatisticsDialog(userID: String, onDismiss: () -> Unit)
 {                                                                                                   // TODO : set content
     AlertDialog(
         onDismissRequest = onDismiss,
