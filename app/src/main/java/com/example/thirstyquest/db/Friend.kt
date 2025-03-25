@@ -142,15 +142,7 @@ fun FollowDialog(userID: String, onDismiss: () -> Unit, navController: NavContro
 }
 */
 
-
-
-data class User(
-    val uid: String,
-    val name: String,
-    val xp: Int = 0
-)
-
-
+// Ajouter un utilisateur à Firestore
 fun addUserToFirestore(uid: String, name: String) {
     val db = FirebaseFirestore.getInstance()
     val user = hashMapOf(
@@ -178,7 +170,7 @@ private fun createEmptyCollections(db: FirebaseFirestore, uid: String) {
     }
 }
 
-
+// Récupérer le nom d'un utilisateur
 fun getUserName(uid: String): String {
     val db = FirebaseFirestore.getInstance()
     var name = ""
@@ -191,6 +183,35 @@ fun getUserName(uid: String): String {
 
     return name
 }
+suspend fun getUserNameCoroutine(uid: String): String {
+    val db = FirebaseFirestore.getInstance()
+    return try {
+        val document = db.collection("users").document(uid).get().await()
+        document.getString("name") ?: ""
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+// Récupérer tous les utilisateurs
+suspend fun getAllUsers(): List<Pair<String, String>> {
+    val db = FirebaseFirestore.getInstance()
+    val userList = mutableListOf<Pair<String, String>>()
+
+    try {
+        val result = db.collection("users").get().await()
+        for (document in result) {
+            val id = document.getString("uid") ?: ""
+            val name = document.getString("name") ?: ""
+            userList.add(id to name)
+        }
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+    }
+    return userList
+}
+
+// Récupérer tous les abonnés d'un utilisateur
 fun getAllFollowerId(uid: String): List<String> {
     val db = FirebaseFirestore.getInstance()
     var followerList = mutableListOf<String>()
@@ -215,6 +236,25 @@ fun getAllFollowingId(uid: String): List<String> {
         }
     return followingList
 }
+suspend fun getAllFollowingIdCoroutine(uid: String): List<String> {
+    val db = FirebaseFirestore.getInstance()
+    val friendList = mutableListOf<String>()
+    try {
+        val result = db.collection("users").document(uid).collection("following")
+            .get()
+            .await()
+        // Parcours tous les documents récupérés
+        for (document in result) {
+            // Récupère l'ID du document (c'est l'ID de l'ami)
+            val id = document.id
+            friendList.add(id)
+        }
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+    }
+    return friendList
+}
+
 
 fun getFollowerStatus(uid:String,friendId: String):Boolean{
     val db = FirebaseFirestore.getInstance()
@@ -248,8 +288,6 @@ fun getFollowingStatus(uid:String,friendId: String):Boolean{
     return isFriend
 
 }
-
-
 fun setFollowingStatus(uid: String, friendId: String, isFriend: Boolean) {
     val db = FirebaseFirestore.getInstance()
     if(isFriend){
@@ -261,22 +299,6 @@ fun setFollowingStatus(uid: String, friendId: String, isFriend: Boolean) {
 
 }
 
-suspend fun getAllUsers(): List<Pair<String, String>> {
-    val db = FirebaseFirestore.getInstance()
-    val userList = mutableListOf<Pair<String, String>>()
-
-    try {
-        val result = db.collection("users").get().await()
-        for (document in result) {
-            val id = document.getString("uid") ?: ""
-            val name = document.getString("name") ?: ""
-            userList.add(id to name)
-        }
-    } catch (e: Exception) {
-        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
-    }
-    return userList
-}
 
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -319,46 +341,6 @@ fun deleteUserFromFirestore(userId: String) {
         }
         .addOnFailureListener { e ->
             Log.e("FIRESTORE", "Erreur lors de la suppression de l'utilisateur : ", e)
-        }
-}
-fun sendFriendRequest(fromUserId: String, toUserId: String) {
-    val db = FirebaseFirestore.getInstance()
-
-    val request = hashMapOf("from" to fromUserId, "status" to "pending")
-
-    db.collection("users").document(toUserId)
-        .collection("friend_requests")
-        .document(fromUserId)
-        .set(request)
-        .addOnSuccessListener { Log.d("FIRESTORE", "Demande envoyée !") }
-        .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur : ", e) }
-}
-fun acceptFriendRequest(currentUserId: String, friendUserId: String) {
-    val db = FirebaseFirestore.getInstance()
-
-    val friendship = hashMapOf("since" to System.currentTimeMillis())
-
-    db.collection("users").document(currentUserId)
-        .collection("friends").document(friendUserId)
-        .get()
-        .addOnSuccessListener { document ->
-            if (!document.exists()) {
-                db.collection("users").document(currentUserId)
-                    .collection("friends").document(friendUserId)
-                    .set(friendship)
-
-                db.collection("users").document(friendUserId)
-                    .collection("friends").document(currentUserId)
-                    .set(friendship)
-
-                db.collection("users").document(currentUserId)
-                    .collection("friend_requests").document(friendUserId)
-                    .delete()
-                    .addOnSuccessListener { Log.d("FIRESTORE", "Ami ajouté !") }
-                    .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur : ", e) }
-            } else {
-                Log.d("FIRESTORE", "Cette amitié existe déjà.")
-            }
         }
 }
 fun getFriends(userId: String, onResult: (List<User>) -> Unit) {

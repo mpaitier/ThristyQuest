@@ -21,8 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.IconButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getAllFollowingId
+import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.FriendsList
 import com.example.thirstyquest.ui.components.LeagueList
@@ -38,8 +41,14 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
-    val friendNumber = 13                                                                           // TODO : replace with actual user's friends count
-    val leagueNumber = 7                                                                            // TODO : replace with actual user's leagues count
+    // State pour stocker dynamiquement le nombre d'amis
+    var friendNumber by remember { mutableStateOf(0) }
+
+    LaunchedEffect(authViewModel._uid) {
+        val friendsList = getAllFollowingIdCoroutine(authViewModel._uid)
+        friendNumber = friendsList.size
+    }                            // TODO : replace with actual user's friends count
+    val leagueNumber = 7                                                   // TODO : replace with actual user's leagues count
 
     Column(
         modifier = Modifier
@@ -88,9 +97,8 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 color = primaryColor
             )
             Spacer(modifier = Modifier.height(6.dp))
-            FriendsList(navController, friendNumber)
+            FriendsList(navController, authViewModel)
         }
-        // If searching, show matching people
         else {
             SearchResultsList(searchQuery, authViewModel)
         }
