@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.db.getAllUsersExcept
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
@@ -83,21 +85,18 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
 @Composable
 fun SearchResultsList(query: String, navController: NavController, authViewModel: AuthViewModel) {
     val users = remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
-    val currentUserUid = authViewModel.uid.observeAsState()
-
-    if (currentUserUid.toString() == null) {
-        Log.e("AUTH", "Utilisateur non connecté, impossible de chercher des amis")
-        return
-    }
+    val currentUserUid by authViewModel.uid.observeAsState()
 
     LaunchedEffect(query) {
-        getAllUsersExcept(currentUserUid.toString()) { userList ->
-            users.value = userList
-                .mapNotNull { user ->
-                    val uid = user["uid"] as? String
-                    val name = user["name"] as? String
-                    if (uid != null && name != null && uid != currentUserUid.toString()) Pair(uid, name) else null
-                }
+        currentUserUid?.let { uid ->
+            getAllUsersExcept(uid) { userList ->
+                users.value = userList
+                    .mapNotNull { user ->
+                        val uid = user["uid"] as? String
+                        val name = user["name"] as? String
+                        if (uid != null && name != null && uid != currentUserUid.toString()) Pair(uid, name) else null
+                    }
+            }                                                    // TODO : replace with actual user's friends count
         }
     }
 

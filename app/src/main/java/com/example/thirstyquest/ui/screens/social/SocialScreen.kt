@@ -18,15 +18,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.size
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.thirstyquest.R
-import com.example.thirstyquest.db.getAllFollowingId
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.FriendsList

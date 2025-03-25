@@ -1,7 +1,6 @@
 package com.example.thirstyquest.db
 
 import android.util.Log
-import com.example.thirstyquest.data.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
