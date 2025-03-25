@@ -19,9 +19,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.clickable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.dialog.AddPublicationDialog
+import com.google.firebase.firestore.FirebaseFirestore
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import com.example.thirstyquest.ui.components.PublicationItemMenu
 import com.example.thirstyquest.data.PublicationHist
@@ -29,7 +32,8 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
 @Composable
-fun MainMenuScreen(authViewModel: AuthViewModel) {
+fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
+    val userId by authViewModel.uid.observeAsState()
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
 
@@ -60,7 +64,13 @@ fun MainMenuScreen(authViewModel: AuthViewModel) {
 
             // Bouton Ajouter une consommation
             Button(
-                onClick = { showDialog = true },
+                onClick = {
+                    if (userId != null) {
+                        showDialog = true // Ouvrir la boîte de dialogue pour ajouter une publication
+                    } else {
+                        navController.navigate("login") // Rediriger vers l'écran de connexion
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(100.dp)
@@ -106,8 +116,8 @@ fun MainMenuScreen(authViewModel: AuthViewModel) {
         }
     }
 
-    if (showDialog) {
-        AddPublicationDialog(onDismiss = { showDialog = false })
+    if (showDialog && userId != null ) {
+        AddPublicationDialog(userId = userId!!, onDismiss = { showDialog = false })
     }
 
     // Show selected publication

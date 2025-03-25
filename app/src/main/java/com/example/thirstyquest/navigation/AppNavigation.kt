@@ -26,7 +26,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
     ) {
         composable(Screen.MainMenu.name)
         {
-            MainMenuScreen(authViewModel)
+            MainMenuScreen(authViewModel, navController)
         }
 
 

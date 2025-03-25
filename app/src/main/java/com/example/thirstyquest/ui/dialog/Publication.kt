@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material3.AlertDialog
@@ -32,13 +34,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
@@ -199,45 +205,55 @@ fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)
 }
 
 @Composable
-fun AddPublicationDialog(onDismiss: () -> Unit)
-{
+fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
+    var drinkCategory by remember { mutableStateOf("") }
+    val db = FirebaseFirestore.getInstance()
+
+    fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String) {
+        val db = FirebaseFirestore.getInstance()
+        val id = UUID.randomUUID().toString() // Génère un ID unique
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val currentDate = dateFormat.format(Date())
+        val currentTime = timeFormat.format(Date())
+        val points = 500
+
+        val publication = hashMapOf(
+            "ID" to id,
+            "description" to drinkName,
+            "user_ID" to userId.toString(),  // Conversion de userId en String
+            "date" to currentDate,
+            "hour" to currentTime,
+            "category" to drinkCategory,
+            "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
+            "photo" to "", // Placeholder pour la photo
+            "points" to points
+        )
+
+        db.collection("publications")
+            .document(id)
+            .set(publication)
+            .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée avec succès") }
+            .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button( //TODO faire en sorte que lorsqu'on clique sur valider, la boisson soit ajoutée au catalogue
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(0.8f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(id = R.string.add), fontSize = 16.sp)
+            Button(onClick = {
+                addPublicationToFirestore(userId, drinkName, drinkPrice, drinkCategory)
+                onDismiss()
+            }) {
+                Text("Ajouter")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.cancel))
-            }
+            TextButton(onClick = onDismiss) { Text("Annuler") }
         },
         text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // TODO remplacer le logo par l'image quand je pourrais l'avoir
-                Box(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .background(Color.LightGray, RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Filled.LocalDrink, contentDescription = "Photo", tint = Color.DarkGray, modifier = Modifier.size(80.dp))
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // TODO ajouter les autres options, à voir comment on fait pour la catégorie et le lieu
+            Column(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(
                     value = drinkName,
                     onValueChange = { drinkName = it },
@@ -245,19 +261,24 @@ fun AddPublicationDialog(onDismiss: () -> Unit)
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Champ pour le prix de la boisson
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = drinkPrice,
                     onValueChange = { drinkPrice = it },
-                    label = { Text("Prix de la boisson (€)") },
+                    label = { Text("Prix (€)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = drinkCategory,
+                    onValueChange = { drinkCategory = it },
+                    label = { Text("Catégorie") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-        },
-        modifier = Modifier.padding(16.dp)
+        }
     )
 }

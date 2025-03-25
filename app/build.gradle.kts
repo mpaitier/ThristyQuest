@@ -66,6 +66,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.8")
+    implementation("com.google.firebase:firebase-storage:20.2.0")
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
