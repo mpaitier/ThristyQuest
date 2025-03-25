@@ -74,7 +74,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 backStackEntry ->
             val userID = backStackEntry.arguments?.getString("userId")
             if (userID != null) {
-                FriendProfileScreen(userID = userID, navController = navController, authViewModel = authViewModel)
+                FriendProfileScreen(friendId = userID, navController = navController, authViewModel = authViewModel)
             }
             else {
                 Log.e("Navigation", "leagueID is null")

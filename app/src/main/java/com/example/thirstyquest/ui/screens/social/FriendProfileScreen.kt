@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.User
+import com.example.thirstyquest.db.getUserName
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.dialog.BadgeFriendDialog
@@ -51,7 +52,7 @@ import com.example.thirstyquest.ui.dialog.StatisticsDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun FriendProfileScreen(userID: String, navController: NavController, authViewModel: AuthViewModel)
+fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel)
 {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
@@ -76,7 +77,7 @@ fun FriendProfileScreen(userID: String, navController: NavController, authViewMo
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
             }
             Text(
-                text = "Ami $userID",
+                text = "Ami $friendId",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 8.dp)
@@ -85,9 +86,10 @@ fun FriendProfileScreen(userID: String, navController: NavController, authViewMo
 
         // Friends information
         FriendProfileHeader(
-            userID,
+            friendId,
             onPublicationClick = {showPublicationsDialog = true},
-            onFollowerClick = {showFriendsListDialog = true}
+            onFollowerClick = {showFriendsListDialog = true},
+            authViewModel
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -100,19 +102,19 @@ fun FriendProfileScreen(userID: String, navController: NavController, authViewMo
     }
 
     if (showPublicationsDialog) {
-        FriendPublicationDialog(userID = userID, onDismiss = { showPublicationsDialog = false })
+        FriendPublicationDialog(userID = friendId, onDismiss = { showPublicationsDialog = false })
     }
     if (showFriendsListDialog) {
-        FollowDialog(userID = userID, onDismiss = { showFriendsListDialog = false }, navController = navController)
+        FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController,authViewModel = authViewModel)
     }
     if (showFullCollectionDialog) {
-        CollectionDialog(userID = userID, onDismiss = { showFullCollectionDialog = false })
+        CollectionDialog(userID = friendId, onDismiss = { showFullCollectionDialog = false })
     }
     if (showFullStatsDialog) {
-        StatisticsDialog(userID = userID, onDismiss = { showFullStatsDialog = false })
+        StatisticsDialog(userID = friendId, onDismiss = { showFullStatsDialog = false })
     }
     if (showFullBadgesDialog) {
-        BadgeFriendDialog(userID = userID, onDismiss = { showFullBadgesDialog = false })
+        BadgeFriendDialog(userID = friendId, onDismiss = { showFullBadgesDialog = false })
     }
 }
 
@@ -120,7 +122,7 @@ fun FriendProfileScreen(userID: String, navController: NavController, authViewMo
 //    Composable
 
 @Composable
-fun FriendProfileHeader(userID: String, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit)
+fun FriendProfileHeader(userID: String, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
 {
                                                                                                     // TODO : Get real values with userID
     // Information data
@@ -183,7 +185,7 @@ fun FriendProfileHeader(userID: String, onPublicationClick: () -> Unit , onFollo
             // TODO : Change username with something else (already used in top bar)
             Text(text = userName)
             Spacer(modifier = Modifier.weight(1F))
-            AddFriendButton(isFriend = isFriend, userName = userName)
+            AddFriendButton(userID, authViewModel)
         }
     }
 }
@@ -229,15 +231,13 @@ fun FriendProfileCategoryHeader(sectionTitle: String, onClick: () -> Unit)
 }
 
 @Composable
-fun FollowItem(user: User, navController: NavController)
+fun FollowItem(uid:String, navController: NavController, authViewModel: AuthViewModel)
 {
-    val currentUserID = "2"                                                                          // TODO : get user's ID
-
     fun navigateToProfile() {
-        val destination = if (user.ID == currentUserID) {
+        val destination = if (uid == authViewModel._uid) {
             Screen.Profile.name
         } else {
-            Screen.FriendProfile.name + "/${user.ID}"
+            Screen.FriendProfile.name + "/${uid}"
         }
         navController.navigate(destination)
     }
@@ -259,13 +259,13 @@ fun FollowItem(user: User, navController: NavController)
         Spacer(modifier = Modifier.width(8.dp))
         // Username
         Text(
-            text = user.name,
+            text = getUserName(uid),
             fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.clickable { navigateToProfile() }
         )
         Spacer(modifier = Modifier.weight(1F))
         // Friend button
-        AddFriendButton(isFriend = user.isFriend, userName = user.name)
+        AddFriendButton(uid, authViewModel)
     }
 }

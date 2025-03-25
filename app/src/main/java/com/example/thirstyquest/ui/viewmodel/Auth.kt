@@ -4,6 +4,7 @@ import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.thirstyquest.db.addUserToFirestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -12,6 +13,8 @@ import com.google.firebase.auth.UserProfileChangeRequest
 class AuthViewModel : ViewModel() {
 
     private val auth : FirebaseAuth = FirebaseAuth.getInstance()
+    public var _uid : String = ""
+
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
@@ -45,13 +48,18 @@ class AuthViewModel : ViewModel() {
                 // if we successfully login, we are authenticated
                 if(task.isSuccessful) {
                     _authState.value = AuthState.Authenticated
+                    val user = auth.currentUser
+                    val uid = user?.uid
+                    if (uid != null){
+                        _uid = uid
+                    }
                 } else {
                     _authState.value = AuthState.Error(task.exception?.message?: "Quelque chose s'est mal passé")
                 }
             }
     }
 
-    fun singup(email: String, password: String, pseudo: String) {
+    fun signup(email: String, password: String, pseudo: String) {
         if (email.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error("Veuillez remplir tous les champs")
             return
@@ -69,33 +77,34 @@ class AuthViewModel : ViewModel() {
 
         when (isValidPassword(password)) {
             PasswordValidationResult.Valid -> {
-                // if we are signing up we are first loading
-               val user = auth.currentUser
-                val profileUpdates = UserProfileChangeRequest.Builder()
-                    .setDisplayName(pseudo)
-                    .build()
-
-                user?.updateProfile(profileUpdates)
-                    ?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            _authState.value = AuthState.Authenticated
-                        } else {
-                            _authState.value = AuthState.Error("Nom d'utilisateur déjà utilisé")
-                        }
-                    }
-
-                // we try to sign up
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
-                        // if we successfully sign up, we are authenticated
                         if (task.isSuccessful) {
-                            _authState.value = AuthState.Authenticated
-                        } else {
+                            val user = auth.currentUser
+                            val uid = user?.uid
+
+                            if (uid != null) {
+                                val profileUpdates = UserProfileChangeRequest.Builder()
+                                    .setDisplayName(pseudo)
+                                    .build()
+
+                                user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener { profileTask ->
+                                        if (profileTask.isSuccessful) {
+                                            addUserToFirestore(uid, pseudo)
+                                            _uid = uid
+                                            _authState.value = AuthState.Authenticated
+                                        } else {
+                                            _authState.value = AuthState.Error("Erreur lors de la mise à jour du profil")
+                                        }
+                                    }
+                            }
+                        }
+                        else {
                             if (task.exception is FirebaseAuthUserCollisionException) {
                                 _authState.value = AuthState.Error("Cette adresse email est déjà utilisée")
                             } else {
-                                _authState.value =
-                                    AuthState.Error(task.exception?.message ?: "Quelque chose s'est mal passé")
+                                _authState.value = AuthState.Error(task.exception?.message ?: "Erreur inconnue")
                             }
                         }
                     }
@@ -108,7 +117,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    private fun isValidEmail(email: String): Boolean {
+                        private fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 

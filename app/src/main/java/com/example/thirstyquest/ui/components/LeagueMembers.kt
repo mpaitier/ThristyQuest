@@ -46,7 +46,7 @@ fun LeagueMembersScreenContent(leagueID: Int, navController: NavController) {
     // TODO : get members with leagueID
 
     // Sort members by level
-    val sortedMembers = members.sortedByDescending { it.level }
+    val sortedMembers = members.sortedByDescending { it.XP }
 
     var position = 1
     Column {
@@ -109,7 +109,7 @@ fun MemberItem(navController: NavController, member: User, position: Int)
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                "Niveau ${member.level}",
+                "Niveau ${member.XP}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

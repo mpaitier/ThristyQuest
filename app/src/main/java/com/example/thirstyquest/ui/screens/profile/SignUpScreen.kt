@@ -130,7 +130,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            authViewModel.singup(email = email, password = password, pseudo = pseudo)
+            authViewModel.signup(email = email, password = password, pseudo = pseudo)
         },
             enabled = authState.value != AuthState.Loading
         ) {

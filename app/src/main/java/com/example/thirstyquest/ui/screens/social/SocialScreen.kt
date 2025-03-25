@@ -92,7 +92,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
         }
         // If searching, show matching people
         else {
-            SearchResultsList(searchQuery)
+            SearchResultsList(searchQuery, authViewModel)
         }
     }
 

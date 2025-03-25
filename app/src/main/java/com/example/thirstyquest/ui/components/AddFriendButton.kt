@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -18,15 +19,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getDrawable
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getUserName
+import com.example.thirstyquest.db.getFollowerStatus
+import com.example.thirstyquest.db.setFollowingStatus
+import com.example.thirstyquest.db.setFollowerStatus
+import com.example.thirstyquest.db.getFollowingStatus
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.delay
 
 @Composable
-fun AddFriendButton(isFriend: Boolean, userName: String) {
-    var isFriend by rememberSaveable  { mutableStateOf(isFriend)} // to change isFriend value with buttons
-    var isAnimating by rememberSaveable  { mutableStateOf(false) }
+fun AddFriendButton(friendId :String, authViewModel: AuthViewModel) {   // TODO : la biere est affichée en fonction de si la personne est présente ou non dans following
+    val userName = getUserName(friendId)
+    var isFriend by remember { mutableStateOf(getFollowingStatus(authViewModel._uid, friendId)) }
+    var isAnimating by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
+
 
     IconButton(
         onClick = {
@@ -38,7 +47,7 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
         modifier = Modifier.size(45.dp)
     ) {
         when {
-            isAnimating && !isFriend -> {           // filling animation
+            isAnimating && !isFriend -> {
                 Image(
                     painter = rememberDrawablePainter(
                         drawable = getDrawable(
@@ -54,6 +63,8 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
                 LaunchedEffect(Unit) {
                     delay(1000)
                     isAnimating = false
+                    setFollowingStatus(authViewModel._uid, friendId, true)
+                    setFollowerStatus(friendId, authViewModel._uid, true)
                     isFriend = true
                     Toast.makeText(
                         context,
@@ -79,6 +90,8 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
                 LaunchedEffect(Unit) {
                     delay(1000)
                     isAnimating = false
+                    setFollowingStatus(authViewModel._uid, friendId, false)
+                    setFollowerStatus(friendId, authViewModel._uid, false)
                     isFriend = false
                     Toast.makeText(
                         context,
@@ -88,7 +101,7 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
                 }
             }
 
-            isFriend -> { // show full glass
+            isFriend -> {
                 Image(
                     painter = painterResource(id = R.drawable.icon_beer_full),
                     contentDescription = "Beer full",
@@ -98,7 +111,7 @@ fun AddFriendButton(isFriend: Boolean, userName: String) {
                 )
             }
 
-            else -> {   // show empty glass
+            !isFriend -> {
                 Image(
                     painter = painterResource(id = R.drawable.icon_beer_empty),
                     contentDescription = "Beer empty",
