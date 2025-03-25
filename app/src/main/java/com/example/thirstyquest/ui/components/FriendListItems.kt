@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.checkIfFriend
 import com.example.thirstyquest.db.getAllFollowingId
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.db.getUserName
@@ -49,9 +51,12 @@ fun FriendsList(
     authViewModel: AuthViewModel
 ) {
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
+    val currentUserUid by authViewModel.uid.observeAsState()
 
-    LaunchedEffect(authViewModel._uid) {
-        friendsList = getAllFollowingIdCoroutine(authViewModel._uid)
+    LaunchedEffect(currentUserUid) {
+        currentUserUid?.let { uid ->
+            friendsList = getAllFollowingIdCoroutine(uid)
+        }
     }
 
     LazyVerticalGrid(

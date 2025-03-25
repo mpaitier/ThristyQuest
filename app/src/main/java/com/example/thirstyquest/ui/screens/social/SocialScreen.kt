@@ -22,6 +22,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getAllFollowingId
@@ -43,11 +45,15 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
 
     // State pour stocker dynamiquement le nombre d'amis
     var friendNumber by remember { mutableStateOf(0) }
+    val currentUserUid by authViewModel.uid.observeAsState()
 
-    LaunchedEffect(authViewModel._uid) {
-        val friendsList = getAllFollowingIdCoroutine(authViewModel._uid)
-        friendNumber = friendsList.size
-    }                            // TODO : replace with actual user's friends count
+    LaunchedEffect(currentUserUid) {
+        currentUserUid?.let { uid ->
+            val friendsList = getAllFollowingIdCoroutine(uid)
+            friendNumber = friendsList.size                                                         // TODO : replace with actual user's friends count
+        }
+    }
+
     val leagueNumber = 7                                                   // TODO : replace with actual user's leagues count
 
     Column(
@@ -100,7 +106,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             FriendsList(navController, authViewModel)
         }
         else {
-            SearchResultsList(searchQuery, authViewModel)
+            SearchResultsList(searchQuery, navController, authViewModel)
         }
     }
 

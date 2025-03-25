@@ -143,6 +143,7 @@ fun FollowDialog(userID: String, onDismiss: () -> Unit, navController: NavContro
 */
 
 // Ajouter un utilisateur à Firestore
+/*
 fun addUserToFirestore(uid: String, name: String) {
     val db = FirebaseFirestore.getInstance()
     val user = hashMapOf(
@@ -159,6 +160,8 @@ fun addUserToFirestore(uid: String, name: String) {
         }
         .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur d'ajout : ", e) }
 }
+*/
+
 private fun createEmptyCollections(db: FirebaseFirestore, uid: String) {
     val collections = listOf("following","followers")
 
@@ -192,7 +195,7 @@ suspend fun getUserNameCoroutine(uid: String): String {
         ""
     }
 }
-
+/*
 // Récupérer tous les utilisateurs
 suspend fun getAllUsers(): List<Pair<String, String>> {
     val db = FirebaseFirestore.getInstance()
@@ -210,7 +213,7 @@ suspend fun getAllUsers(): List<Pair<String, String>> {
     }
     return userList
 }
-
+*/
 // Récupérer tous les abonnés d'un utilisateur
 fun getAllFollowerId(uid: String): List<String> {
     val db = FirebaseFirestore.getInstance()
