@@ -57,8 +57,7 @@ fun FriendsList(
 @Composable
 fun FriendItem(
     navController: NavController,
-    friendID: Int,
-    modifier: Modifier = Modifier
+    friendID: Int
 )
 {
     val interactionSource = remember { MutableInteractionSource() }

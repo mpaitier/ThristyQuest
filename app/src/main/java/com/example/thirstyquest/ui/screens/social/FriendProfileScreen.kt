@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,8 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
-import com.example.thirstyquest.data.User
-import com.example.thirstyquest.db.getUserName
+import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.dialog.BadgeFriendDialog
@@ -50,6 +50,8 @@ import com.example.thirstyquest.ui.dialog.FriendPublicationDialog
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.dialog.StatisticsDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+
+
 
 @Composable
 fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel)
@@ -60,6 +62,14 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var showFullCollectionDialog by remember { mutableStateOf(false) }
     var showFullStatsDialog by remember { mutableStateOf(false) }
     var showFullBadgesDialog by remember { mutableStateOf(false) }
+
+    var friendName by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(friendId) {
+        getUserNameById(friendId) { name ->
+            friendName = name
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -76,17 +86,27 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
             }
-            Text(
-                text = "Ami $friendId",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+            if (friendName != null) {
+                Text(
+                    text = friendName ?: "Nom non trouvé",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            } else {
+                Text(
+                    text = "",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
         }
 
         // Friends information
         FriendProfileHeader(
             friendId,
+            friendName ?: "",
             onPublicationClick = {showPublicationsDialog = true},
             onFollowerClick = {showFriendsListDialog = true},
             authViewModel
@@ -122,16 +142,14 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 //    Composable
 
 @Composable
-fun FriendProfileHeader(userID: String, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
+fun FriendProfileHeader(friendId: String, friendName: String, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
 {
                                                                                                     // TODO : Get real values with userID
     // Information data
     val friendPublicationCount = 26
     val friendFollowersCount = 8
     val friendFollowingCount = 3
-    // To add in friend
-    val isFriend = true
-    val userName = "Ami $userID"
+
 
     Column {
         Row(
@@ -183,9 +201,9 @@ fun FriendProfileHeader(userID: String, onPublicationClick: () -> Unit , onFollo
             verticalAlignment = Alignment.CenterVertically
         ) {
             // TODO : Change username with something else (already used in top bar)
-            Text(text = userName)
+            Text(text = friendName)
             Spacer(modifier = Modifier.weight(1F))
-            AddFriendButton(userID, authViewModel)
+            AddFriendButton(friendId = friendId, authViewModel = authViewModel)
         }
     }
 }
@@ -233,8 +251,17 @@ fun FriendProfileCategoryHeader(sectionTitle: String, onClick: () -> Unit)
 @Composable
 fun FollowItem(uid:String, navController: NavController, authViewModel: AuthViewModel)
 {
+    var userName by remember { mutableStateOf<String?>(null) }
+
+    // Fetch the user name based on the uid
+    LaunchedEffect(uid) {
+        getUserNameById(uid) { name ->
+            userName = name
+        }
+    }
+
     fun navigateToProfile() {
-        val destination = if (uid == authViewModel._uid) {
+        val destination = if (uid == authViewModel.uid.toString()) {
             Screen.Profile.name
         } else {
             Screen.FriendProfile.name + "/${uid}"
@@ -259,7 +286,7 @@ fun FollowItem(uid:String, navController: NavController, authViewModel: AuthView
         Spacer(modifier = Modifier.width(8.dp))
         // Username
         Text(
-            text = getUserName(uid),
+            text = userName?:"",
             fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.clickable { navigateToProfile() }
