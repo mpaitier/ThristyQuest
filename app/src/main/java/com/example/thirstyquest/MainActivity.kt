@@ -37,7 +37,7 @@ fun ThirstyQuestApp(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
 
     Scaffold(
-        topBar = { TopBar(navController) },
+        topBar = { TopBar(navController, authViewModel = authViewModel) },
         bottomBar = { BottomNavBar(navController) },
         contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->

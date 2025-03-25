@@ -4,6 +4,9 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//      Setters
+
 fun addUserToFirestore(uid: String, name: String) {
     val db = FirebaseFirestore.getInstance()
     val user = hashMapOf(
@@ -31,6 +34,21 @@ private fun createEmptyCollections(db: FirebaseFirestore, uid: String) {
     }
 }
 
+fun updateUserName(userId: String, newName: String) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users").document(userId)
+        .update("name", newName)
+        .addOnSuccessListener {
+            Log.d("FIRESTORE", "Nom mis à jour avec succès")
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur lors de la mise à jour du nom", e)
+        }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//      Getters
 
 fun getUserNameById(uid: String, onResult: (String?) -> Unit) {
     val db = FirebaseFirestore.getInstance()

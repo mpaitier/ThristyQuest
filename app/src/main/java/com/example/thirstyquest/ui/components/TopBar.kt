@@ -16,6 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -27,14 +30,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.dialog.EditProfileDialog
 import com.example.thirstyquest.ui.dialog.LeagueEditDialog
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(navController: NavController) {
+fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.background
     var showDialog by remember { mutableStateOf(false) }
@@ -85,14 +90,8 @@ fun TopBar(navController: NavController) {
 
     if (showDialog) {
         EditProfileDialog(
-            firstName = "Mathias",
-            lastName = "Paitier",
-            age = "21",
-            onDismiss = { showDialog = false },
-            onSave = { newFirstName, newLastName, newAge ->
-
-                showDialog = false
-            }
+            authViewModel = authViewModel,
+            onDismiss = { showDialog = false }
         )
     }
 }
@@ -157,12 +156,6 @@ fun LeagueTopBar(navController: NavController, leagueID: Int) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Preview
-
-@Preview
-@Composable
-fun PreviewTopBar() {
-    TopBar(navController = rememberNavController())
-}
 
 @Preview(showBackground = true)
 @Composable
