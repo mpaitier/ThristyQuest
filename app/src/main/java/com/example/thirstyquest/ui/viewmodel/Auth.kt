@@ -12,60 +12,54 @@ import com.google.firebase.auth.UserProfileChangeRequest
 // from : https://www.youtube.com/watch?v=KOnLpNZ4AFc&ab_channel=EasyTuto
 class AuthViewModel : ViewModel() {
 
-    private val auth : FirebaseAuth = FirebaseAuth.getInstance()
-    public var _uid : String = ""
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    // UID de l'utilisateur connecté
+    private val _uid = MutableLiveData<String?>()
+    val uid: LiveData<String?> = _uid
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
 
     init {
-        checkAuthStatus()
-    }
-
-    fun checkAuthStatus()
-    {
-        if(auth.currentUser == null) {
-            _authState.value = AuthState.Unauthenticated
-        } else {
-            _authState.value = AuthState.Authenticated
-        }
-    }
-
-    fun signin(email : String, password : String)
-    {
-        if(email.isEmpty() || password.isEmpty())
-        {
-            _authState.value = AuthState.Error("Veuillez remplir tous les champs")
-            return
-        }
-
-        // we we are login in we are first loading
-        _authState.value = AuthState.Loading
-        // we try to login
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                // if we successfully login, we are authenticated
-                if(task.isSuccessful) {
-                    _authState.value = AuthState.Authenticated
-                    val user = auth.currentUser
-                    val uid = user?.uid
-                    if (uid != null){
-                        _uid = uid
-                    }
-                } else {
-                    _authState.value = AuthState.Error(task.exception?.message?: "Quelque chose s'est mal passé")
-                }
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                _uid.value = user.uid
+                _authState.value = AuthState.Authenticated
+            } else {
+                _uid.value = null
+                _authState.value = AuthState.Unauthenticated
             }
+        }
     }
 
-    fun signup(email: String, password: String, pseudo: String) {
+    fun signin(email: String, password: String) {
         if (email.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error("Veuillez remplir tous les champs")
             return
         }
 
-        if (pseudo.length < 3 || pseudo.length > 20) {
+        _authState.value = AuthState.Loading
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _uid.value = auth.currentUser?.uid
+                    _authState.value = AuthState.Authenticated
+                } else {
+                    _authState.value = AuthState.Error(task.exception?.message ?: "Erreur de connexion")
+                }
+            }
+    }
+
+    fun signup(email: String, password: String, pseudo: String) {
+        if (email.isEmpty() || password.isEmpty() || pseudo.isEmpty()) {
+            _authState.value = AuthState.Error("Veuillez remplir tous les champs")
+            return
+        }
+
+        if (pseudo.length !in 3..20) {
             _authState.value = AuthState.Error("Le pseudo doit contenir entre 3 et 20 caractères")
             return
         }
@@ -81,26 +75,17 @@ class AuthViewModel : ViewModel() {
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val user = auth.currentUser
-                            val uid = user?.uid
-
-                            if (uid != null) {
-                                val profileUpdates = UserProfileChangeRequest.Builder()
-                                    .setDisplayName(pseudo)
-                                    .build()
-
-                                user.updateProfile(profileUpdates)
-                                    .addOnCompleteListener { profileTask ->
-                                        if (profileTask.isSuccessful) {
-                                            addUserToFirestore(uid, pseudo)
-                                            _uid = uid
-                                            _authState.value = AuthState.Authenticated
-                                        } else {
-                                            _authState.value = AuthState.Error("Erreur lors de la mise à jour du profil")
-                                        }
+                            user?.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(pseudo).build())
+                                ?.addOnCompleteListener {
+                                    if (it.isSuccessful) {
+                                        addUserToFirestore(user.uid, pseudo)
+                                        _uid.value = user.uid
+                                        _authState.value = AuthState.Authenticated
+                                    } else {
+                                        _authState.value = AuthState.Error("Erreur mise à jour du profil")
                                     }
-                            }
-                        }
-                        else {
+                                }
+                        } else {
                             if (task.exception is FirebaseAuthUserCollisionException) {
                                 _authState.value = AuthState.Error("Cette adresse email est déjà utilisée")
                             } else {
@@ -117,7 +102,13 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-                        private fun isValidEmail(email: String): Boolean {
+    fun signout() {
+        auth.signOut()
+        _uid.value = null
+        _authState.value = AuthState.Unauthenticated
+    }
+
+    private fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
@@ -145,12 +136,6 @@ class AuthViewModel : ViewModel() {
         object MissingUpperCase : PasswordValidationResult()
         object MissingLowerCase : PasswordValidationResult()
         object MissingSymbol : PasswordValidationResult()
-    }
-
-    fun signout()
-    {
-        auth.signOut()
-        _authState.value = AuthState.Unauthenticated
     }
 }
 

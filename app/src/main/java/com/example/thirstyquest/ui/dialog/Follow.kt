@@ -25,15 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
-import com.example.thirstyquest.data.User
 import com.example.thirstyquest.ui.screens.social.FollowItem
-import com.example.thirstyquest.data.followersList
-import com.example.thirstyquest.data.followingList
-import com.google.firebase.firestore.FirebaseFirestore
-import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
-import com.example.thirstyquest.db.getAllFollowerId
-import com.example.thirstyquest.db.getAllFollowingId
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
@@ -79,9 +71,10 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
                         .height(325.dp)
                 ) {
                     if (showFollowers) {
-                        FollowersPage(getAllFollowerId(uid), navController,authViewModel)
+                        // TODO : get lists
+                        //FollowersPage(getFollowers(uid), navController,authViewModel)
                     } else {
-                        FollowingPage(getAllFollowingId(uid), navController,authViewModel)
+                        //FollowingPage(getFollowing(uid), navController,authViewModel)
                     }
                 }
             }

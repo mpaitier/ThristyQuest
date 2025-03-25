@@ -3,6 +3,8 @@ package com.example.thirstyquest.ui.components
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,12 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.thirstyquest.R
-import com.example.thirstyquest.data.User
-import com.example.thirstyquest.data.userList
-import com.example.thirstyquest.db.getAllUsers
+import com.example.thirstyquest.db.getAllUsersExcept
+import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import com.google.firebase.firestore.FirebaseFirestore
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composables
@@ -80,41 +81,59 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
 
 // --------------------------------- Search results ---------------------------------
 @Composable
-fun SearchResultsList(query: String, authViewModel: AuthViewModel) {  // TODO : ne pas montrer notre propre profil
+fun SearchResultsList(query: String, navController: NavController, authViewModel: AuthViewModel) {
     val users = remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    val currentUserUid = authViewModel.uid.observeAsState()
 
-    LaunchedEffect(Unit) {
-        users.value = getAllUsers()
+    if (currentUserUid.toString() == null) {
+        Log.e("AUTH", "Utilisateur non connecté, impossible de chercher des amis")
+        return
+    }
+
+    LaunchedEffect(query) {
+        getAllUsersExcept(currentUserUid.toString()) { userList ->
+            users.value = userList
+                .mapNotNull { user ->
+                    val uid = user["uid"] as? String
+                    val name = user["name"] as? String
+                    if (uid != null && name != null && uid != currentUserUid.toString()) Pair(uid, name) else null
+                }
+        }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
+        modifier = Modifier.fillMaxWidth().padding(4.dp)
     ) {
-        if (users.value.isEmpty()) {
+        val filteredUsers = users.value.filter { it.second.contains(query, ignoreCase = true) }
+
+        if (filteredUsers.isEmpty()) {
             Text(text = "Aucun utilisateur trouvé.")
         } else {
-            users.value.filter { it.second.contains(query, ignoreCase = true) }
-                .forEach { user ->
-
-                    SearchResultsItem(uid = user.first, userName = user.second, query = query, authViewModel = authViewModel)
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                }
+            filteredUsers.forEach { user ->
+                SearchResultsItem(uid = user.first, userName = user.second, query = query, navController = navController, authViewModel = authViewModel)
+                Spacer(modifier = Modifier.height(4.dp))
+            }
         }
     }
 }
 
 
+
+
 @Composable
-fun SearchResultsItem(uid:String, userName:String, query: String,  authViewModel: AuthViewModel) {
+fun SearchResultsItem(uid:String, userName:String, query: String, navController: NavController, authViewModel: AuthViewModel) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .clickable(interactionSource = interactionSource, indication = null)
+                {
+                    navController.navigate(Screen.FriendProfile.name + "/$uid")              // TODO : navigate to friend profile
+                }
     ) {
+        // Profile picture
         Image(
             painter = painterResource(id = R.drawable.pdp),
             contentDescription = "Profil",
@@ -122,7 +141,6 @@ fun SearchResultsItem(uid:String, userName:String, query: String,  authViewModel
                 .size(50.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-
         // In user's name, query is in bold
         val annotatedName = buildAnnotatedString {
             val startIndex = userName.indexOf(query, ignoreCase = true)
@@ -141,10 +159,9 @@ fun SearchResultsItem(uid:String, userName:String, query: String,  authViewModel
             fontSize = 20.sp,
             color = MaterialTheme.colorScheme.onSurface
         )
-
         Spacer(modifier = Modifier.weight(1F))
+        // Friend button
         AddFriendButton(uid, authViewModel)
-
     }
 }
 

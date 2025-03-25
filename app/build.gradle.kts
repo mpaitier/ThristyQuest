@@ -64,7 +64,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:0.30.1")
     implementation("io.coil-kt:coil-compose:2.1.0")
     implementation("com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha")
-
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.8")
 
     // Import the Firebase BoM
