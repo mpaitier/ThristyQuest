@@ -200,7 +200,7 @@ fun FriendProfileHeader(friendId: String, friendName: String, onPublicationClick
             modifier = Modifier.padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // TODO : Change username with something else (already used in top bar)
+            // TODO : Change username with XP bar
             Text(text = friendName)
             Spacer(modifier = Modifier.weight(1F))
             AddFriendButton(friendId = friendId, authViewModel = authViewModel)

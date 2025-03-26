@@ -11,7 +11,8 @@ fun addUserToFirestore(uid: String, name: String) {
     val db = FirebaseFirestore.getInstance()
     val user = hashMapOf(
         "uid" to uid,
-        "name" to name
+        "name" to name,
+        "xp" to 0
     )
 
     // Ajouter l'utilisateur
