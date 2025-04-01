@@ -45,7 +45,7 @@ gradlew.bat
 
 # Clés et informations sensibles
 /key.properties
-/google-services.json
+google-services.json
 /firebase/
 crashlytics.properties
 fabric.properties
