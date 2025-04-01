@@ -77,7 +77,9 @@ fun UserStatsContent() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.consumed_drink), "310")
+            StatItemColumn(stringResource(R.string.consumed_drink), "310 litres ")
+            StatItemColumn(stringResource(R.string.spent_money), "400 €")
+
         }
     }
 }

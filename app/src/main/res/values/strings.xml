@@ -72,7 +72,7 @@
     <string name="bath">Baignoires</string>
     <string name="olymp_pool">Piscines olympiques</string>
     <string name="tank_truck">Camions citerne</string>
-    <string name="consumed_drink">Boissons consommées</string>
+    <string name="consumed_drink">de boissons consommées</string>
     <string name="whoDrinkTheMost">Le plus gros buveur</string>
     <string name="whoDrinkTheLess">Le plus sobre</string>
     <string name="whoPaysTheMost">Le plus généreux</string>
@@ -83,7 +83,7 @@
     <string name="per_day">/jour</string>
     <string name="per_month">/mois</string>
     <string name="per_year">/an</string>
-    <string name="spent_money">€ dépensés</string>
+    <string name="spent_money">dépensés</string>
     <!-- ======== Settings  ========-->
     <string name="dark_mode">Mode sombre</string>
     <string name="dark_mode_detail">Activer ou désactiver le mode sombre de l\'application</string>

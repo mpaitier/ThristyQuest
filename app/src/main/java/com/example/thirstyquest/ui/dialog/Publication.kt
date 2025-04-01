@@ -1,10 +1,14 @@
 package com.example.thirstyquest.ui.dialog
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,11 +18,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -209,41 +219,16 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
+    var drinkVolume by remember { mutableStateOf(0) }
+    val volumeOptions = listOf(4, 12, 25, 33, 50)
+    var expanded by remember { mutableStateOf(false) }
     val db = FirebaseFirestore.getInstance()
-
-    fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String) {
-        val db = FirebaseFirestore.getInstance()
-        val id = UUID.randomUUID().toString() // Génère un ID unique
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val currentDate = dateFormat.format(Date())
-        val currentTime = timeFormat.format(Date())
-        val points = 500
-
-        val publication = hashMapOf(
-            "ID" to id,
-            "description" to drinkName,
-            "user_ID" to userId.toString(),  // Conversion de userId en String
-            "date" to currentDate,
-            "hour" to currentTime,
-            "category" to drinkCategory,
-            "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
-            "photo" to "", // Placeholder pour la photo
-            "points" to points
-        )
-
-        db.collection("publications")
-            .document(id)
-            .set(publication)
-            .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée avec succès") }
-            .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
-                addPublicationToFirestore(userId, drinkName, drinkPrice, drinkCategory)
+                addPublicationToFirestore(userId, drinkName, drinkPrice, drinkCategory, drinkVolume)
                 onDismiss()
             }) {
                 Text("Ajouter")
@@ -278,7 +263,84 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = true }
+                            .padding(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = if (drinkVolume > 0) "$drinkVolume cl" else "Choisir un volume",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Ouvrir le menu",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        volumeOptions.forEach { volume ->
+                            DropdownMenuItem(
+                                text = { Text("$volume cl") },
+                                onClick = {
+                                    drinkVolume = volume
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     )
+}
+
+fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int) {
+    val db = FirebaseFirestore.getInstance()
+    val id = UUID.randomUUID().toString() // Génère un ID unique
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val currentDate = dateFormat.format(Date())
+    val currentTime = timeFormat.format(Date())
+    val points = 500
+
+    val publication = hashMapOf(
+        "ID" to id,
+        "description" to drinkName,
+        "user_ID" to userId.toString(),  // Conversion de userId en String
+        "date" to currentDate,
+        "hour" to currentTime,
+        "category" to drinkCategory,
+        "volume" to drinkVolume,
+        "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
+        "photo" to "", // Placeholder pour la photo
+        "points" to points
+    )
+
+    db.collection("publications")
+        .document(id)
+        .set(publication)
+        .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
 }
