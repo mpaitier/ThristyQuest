@@ -25,7 +25,7 @@ import com.example.thirstyquest.ui.components.LeagueTopBar
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LeagueContentScreen(leagueID: Int, navController: NavController, authViewModel: AuthViewModel) {
+fun LeagueContentScreen(leagueID: String, navController: NavController, authViewModel: AuthViewModel) {
     val pagerState = rememberPagerState(initialPage = 1)
 
     val context = LocalContext.current  // for share intent
@@ -36,7 +36,7 @@ fun LeagueContentScreen(leagueID: Int, navController: NavController, authViewMod
             .padding(16.dp)
     ) {
         // Top bar
-        LeagueTopBar(navController, leagueID)
+        LeagueTopBar(navController, authViewModel, leagueID)
         Spacer(modifier = Modifier.height(16.dp))
         LeagueInfo(
             leagueID,

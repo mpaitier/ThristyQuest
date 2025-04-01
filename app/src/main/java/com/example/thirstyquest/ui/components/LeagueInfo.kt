@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
 
 @Composable
-fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
+fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
     // TODO : get informations with leagueID
     val leagueCode =  "ABCD"
     val currentLevel = 3
@@ -84,13 +84,4 @@ fun LeagueInfo(leagueID: Int, onShareClick: (String) -> Unit) {
             }
         }
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//      Preview
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeagueInfo() {
-    LeagueInfo(leagueID = 12, onShareClick = { /* Share league code */ })
 }

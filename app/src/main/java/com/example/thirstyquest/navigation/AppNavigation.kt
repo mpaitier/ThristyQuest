@@ -37,7 +37,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         composable(Screen.LeagueContent.name + "/{leagueId}")
         {
             backStackEntry ->
-            val leagueID = backStackEntry.arguments?.getString("leagueId")?.toIntOrNull()
+            val leagueID = backStackEntry.arguments?.getString("leagueId")?.toString()
             if (leagueID != null) {
                 LeagueContentScreen(leagueID = leagueID, navController = navController, authViewModel = authViewModel)
             }

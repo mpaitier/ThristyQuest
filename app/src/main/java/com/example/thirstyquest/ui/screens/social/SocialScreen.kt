@@ -23,7 +23,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.addLeagueToFirestore
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
+import com.example.thirstyquest.db.getAllUserLeaguesIdCoroutine
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.FriendsList
 import com.example.thirstyquest.ui.components.LeagueList
@@ -41,16 +43,19 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
 
     // State pour stocker dynamiquement le nombre d'amis
     var friendNumber by remember { mutableStateOf(0) }
-    val currentUserUid by authViewModel.uid.observeAsState()
+    var leagueNumber by remember { mutableStateOf(0) }
+    var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
+    var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
 
+    val currentUserUid by authViewModel.uid.observeAsState()
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
-            val friendsList = getAllFollowingIdCoroutine(uid)
-            friendNumber = friendsList.size                                                         // TODO : replace with actual user's friends count
+            friendsList = getAllFollowingIdCoroutine(uid)
+            friendNumber = friendsList.size
+            leagueList = getAllUserLeaguesIdCoroutine(uid)
+            leagueNumber = leagueList.size
         }
     }
-
-    val leagueNumber = 7                                                   // TODO : replace with actual user's leagues count
 
     Column(
         modifier = Modifier
@@ -90,7 +95,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            LeagueList(navController, leagueNumber)
+            LeagueList(navController, authViewModel)
             // Friend list
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -130,18 +135,16 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             onValidate = { leagueName ->
                 showCreateLeagueDialog = false
 
-                val newLeagueID = createLeague(leagueName)
-                navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
+                currentUserUid?.let { uid ->
+                    addLeagueToFirestore(uid = uid, name = leagueName) { newLeagueID ->
+                        navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
+                    }
+                }
             }
         )
     }
 }
 
-fun createLeague(leagueName: String): Int
-{
-    // TODO : Create a new league with values
-    return 69 // Random value
-}
 
 fun addToLeagueList(leagueCode: String): Int
 {

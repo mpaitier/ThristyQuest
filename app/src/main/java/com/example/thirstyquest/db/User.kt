@@ -71,6 +71,26 @@ fun getUserNameById(uid: String, onResult: (String?) -> Unit) {
         }
 }
 
+fun getUserXPById(uid: String, onResult: (Double?) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users")
+        .document(uid)
+        .get()
+        .addOnSuccessListener { document ->
+            if (document.exists()) {
+                val xp = document.getDouble("xp")
+                onResult(xp)
+            } else {
+                onResult(null)
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur lors de la récupération de l'utilisateur", e)
+            onResult(null)
+        }
+}
+
 fun getAllUsersExcept(uidToExclude: String, onResult: (List<Map<String, Any>>) -> Unit) {
     val db = FirebaseFirestore.getInstance()
 
@@ -103,3 +123,28 @@ suspend fun getAllUsers(): List<Pair<String, String>> {
     }
     return userList
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// XP to level conversion
+
+fun getUserLevelFromXP(xp: Double): Int {
+    var level = 1
+    var xpNeeded = 100.0  // XP nécessaire pour passer au niveau suivant
+    var totalXP = 0.0  // XP cumulé jusqu'à présent
+
+    while (xp >= totalXP + xpNeeded) {
+        totalXP += xpNeeded
+        level++
+
+        // Augmente l'XP nécessaire jusqu'à 1000 (pour le niveau 20)
+        if (level <= 20) {
+            xpNeeded += 50.0
+            if (xpNeeded > 1000) xpNeeded = 1000.0
+        } else {
+            xpNeeded = 1000.0  // À partir du niveau 21, il faut toujours 1000 XP
+        }
+    }
+
+    return level
+}
+

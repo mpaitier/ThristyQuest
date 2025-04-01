@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
 
 @Composable
-fun LeagueStatsScreenContent(leagueID: Int) {
+fun LeagueStatsScreenContent(leagueID: String) {
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = stringResource(R.string.league_stats),
@@ -38,7 +38,7 @@ fun LeagueStatsScreenContent(leagueID: Int) {
 //////////////////////////////////////////////////////////////////////////////////
 //                                Composable
 @Composable
-fun LeagueStatsList(leagueID: Int) {
+fun LeagueStatsList(leagueID: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()

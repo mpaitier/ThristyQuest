@@ -17,20 +17,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
-import com.example.thirstyquest.db.getAllFollowingIdCoroutine
+import com.example.thirstyquest.db.getLeagueName
+import com.example.thirstyquest.db.getLeagueOwnerId
+import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.dialog.EditProfileDialog
 import com.example.thirstyquest.ui.dialog.LeagueEditDialog
@@ -98,12 +97,19 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
 
 // ------------------------------ League Top Bar ------------------------------
 @Composable
-fun LeagueTopBar(navController: NavController, leagueID: Int) {
+fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, leagueID: String) {
     var showDialog by remember { mutableStateOf(false) }
 
-    val leagueName = "Ligue $leagueID"          // TODO : get league name with leagueID
-    val leagueOwnerId = 2                       // TODO : get league's owner's ID  with leagueID
-    val ownID = leagueID                        // TODO : get own ID
+    var leagueName by remember { mutableStateOf("") }
+    var leagueOwnerId by remember { mutableStateOf("") }
+
+    val currentUserUid by authViewModel.uid.observeAsState()
+    LaunchedEffect(currentUserUid) {
+        currentUserUid?.let { uid ->
+            leagueName = getLeagueName(leagueID)
+            leagueOwnerId = getLeagueOwnerId(leagueID)
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -134,7 +140,7 @@ fun LeagueTopBar(navController: NavController, leagueID: Int) {
         )
 
         // TODO : navigate to league settings & visible only if user is owner
-        if(ownID == leagueOwnerId) {
+        if(currentUserUid == leagueOwnerId) {
             IconButton(onClick = { showDialog = true }) {
                 Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
             }
@@ -144,21 +150,13 @@ fun LeagueTopBar(navController: NavController, leagueID: Int) {
     if (showDialog) {
         LeagueEditDialog(
             onDismiss = { showDialog = false },
-            onValidate = { leagueName ->
+            onValidate = { newLeagueName ->
                 showDialog = false
-                // TODO : modify league's name
+                updateLeagueName(leagueID, newLeagueName)
+                leagueName = newLeagueName
                 // TODO : modify league's picture
             },
             leagueID = leagueID
         )
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//      Preview
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeagueTopBar() {
-    LeagueTopBar(navController = rememberNavController(), leagueID = 12)
 }

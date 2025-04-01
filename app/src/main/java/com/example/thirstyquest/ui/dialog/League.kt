@@ -30,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,16 +43,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getLeagueName
+import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.ui.components.AddPicture
 
 @Composable
 fun LeagueEditDialog(
     onDismiss: () -> Unit,
     onValidate: (String) -> Unit,
-    leagueID: Int
+    leagueID: String
 ) {
-    var leagueName by remember { mutableStateOf("Ligue $leagueID") }          // TODO : get league name with leagueID
     // TODO : get league picture with leagueID
+    var leagueName by remember { mutableStateOf("") }
+    var newLeagueName by remember { mutableStateOf("") }
+
+    LaunchedEffect(leagueID) {
+        leagueName = getLeagueName(leagueID)
+        newLeagueName = getLeagueName(leagueID)
+    }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(

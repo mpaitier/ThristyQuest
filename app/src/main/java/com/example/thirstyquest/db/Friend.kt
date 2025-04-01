@@ -239,6 +239,7 @@ fun getAllFollowingId(uid: String): List<String> {
         }
     return followingList
 }
+
 suspend fun getAllFollowingIdCoroutine(uid: String): List<String> {
     val db = FirebaseFirestore.getInstance()
     val friendList = mutableListOf<String>()

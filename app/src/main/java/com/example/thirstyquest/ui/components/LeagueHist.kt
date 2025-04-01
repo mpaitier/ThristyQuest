@@ -33,7 +33,7 @@ import com.example.thirstyquest.data.PublicationHist
 
 
 @Composable
-fun LeagueHistScreenContent(leagueID: Int, navController: NavController)
+fun LeagueHistScreenContent(leagueID: String, navController: NavController)
 {
                                                                                                     // TODO : get all publications with leagueID, sorted by date (most recent first)
     var isDescending by remember { mutableStateOf(true) }
