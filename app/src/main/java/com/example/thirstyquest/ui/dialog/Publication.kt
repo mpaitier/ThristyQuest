@@ -55,6 +55,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import com.example.thirstyquest.db.addPublicationToFirestore
 
 @Composable
 fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
@@ -131,6 +132,117 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
         modifier = Modifier.padding(16.dp)
     )
 }
+
+@Composable
+fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
+    var drinkName by remember { mutableStateOf("") }
+    var drinkPrice by remember { mutableStateOf("") }
+    var drinkCategory by remember { mutableStateOf("") }
+    var drinkVolume by remember { mutableStateOf(0) }
+    var expanded by remember { mutableStateOf(false) }
+
+    val volumeOptions = listOf(
+        "Shot (4cl)" to 4,
+        "Demi/Verre (25cl)" to 25,
+        "Bouteille (33cl)" to 33,
+        "Pinte (50cl)" to 50,
+        "Pichet (1L)" to 100
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = {
+                addPublicationToFirestore(userId, drinkName, drinkPrice, drinkCategory, drinkVolume)
+                onDismiss()
+            }) {
+                Text("Ajouter")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Annuler") }
+        },
+        text = {
+            Column(modifier = Modifier.padding(16.dp)) {
+                OutlinedTextField(
+                    value = drinkName,
+                    onValueChange = { drinkName = it },
+                    label = { Text("Nom de la boisson") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = drinkPrice,
+                    onValueChange = { drinkPrice = it },
+                    label = { Text("Prix (€)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = drinkCategory,
+                    onValueChange = { drinkCategory = it },
+                    label = { Text("Catégorie") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = true }
+                            .padding(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = volumeOptions.find { it.second == drinkVolume }?.first ?: "Choisir un volume",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Ouvrir le menu",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        volumeOptions.forEach { (label, volume) ->
+                            DropdownMenuItem(
+                                text = { Text(label) },
+                                onClick = {
+                                    drinkVolume = volume
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
+
+
 
 @Composable
 fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)
@@ -212,135 +324,4 @@ fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)
         },
         modifier = Modifier.padding(16.dp)
     )
-}
-
-@Composable
-fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
-    var drinkName by remember { mutableStateOf("") }
-    var drinkPrice by remember { mutableStateOf("") }
-    var drinkCategory by remember { mutableStateOf("") }
-    var drinkVolume by remember { mutableStateOf(0) }
-    val volumeOptions = listOf(4, 12, 25, 33, 50)
-    var expanded by remember { mutableStateOf(false) }
-    val db = FirebaseFirestore.getInstance()
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = {
-                addPublicationToFirestore(userId, drinkName, drinkPrice, drinkCategory, drinkVolume)
-                onDismiss()
-            }) {
-                Text("Ajouter")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Annuler") }
-        },
-        text = {
-            Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = drinkName,
-                    onValueChange = { drinkName = it },
-                    label = { Text("Nom de la boisson") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = drinkPrice,
-                    onValueChange = { drinkPrice = it },
-                    label = { Text("Prix (€)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = drinkCategory,
-                    onValueChange = { drinkCategory = it },
-                    label = { Text("Catégorie") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(30.dp))
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Card(
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expanded = true }
-                            .padding(4.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = if (drinkVolume > 0) "$drinkVolume cl" else "Choisir un volume",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Ouvrir le menu",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        volumeOptions.forEach { volume ->
-                            DropdownMenuItem(
-                                text = { Text("$volume cl") },
-                                onClick = {
-                                    drinkVolume = volume
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    )
-}
-
-fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int) {
-    val db = FirebaseFirestore.getInstance()
-    val id = UUID.randomUUID().toString() // Génère un ID unique
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val currentDate = dateFormat.format(Date())
-    val currentTime = timeFormat.format(Date())
-    val points = 500
-
-    val publication = hashMapOf(
-        "ID" to id,
-        "description" to drinkName,
-        "user_ID" to userId.toString(),  // Conversion de userId en String
-        "date" to currentDate,
-        "hour" to currentTime,
-        "category" to drinkCategory,
-        "volume" to drinkVolume,
-        "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
-        "photo" to "", // Placeholder pour la photo
-        "points" to points
-    )
-
-    db.collection("publications")
-        .document(id)
-        .set(publication)
-        .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée avec succès") }
-        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
 }
