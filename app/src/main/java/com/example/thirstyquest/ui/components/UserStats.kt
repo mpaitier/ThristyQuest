@@ -27,11 +27,13 @@ import com.example.thirstyquest.db.getPublicationCountByCategory
 import com.example.thirstyquest.db.getAverageDrinkConsumption
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 
 
 @Composable
 fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée
+    val currentUserUid by authViewModel.uid.observeAsState()
     var totalVolume by remember { mutableStateOf(0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
     var totalDrinkCount by remember { mutableStateOf(0) }
@@ -39,14 +41,14 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
     var averageMonthConsumption by remember { mutableStateOf(0.0) }
     var averageYearConsumption by remember { mutableStateOf(0.0) }
 
-    LaunchedEffect(authViewModel.uid) {
-        authViewModel.uid?.let { uid ->
-            totalVolume = getTotalDrinkVolume(authViewModel)
-            totalMoneySpent = getTotalMoneySpent(authViewModel)
-            totalDrinkCount = getPublicationCountByCategory(authViewModel, "Biere blonde")
-            averageDayConsumption = getAverageDrinkConsumption(authViewModel,"DAY")
-            averageMonthConsumption = getAverageDrinkConsumption(authViewModel,"MONTH")
-            averageYearConsumption = getAverageDrinkConsumption(authViewModel,"YEAR")
+    LaunchedEffect(currentUserUid) {
+        currentUserUid?.let { uid ->
+            totalVolume = getTotalDrinkVolume(authViewModel,uid)
+            totalMoneySpent = getTotalMoneySpent(authViewModel,uid)
+            totalDrinkCount = getPublicationCountByCategory(authViewModel, "Biere blonde",uid)
+            averageDayConsumption = getAverageDrinkConsumption(authViewModel,"DAY",uid)
+            averageMonthConsumption = getAverageDrinkConsumption(authViewModel,"MONTH",uid)
+            averageYearConsumption = getAverageDrinkConsumption(authViewModel,"YEAR",uid)
         }
     }
 

@@ -1,6 +1,8 @@
 package com.example.thirstyquest.db
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -41,13 +43,15 @@ fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: Str
 }
 
 
-suspend fun getTotalDrinkVolume(authViewModel: AuthViewModel): Int {
+suspend fun getTotalDrinkVolume(authViewModel: AuthViewModel,userID: String): Int {
     val db = FirebaseFirestore.getInstance()
+
+
     var totalVolume = 0
 
     return try {
         val result = db.collection("publications")
-            .whereEqualTo("user_ID",authViewModel.uid)
+            .whereEqualTo("user_ID",userID)
             .get()
             .await()
 
@@ -63,13 +67,13 @@ suspend fun getTotalDrinkVolume(authViewModel: AuthViewModel): Int {
     }
 }
 
-suspend fun getTotalMoneySpent(authViewModel: AuthViewModel): Double {
+suspend fun getTotalMoneySpent(authViewModel: AuthViewModel,userID: String): Double {
     val db = FirebaseFirestore.getInstance()
     var totalSpent = 0.0
 
     return try {
         val result = db.collection("publications")
-            .whereEqualTo("user_ID", authViewModel.uid)
+            .whereEqualTo("user_ID", userID)
             .get()
             .await()
 
@@ -85,13 +89,13 @@ suspend fun getTotalMoneySpent(authViewModel: AuthViewModel): Double {
     }
 }
 
-suspend fun getPublicationCountByCategory(authViewModel: AuthViewModel, category: String): Int {
+suspend fun getPublicationCountByCategory(authViewModel: AuthViewModel, category: String, userID: String): Int {
     val db = FirebaseFirestore.getInstance()
     var count = 0
 
     return try {
         val result = db.collection("publications")
-            .whereEqualTo("user_ID", authViewModel.uid)
+            .whereEqualTo("user_ID", userID)
             .whereEqualTo("category", category)
             .get()
             .await()
@@ -104,13 +108,14 @@ suspend fun getPublicationCountByCategory(authViewModel: AuthViewModel, category
         0
     }
 }
-suspend fun getAverageDrinkConsumption(authViewModel: AuthViewModel, period: String): Double {
+
+suspend fun getAverageDrinkConsumption(authViewModel: AuthViewModel, period: String,userID:String): Double {
     val db = FirebaseFirestore.getInstance()
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     return try {
         val result = db.collection("publications")
-            .whereEqualTo("user_ID", authViewModel.uid)
+            .whereEqualTo("user_ID", userID)
             .get()
             .await()
 
