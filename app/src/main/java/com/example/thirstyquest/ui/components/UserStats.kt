@@ -23,21 +23,30 @@ import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getTotalDrinkVolume
 import com.example.thirstyquest.db.getTotalMoneySpent
+import com.example.thirstyquest.db.getPublicationCountByCategory
+import com.example.thirstyquest.db.getAverageDrinkConsumption
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 
 
 @Composable
-fun UserStatsContent(authViewModel: AuthViewModel) {
+fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée
     var totalVolume by remember { mutableStateOf(0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
+    var totalDrinkCount by remember { mutableStateOf(0) }
+    var averageDayConsumption by remember { mutableStateOf(0.0) }
+    var averageMonthConsumption by remember { mutableStateOf(0.0) }
+    var averageYearConsumption by remember { mutableStateOf(0.0) }
 
     LaunchedEffect(authViewModel.uid) {
         authViewModel.uid?.let { uid ->
             totalVolume = getTotalDrinkVolume(authViewModel)
             totalMoneySpent = getTotalMoneySpent(authViewModel)
+            totalDrinkCount = getPublicationCountByCategory(authViewModel, "Biere blonde")
+            averageDayConsumption = getAverageDrinkConsumption(authViewModel,"DAY")
+            averageMonthConsumption = getAverageDrinkConsumption(authViewModel,"MONTH")
+            averageYearConsumption = getAverageDrinkConsumption(authViewModel,"YEAR")
         }
     }
 
@@ -61,9 +70,9 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.liters_per_day), "0.4")
-            StatItemColumn(stringResource(R.string.liters_per_month), "15")
-            StatItemColumn(stringResource(R.string.liters_per_year), "200")
+            StatItemColumn(stringResource(R.string.liters_per_day), "$averageDayConsumption")
+            StatItemColumn(stringResource(R.string.liters_per_month), "$averageMonthConsumption")
+            StatItemColumn(stringResource(R.string.liters_per_year), "$averageYearConsumption")
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -80,7 +89,7 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn("Biere blonde", "71")
+            StatItemColumn("Biere blonde", "$totalDrinkCount")
             StatItemColumn("Fire ball", "32")
         }
         Spacer(modifier = Modifier.height(24.dp))
