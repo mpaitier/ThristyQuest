@@ -36,7 +36,7 @@ import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) { //TODO : mise à jour du nombre d'amis
     var showDialog by remember { mutableStateOf(false) }
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }

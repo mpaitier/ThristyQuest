@@ -32,7 +32,7 @@ import androidx.compose.runtime.setValue
 
 
 @Composable
-fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée
+fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée et afficher dans les préférences en fonction
     val currentUserUid by authViewModel.uid.observeAsState()
     var totalVolume by remember { mutableStateOf(0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
@@ -43,12 +43,12 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
 
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
-            totalVolume = getTotalDrinkVolume(authViewModel,uid)
-            totalMoneySpent = getTotalMoneySpent(authViewModel,uid)
-            totalDrinkCount = getPublicationCountByCategory(authViewModel, "Biere blonde",uid)
-            averageDayConsumption = getAverageDrinkConsumption(authViewModel,"DAY",uid)
-            averageMonthConsumption = getAverageDrinkConsumption(authViewModel,"MONTH",uid)
-            averageYearConsumption = getAverageDrinkConsumption(authViewModel,"YEAR",uid)
+            totalVolume = getTotalDrinkVolume(uid)
+            totalMoneySpent = getTotalMoneySpent(uid)
+            totalDrinkCount = getPublicationCountByCategory( "Biere blonde",uid)
+            averageDayConsumption = getAverageDrinkConsumption("DAY",uid)
+            averageMonthConsumption = getAverageDrinkConsumption("MONTH",uid)
+            averageYearConsumption = getAverageDrinkConsumption("YEAR",uid)
         }
     }
 
@@ -114,4 +114,6 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
         }
     }
 }
+
+
 

@@ -241,6 +241,17 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
     )
 }
 
+/*
+@Composable
+fun addInfoLeagues(userID: String){
+    val db = FirebaseFirestore.getInstance()
+    try {
+        val result = db.collection("users").document(userID).collection("leagues")
+
+    }
+}
+*/
+
 
 
 

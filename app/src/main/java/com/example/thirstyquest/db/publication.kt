@@ -43,7 +43,7 @@ fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: Str
 }
 
 
-suspend fun getTotalDrinkVolume(authViewModel: AuthViewModel,userID: String): Int {
+suspend fun getTotalDrinkVolume(userID: String): Int {
     val db = FirebaseFirestore.getInstance()
 
 
@@ -67,7 +67,7 @@ suspend fun getTotalDrinkVolume(authViewModel: AuthViewModel,userID: String): In
     }
 }
 
-suspend fun getTotalMoneySpent(authViewModel: AuthViewModel,userID: String): Double {
+suspend fun getTotalMoneySpent(userID: String): Double {
     val db = FirebaseFirestore.getInstance()
     var totalSpent = 0.0
 
@@ -89,7 +89,7 @@ suspend fun getTotalMoneySpent(authViewModel: AuthViewModel,userID: String): Dou
     }
 }
 
-suspend fun getPublicationCountByCategory(authViewModel: AuthViewModel, category: String, userID: String): Int {
+suspend fun getPublicationCountByCategory(category: String, userID: String): Int {
     val db = FirebaseFirestore.getInstance()
     var count = 0
 
@@ -109,7 +109,7 @@ suspend fun getPublicationCountByCategory(authViewModel: AuthViewModel, category
     }
 }
 
-suspend fun getAverageDrinkConsumption(authViewModel: AuthViewModel, period: String,userID:String): Double {
+suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
     val db = FirebaseFirestore.getInstance()
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 

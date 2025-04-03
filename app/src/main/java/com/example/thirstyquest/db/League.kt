@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) -> Unit) {
+fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) -> Unit) { //TODO : Voir comment stocker les informations des publications (dates, prix...)
     val db = FirebaseFirestore.getInstance()
     val lid = db.collection("leagues").document().id
 

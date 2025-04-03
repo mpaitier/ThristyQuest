@@ -249,9 +249,9 @@ suspend fun getAllFollowingIdCoroutine(uid: String): List<String> {
             .await()
         // Parcours tous les documents récupérés
         for (document in result) {
-            // Récupère l'ID du document (c'est l'ID de l'ami)
-            val id = document.id
-            friendList.add(id)
+            if (!document.contains("initialized")) {
+                friendList.add(document.id)
+            }
         }
     } catch (e: Exception) {
         Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)

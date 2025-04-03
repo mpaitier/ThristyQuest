@@ -51,8 +51,6 @@ import com.example.thirstyquest.data.drinkList
 @Composable
 fun UserCollectionContent()
 {
-    val userID = 26 // TODO : get user's ID
-
     var sortedList by remember { mutableStateOf(drinkList) }
     var isAscending by remember { mutableStateOf(true) }
     var selectedSort by remember { mutableStateOf("Level") }

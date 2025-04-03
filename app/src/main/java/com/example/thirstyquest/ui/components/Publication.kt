@@ -32,7 +32,7 @@ import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 @Composable
 fun PublicationItemLeague(publication: Publication, publicationNum: Int, navController: NavController)
 {
-    val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
+    val name = "Membre n°${publication.user_ID}"
     val interactionSource = remember { MutableInteractionSource() }
     var showPublicationDialog by remember { mutableStateOf(false) }
 
