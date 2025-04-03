@@ -163,33 +163,29 @@ suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
     }
 }
 
-suspend fun fetchPublicationDescriptions(userID: String): List<Pair<String, Int>> {
+fun fetchPublicationDescriptions(userID: String, onResult: (List<Pair<String, Int>>) -> Unit) {
     val db = FirebaseFirestore.getInstance()
-    val descriptionsWithPoints = mutableListOf<Pair<String, Int>>()
 
-    return try {
-        val result = db.collection("publications")
-            .whereEqualTo("user_ID", userID)
-            .orderBy("date", Query.Direction.DESCENDING)
-            .orderBy("hour", Query.Direction.DESCENDING)
-            .limit(10)
-            .get()
-            .await()
-
-        Log.d("Firestore", "Nombre de publications trouvées: ${result.size()}")
-
-        for (document in result) {
-            val description = document.getString("description")
-            val points = document.getLong("points")?.toInt() ?: 0  // Default value is 0 if points are missing
-
-            description?.let {
-                descriptionsWithPoints.add(Pair(it, points))  // Adding description and points as a pair
-                Log.d("Firestore", "Description ajoutée: $it, Points: $points")
+    db.collection("publications")
+        .whereEqualTo("user_ID", userID)
+        .orderBy("date", Query.Direction.DESCENDING)
+        .orderBy("hour", Query.Direction.DESCENDING)
+        .limit(10)
+        .addSnapshotListener { snapshots, error ->
+            if (error != null) {
+                Log.e("Firestore", "Erreur de récupération des descriptions : ${error.message}", error)
+                return@addSnapshotListener
             }
+
+            val descriptionsWithPoints = mutableListOf<Pair<String, Int>>()
+
+            snapshots?.forEach { document ->
+                val description = document.getString("description") ?: "Aucune description"
+                val points = document.getLong("points")?.toInt() ?: 0
+                descriptionsWithPoints.add(Pair(description, points))
+            }
+
+            // Mettre à jour la liste en composable
+            onResult(descriptionsWithPoints)
         }
-        descriptionsWithPoints
-    } catch (e: Exception) {
-        Log.e("Firestore", "Erreur de récupération des descriptions et points: ${e.message}", e)
-        emptyList()
-    }
 }

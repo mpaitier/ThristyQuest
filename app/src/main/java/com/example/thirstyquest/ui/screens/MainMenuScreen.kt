@@ -29,7 +29,6 @@ import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.dialog.AddPublicationDialog
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
-import com.example.thirstyquest.ui.components.PublicationItemMenu
 import com.example.thirstyquest.data.PublicationHist
 import com.example.thirstyquest.db.fetchPublicationDescriptions
 import com.example.thirstyquest.db.getAverageDrinkConsumption
@@ -49,7 +48,9 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     LaunchedEffect(userId) {
         userId?.let { uid ->
-            descriptions = fetchPublicationDescriptions(uid)
+            fetchPublicationDescriptions(uid) { newList ->
+                descriptions = newList
+            }
         }
     }
 
