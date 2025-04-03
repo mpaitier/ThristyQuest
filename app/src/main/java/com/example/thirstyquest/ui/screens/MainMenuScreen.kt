@@ -43,7 +43,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userId by authViewModel.uid.observeAsState()
 
     var showDialog by remember { mutableStateOf(false) }
-    var selectedPublication by remember { mutableStateOf<Publication?>(null) }
+    var selectedPublication by remember { mutableStateOf<String?>(null) }
     var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
 
     LaunchedEffect(userId) {
@@ -106,7 +106,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             }
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Historique des boissons
             Text(stringResource(id = R.string.personal_hist), fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
 
             Column(
@@ -121,7 +120,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                             .padding(vertical = 4.dp)
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .padding(8.dp)
-                            //.clickable { selectedPublication = publication}
+                            .clickable { selectedPublication = description}
                     ) {
                         Row(
                             modifier = Modifier
@@ -152,9 +151,8 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         AddPublicationDialog(userId = userId!!, onDismiss = { showDialog = false })
     }
 
-    // Show selected publication
-    selectedPublication?.let {
-        PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
+    selectedPublication?.let { //TODO : faire le pop up du click en dynamique
+        //PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
 }
 

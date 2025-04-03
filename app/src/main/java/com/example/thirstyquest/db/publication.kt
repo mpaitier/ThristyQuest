@@ -185,7 +185,6 @@ fun fetchPublicationDescriptions(userID: String, onResult: (List<Pair<String, In
                 descriptionsWithPoints.add(Pair(description, points))
             }
 
-            // Mettre à jour la liste en composable
             onResult(descriptionsWithPoints)
         }
 }
