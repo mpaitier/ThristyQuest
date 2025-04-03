@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.util.Locale
@@ -159,5 +160,36 @@ suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
     } catch (e: Exception) {
         Log.e("FIRESTORE", "Erreur lors du calcul de la consommation", e)
         0.0
+    }
+}
+
+suspend fun fetchPublicationDescriptions(userID: String): List<Pair<String, Int>> {
+    val db = FirebaseFirestore.getInstance()
+    val descriptionsWithPoints = mutableListOf<Pair<String, Int>>()
+
+    return try {
+        val result = db.collection("publications")
+            .whereEqualTo("user_ID", userID)
+            .orderBy("date", Query.Direction.DESCENDING)
+            .orderBy("hour", Query.Direction.DESCENDING)
+            .limit(10)
+            .get()
+            .await()
+
+        Log.d("Firestore", "Nombre de publications trouvées: ${result.size()}")
+
+        for (document in result) {
+            val description = document.getString("description")
+            val points = document.getLong("points")?.toInt() ?: 0  // Default value is 0 if points are missing
+
+            description?.let {
+                descriptionsWithPoints.add(Pair(it, points))  // Adding description and points as a pair
+                Log.d("Firestore", "Description ajoutée: $it, Points: $points")
+            }
+        }
+        descriptionsWithPoints
+    } catch (e: Exception) {
+        Log.e("Firestore", "Erreur de récupération des descriptions et points: ${e.message}", e)
+        emptyList()
     }
 }

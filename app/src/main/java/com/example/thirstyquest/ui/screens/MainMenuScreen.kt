@@ -1,5 +1,7 @@
 package com.example.thirstyquest.ui.screens
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
@@ -28,14 +31,27 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import com.example.thirstyquest.ui.components.PublicationItemMenu
 import com.example.thirstyquest.data.PublicationHist
+import com.example.thirstyquest.db.fetchPublicationDescriptions
+import com.example.thirstyquest.db.getAverageDrinkConsumption
+import com.example.thirstyquest.db.getPublicationCountByCategory
+import com.example.thirstyquest.db.getTotalDrinkVolume
+import com.example.thirstyquest.db.getTotalMoneySpent
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
 @Composable
 fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userId by authViewModel.uid.observeAsState()
+
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
+    var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+
+    LaunchedEffect(userId) {
+        userId?.let { uid ->
+            descriptions = fetchPublicationDescriptions(uid)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -97,19 +113,34 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
-
-                val sortedHist = PublicationHist.sortedByDescending { it.date + it.hour }
-
-                sortedHist.forEach { publication ->
+                descriptions.forEach { (description, points) ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .padding(8.dp)
-                            .clickable { selectedPublication = publication } // Details on click
+                            //.clickable { selectedPublication = publication}
                     ) {
-                        PublicationItemMenu(publication)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(   // TODO : add image
+                                painter = painterResource(id = R.drawable.ricard),
+                                contentDescription = "Image de la boisson",
+                                modifier = Modifier.size(40.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Column {
+                                Text(description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+                                Text("Points: ${points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+                            }
+                        }
                     }
                 }
             }

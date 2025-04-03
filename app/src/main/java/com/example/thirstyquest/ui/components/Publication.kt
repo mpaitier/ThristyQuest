@@ -91,27 +91,3 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
         PublicationDetailDialog(publication = publication, onDismiss = { showPublicationDialog= false })
     }
 }
-
-@Composable
-fun PublicationItemMenu(publication: Publication)
-{
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = publication.photo),
-            contentDescription = "Image de la boisson",
-            modifier = Modifier.size(40.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column {
-            Text(publication.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-            Text("Points: ${publication.points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
-        }
-    }
-}
