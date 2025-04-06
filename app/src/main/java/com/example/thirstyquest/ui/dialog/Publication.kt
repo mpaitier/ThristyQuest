@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -36,11 +37,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +59,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import com.example.thirstyquest.db.addPublicationToFirestore
+import com.example.thirstyquest.db.uploadImageToFirebase
+import kotlinx.coroutines.launch
 
 @Composable
 fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
@@ -134,12 +139,13 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
 }
 
 @Composable
-fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
+fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bitmap?) {
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
     var drinkVolume by remember { mutableStateOf(0) }
     var expanded by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     val volumeOptions = listOf(
         "Shot (4cl)" to 4,
@@ -153,17 +159,51 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
-                addPublicationToFirestore(userId, drinkName, drinkPrice, drinkCategory, drinkVolume)
-                onDismiss()
+                coroutineScope.launch {
+                    if (imageBitmap != null) {
+                        val url = uploadImageToFirebase(userId, imageBitmap)
+                        addPublicationToFirestore(
+                            userId,
+                            drinkName,
+                            drinkPrice,
+                            drinkCategory,
+                            drinkVolume,
+                            url ?: ""
+                        )
+                    } else {
+                        addPublicationToFirestore(
+                            userId,
+                            drinkName,
+                            drinkPrice,
+                            drinkCategory,
+                            drinkVolume,
+                            ""
+                        )
+                    }
+                    onDismiss()
+                }
             }) {
                 Text("Ajouter")
             }
+
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Annuler") }
         },
         text = {
             Column(modifier = Modifier.padding(16.dp)) {
+                imageBitmap?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = "Image capturée",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 OutlinedTextField(
                     value = drinkName,
                     onValueChange = { drinkName = it },

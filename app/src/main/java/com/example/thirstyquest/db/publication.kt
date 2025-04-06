@@ -11,10 +11,17 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import java.text.SimpleDateFormat
+import android.graphics.Bitmap
+import android.net.Uri
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.math.max
 
-fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int) {
+fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String) {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -32,7 +39,7 @@ fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: Str
         "category" to drinkCategory,
         "volume" to drinkVolume,
         "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
-        "photo" to "",
+        "photo" to photoUrl,
         "points" to points
     )
 
@@ -42,6 +49,32 @@ fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: Str
         .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
 }
+
+suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
+    Log.d("UPLOAD", "Début de l'upload image...")
+
+    return try {
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.reference
+        val imageRef = storageRef.child("images/${userId}_${UUID.randomUUID()}.jpg")
+
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        val imageData = baos.toByteArray()
+
+        imageRef.putBytes(imageData).await()
+        Log.d("UPLOAD", "Image bien uploadée")
+
+        val downloadUrl = imageRef.downloadUrl.await().toString()
+        Log.d("UPLOAD", "URL image : $downloadUrl")
+
+        return downloadUrl
+    } catch (e: Exception) {
+        Log.e("UPLOAD_ERROR", "Erreur upload", e)
+        null
+    }
+}
+
 
 
 suspend fun getTotalDrinkVolume(userID: String): Int {

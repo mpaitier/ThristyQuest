@@ -35,6 +35,10 @@ import com.example.thirstyquest.db.getAverageDrinkConsumption
 import com.example.thirstyquest.db.getPublicationCountByCategory
 import com.example.thirstyquest.db.getTotalDrinkVolume
 import com.example.thirstyquest.db.getTotalMoneySpent
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.asImageBitmap
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
@@ -45,6 +49,16 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<String?>(null) }
     var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { result: Bitmap? ->
+        if (result != null) {
+            capturedImage = result
+            showDialog = true
+        }
+    }
+
 
     LaunchedEffect(userId) {
         userId?.let { uid ->
@@ -83,7 +97,8 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             Button(
                 onClick = {
                     if (userId != null) {
-                        showDialog = true // Ouvrir la boîte de dialogue pour ajouter une publication
+                        takePictureLauncher.launch(null)
+                        // showDialog = true // Ouvrir la boîte de dialogue pour ajouter une publication
                     } else {
                         navController.navigate("login") // Rediriger vers l'écran de connexion
                     }
@@ -147,9 +162,17 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         }
     }
 
-    if (showDialog && userId != null ) {
-        AddPublicationDialog(userId = userId!!, onDismiss = { showDialog = false })
+    if (showDialog && userId != null) {
+        AddPublicationDialog(
+            userId = userId!!,
+            onDismiss = {
+                showDialog = false
+                capturedImage = null
+            },
+            imageBitmap = capturedImage // ← passe l'image au composable
+        )
     }
+
 
     selectedPublication?.let { //TODO : faire le pop up du click en dynamique
         //PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
