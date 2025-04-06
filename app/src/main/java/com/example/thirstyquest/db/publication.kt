@@ -60,7 +60,7 @@ suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
         val imageRef = storageRef.child("images/${userId}_${UUID.randomUUID()}.jpg")
 
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val imageData = baos.toByteArray()
 
         imageRef.putBytes(imageData).await()
