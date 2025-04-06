@@ -8,6 +8,13 @@ import com.example.thirstyquest.db.addUserToFirestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.UserProfileChangeRequest
+import android.graphics.Bitmap
+import android.util.Log
+import androidx.lifecycle.viewModelScope
+import com.example.thirstyquest.db.uploadImageToFirebase
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+
 
 // from : https://www.youtube.com/watch?v=KOnLpNZ4AFc&ab_channel=EasyTuto
 class AuthViewModel : ViewModel() {
@@ -53,7 +60,7 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    fun signup(email: String, password: String, pseudo: String) {
+    fun signup(email: String, password: String, pseudo: String, profileImageUrl: String? = null) {
         if (email.isEmpty() || password.isEmpty() || pseudo.isEmpty()) {
             _authState.value = AuthState.Error("Veuillez remplir tous les champs")
             return
@@ -78,7 +85,7 @@ class AuthViewModel : ViewModel() {
                             user?.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(pseudo).build())
                                 ?.addOnCompleteListener {
                                     if (it.isSuccessful) {
-                                        addUserToFirestore(user.uid, pseudo)
+                                        addUserToFirestore(user.uid, pseudo, profileImageUrl)
                                         _uid.value = user.uid
                                         _authState.value = AuthState.Authenticated
                                     } else {
@@ -101,6 +108,31 @@ class AuthViewModel : ViewModel() {
             PasswordValidationResult.MissingSymbol -> _authState.value = AuthState.Error("Il manque un symbole")
         }
     }
+
+    fun uploadProfileImageAndSignup(email: String, password: String, pseudo: String, bitmap: Bitmap) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                val imageUrl = uploadImageToFirebase(pseudo, bitmap)
+                signup(email = email, password = password, pseudo = pseudo, profileImageUrl = imageUrl)
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error("Erreur lors de l'upload de la photo : ${e.message}")
+            }
+        }
+    }
+
+    fun uploadProfileImage(bitmap: Bitmap) {
+        viewModelScope.launch {
+            val currentUid = auth.currentUser?.uid ?: return@launch
+            val url = uploadImageToFirebase(currentUid, bitmap)
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(currentUid)
+                .update("photoUrl", url ?: "")
+                .addOnSuccessListener { Log.d("PROFILE", "Photo ajoutée") }
+                .addOnFailureListener { Log.e("PROFILE", "Erreur d'ajout photo", it) }
+        }
+    }
+
 
     fun signout() {
         auth.signOut()
@@ -145,3 +177,5 @@ sealed class AuthState {
     object Loading : AuthState()
     data class Error(val message: String) : AuthState()
 }
+
+

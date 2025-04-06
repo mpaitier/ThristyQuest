@@ -39,6 +39,18 @@ import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthState
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
+import com.example.thirstyquest.db.uploadImageToFirebase
+import com.example.thirstyquest.ui.dialog.AddProfilePictureDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
@@ -50,17 +62,20 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
 
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
-    LaunchedEffect(authState.value)
-    {
-        when(authState.value)
-        {
-            is AuthState.Authenticated -> navController.navigate(Screen.Profile.name)
-            is AuthState.Unauthenticated -> {}
-            is AuthState.Error -> Toast.makeText(context,
-                (authState.value as AuthState.Error).message,Toast.LENGTH_LONG).show()
+    var showPhotoDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(authState.value) {
+        when(authState.value) {
+            is AuthState.Authenticated -> {
+                showPhotoDialog = true
+            }
+            is AuthState.Error -> {
+                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_LONG).show()
+            }
             else -> Unit
         }
     }
+
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -127,11 +142,16 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
                 }
             },
             singleLine = true
-        )
+        ) //TODO : coder directement les textes dans le bon fichier
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
-            authViewModel.signup(email = email, password = password, pseudo = pseudo)
+            if (authState.value != AuthState.Loading) {
+                authViewModel.signup(email = email, password = password, pseudo = pseudo)
+            }
+
         },
+
             enabled = authState.value != AuthState.Loading
         ) {
             Text(stringResource(R.string.sign_up))
@@ -143,6 +163,19 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
             Text(stringResource(R.string.already_account))
         }
     }
+
+    if (showPhotoDialog) {
+        AddProfilePictureDialog(
+            onDismiss = {
+                showPhotoDialog = false
+                navController.navigate(Screen.Profile.name)
+            },
+            onImageCaptured = { bitmap ->
+                authViewModel.uploadProfileImage(bitmap)
+            }
+        )
+    }
+
 }
 
 /*

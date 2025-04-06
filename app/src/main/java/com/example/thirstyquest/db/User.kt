@@ -7,23 +7,28 @@ import kotlinx.coroutines.tasks.await
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Setters
 
-fun addUserToFirestore(uid: String, name: String) {
+fun addUserToFirestore(uid: String, name: String, profileImageUrl: String? = null) {
     val db = FirebaseFirestore.getInstance()
     val user = hashMapOf(
         "uid" to uid,
         "name" to name,
-        "xp" to 0
+        "xp" to 0,
+        "photoUrl" to profileImageUrl
     )
 
-    // Ajouter l'utilisateur
+
     db.collection("users").document(uid)
         .set(user)
         .addOnSuccessListener {
             createEmptyCollections(db, uid)
-            Log.d("FIRESTORE", "Utilisateur ajouté !")
+            Log.d("FIRESTORE", "Utilisateur ajouté avec photo !")
         }
         .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur d'ajout : ", e) }
 }
+
+
+
+
 private fun createEmptyCollections(db: FirebaseFirestore, uid: String) {
     val collections = listOf("following","followers")
 
@@ -90,6 +95,20 @@ fun getUserXPById(uid: String, onResult: (Double?) -> Unit) {
             onResult(null)
         }
 }
+
+fun getUserProfileImageUrl(uid: String, onResult: (String?) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").document(uid)
+        .get()
+        .addOnSuccessListener { document ->
+            val url = document.getString("profileImageUrl")
+            onResult(url)
+        }
+        .addOnFailureListener {
+            onResult(null)
+        }
+}
+
 
 fun getAllUsersExcept(uidToExclude: String, onResult: (List<Map<String, Any>>) -> Unit) {
     val db = FirebaseFirestore.getInstance()

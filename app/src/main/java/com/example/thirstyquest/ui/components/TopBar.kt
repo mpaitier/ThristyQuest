@@ -3,6 +3,7 @@ package com.example.thirstyquest.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -27,13 +28,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.thirstyquest.R
+import coil.compose.AsyncImage
+import com.example.thirstyquest.db.getUserProfileImageUrl
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import com.example.thirstyquest.db.getLeagueName
 import com.example.thirstyquest.db.getLeagueOwnerId
+import com.example.thirstyquest.db.getUserProfileImageUrl
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.dialog.EditProfileDialog
 import com.example.thirstyquest.ui.dialog.LeagueEditDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +51,23 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     val backgroundColor = MaterialTheme.colorScheme.background
     var showDialog by remember { mutableStateOf(false) }
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
+
+    var photoUrl by remember { mutableStateOf<String?>(null) }
+    val uid by authViewModel.uid.observeAsState()
+
+    LaunchedEffect(uid) {
+        uid?.let { userId ->
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        photoUrl = document.getString("photoUrl")
+                    }
+                }
+        }
+    }
+
 
     CenterAlignedTopAppBar(
         title = {
@@ -58,12 +83,26 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
         },
         navigationIcon = {
             IconButton(onClick = { navController.navigate(Screen.Login.name) }) {
-                Image(
-                    painter = painterResource(id = R.drawable.pdp),
-                    contentDescription = "Profil",
-                    modifier = Modifier.size(60.dp)
-                )
+                if (!photoUrl.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = photoUrl,
+                        contentDescription = "Photo de profil",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.pdp),
+                        contentDescription = "Profil",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                    )
+                }
             }
+
         },
         actions = {
             if (currentBackStackEntry.value?.destination?.route == Screen.Profile.name) {
@@ -85,7 +124,6 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
             containerColor = backgroundColor,
         )
     )
-
 
     if (showDialog) {
         EditProfileDialog(
