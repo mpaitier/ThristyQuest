@@ -30,7 +30,6 @@ import com.example.thirstyquest.ui.dialog.AddPublicationDialog
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import com.example.thirstyquest.data.PublicationHist
-import com.example.thirstyquest.db.fetchPublicationDescriptions
 import com.example.thirstyquest.db.getAverageDrinkConsumption
 import com.example.thirstyquest.db.getPublicationCountByCategory
 import com.example.thirstyquest.db.getTotalDrinkVolume
@@ -38,7 +37,12 @@ import com.example.thirstyquest.db.getTotalMoneySpent
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import com.example.thirstyquest.db.fetchUserPublications
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
@@ -47,8 +51,9 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userId by authViewModel.uid.observeAsState()
 
     var showDialog by remember { mutableStateOf(false) }
-    var selectedPublication by remember { mutableStateOf<String?>(null) }
+    var selectedPublication by remember { mutableStateOf<Publication?>(null) }
     var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
@@ -62,9 +67,10 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     LaunchedEffect(userId) {
         userId?.let { uid ->
-            fetchPublicationDescriptions(uid) { newList ->
-                descriptions = newList
+            fetchUserPublications(uid) { newList ->
+                publications = newList
             }
+
         }
     }
 
@@ -128,36 +134,54 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
-                descriptions.forEach { (description, points) ->
+                publications.forEach { pub ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .padding(8.dp)
-                            .clickable { selectedPublication = description}
+                            .clickable { selectedPublication = pub }
+
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Image(   // TODO : add image
-                                painter = painterResource(id = R.drawable.ricard),
-                                contentDescription = "Image de la boisson",
-                                modifier = Modifier.size(40.dp)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.LightGray)
+                            ) {
+                                if (pub.photo.startsWith("http")) {
+                                    AsyncImage(
+                                        model = pub.photo,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ricard),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            }
+
 
                             Spacer(modifier = Modifier.width(8.dp))
 
                             Column {
-                                Text(description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-                                Text("Points: ${points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
+                                Text(pub.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+                                Text("Points: ${pub.points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
                             }
                         }
                     }
                 }
+
             }
         }
     }
@@ -175,7 +199,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
 
     selectedPublication?.let { //TODO : faire le pop up du click en dynamique
-        //PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
+        PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
 }
 

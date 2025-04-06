@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,10 +41,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import coil.compose.AsyncImage
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -97,11 +101,29 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
                         .background(Color.LightGray),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = publication.photo),
-                        contentDescription = "Image de la boisson",
-                        modifier = Modifier.size(110.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray)
+                    ) {
+                        if (publication.photo.startsWith("http")) {
+                            AsyncImage(
+                                model = publication.photo,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.ricard),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 // Points
@@ -330,11 +352,27 @@ fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)
                         .background(Color.LightGray),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = boisson.photo),
-                        contentDescription = "Image de la boisson",
-                        modifier = Modifier.size(110.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (boisson.photo.startsWith("http")) {
+                            AsyncImage(
+                                model = boisson.photo,
+                                contentDescription = "Image de la boisson",
+                                modifier = Modifier.size(110.dp)
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.ricard),
+                                contentDescription = "Image par défaut",
+                                modifier = Modifier.size(110.dp)
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

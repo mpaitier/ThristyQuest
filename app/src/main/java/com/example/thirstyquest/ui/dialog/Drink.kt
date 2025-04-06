@@ -33,10 +33,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.data.Drink
+
+val drawableMap = mapOf(
+    "drawable_biere" to R.drawable.biere,
+    "drawable_ricard" to R.drawable.ricard,
+    "drawable_vodka" to R.drawable.vodka
+)
 
 @Composable
 fun DrinkDetailDialog (
@@ -189,11 +196,21 @@ fun PublicationHistItem(publication: Publication)
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = publication.photo),
-            contentDescription = "Image de la boisson",
-            modifier = Modifier.size(40.dp)
-        )
+        if (publication.photo.startsWith("http")) {
+            AsyncImage(
+                model = publication.photo,
+                contentDescription = "Image de la boisson",
+                modifier = Modifier.size(40.dp)
+            )
+        } else {
+            val drawableRes = drawableMap[publication.photo] ?: R.drawable.ricard
+            Image(
+                painter = painterResource(id = drawableRes),
+                contentDescription = "Image par défaut",
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
 
         Spacer(modifier = Modifier.width(8.dp))
 

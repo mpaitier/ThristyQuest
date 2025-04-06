@@ -13,6 +13,7 @@ import java.util.UUID
 import java.text.SimpleDateFormat
 import android.graphics.Bitmap
 import android.net.Uri
+import com.example.thirstyquest.data.Publication
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
@@ -59,7 +60,7 @@ suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
         val imageRef = storageRef.child("images/${userId}_${UUID.randomUUID()}.jpg")
 
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos)
         val imageData = baos.toByteArray()
 
         imageRef.putBytes(imageData).await()
@@ -196,7 +197,7 @@ suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
     }
 }
 
-fun fetchPublicationDescriptions(userID: String, onResult: (List<Pair<String, Int>>) -> Unit) {
+fun fetchUserPublications(userID: String, onResult: (List<Publication>) -> Unit) {
     val db = FirebaseFirestore.getInstance()
 
     db.collection("publications")
@@ -206,18 +207,28 @@ fun fetchPublicationDescriptions(userID: String, onResult: (List<Pair<String, In
         .limit(10)
         .addSnapshotListener { snapshots, error ->
             if (error != null) {
-                Log.e("Firestore", "Erreur de récupération des descriptions : ${error.message}", error)
+                Log.e("Firestore", "Erreur de récupération : ${error.message}", error)
                 return@addSnapshotListener
             }
 
-            val descriptionsWithPoints = mutableListOf<Pair<String, Int>>()
+            val publications = mutableListOf<Publication>()
 
-            snapshots?.forEach { document ->
-                val description = document.getString("description") ?: "Aucune description"
-                val points = document.getLong("points")?.toInt() ?: 0
-                descriptionsWithPoints.add(Pair(description, points))
+            snapshots?.forEach { doc ->
+                val pub = Publication(
+                    ID = 0, // ← ou génère un ID local si besoin
+                    description = doc.getString("description") ?: "",
+                    user_ID = (doc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
+                    date = doc.getString("date") ?: "",
+                    hour = doc.getString("hour") ?: "",
+                    category = doc.getString("category") ?: "",
+                    price = doc.getDouble("price") ?: 0.0,
+                    photo = doc.getString("photo") ?: "",
+                    points = doc.getLong("points")?.toInt() ?: 0
+                )
+                publications.add(pub)
             }
 
-            onResult(descriptionsWithPoints)
+            onResult(publications)
         }
 }
+

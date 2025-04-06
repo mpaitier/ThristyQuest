@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.navigation.Screen
+import coil.compose.AsyncImage
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 
 @Composable
@@ -36,20 +37,39 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
     val interactionSource = remember { MutableInteractionSource() }
     var showPublicationDialog by remember { mutableStateOf(false) }
 
+    val drawableMap = mapOf( // TODO : SUPPRIMER QUAND ON UTILISERA PLUS LES PUBLI EN DUR CODES POUR LE TEST
+        "drawable_biere" to com.example.thirstyquest.R.drawable.biere,
+        "drawable_ricard" to com.example.thirstyquest.R.drawable.ricard,
+        "drawable_vodka" to com.example.thirstyquest.R.drawable.vodka
+    )
+
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = publication.photo),
-            contentDescription = "Publication picture",
-            modifier = Modifier
-                .size(80.dp)
-                .clickable { showPublicationDialog= true },
-            contentScale = ContentScale.Fit
-        )
+        if (publication.photo.startsWith("http")) {
+            AsyncImage(
+                model = publication.photo,
+                contentDescription = "Publication picture",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clickable { showPublicationDialog = true },
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            val drawableRes = drawableMap[publication.photo] ?: com.example.thirstyquest.R.drawable.ricard
+            Image(
+                painter = painterResource(id = drawableRes),
+                contentDescription = "Publication picture",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clickable { showPublicationDialog = true },
+                contentScale = ContentScale.Fit
+            )
+        }
 
         Spacer(modifier = Modifier.width(8.dp))
 
