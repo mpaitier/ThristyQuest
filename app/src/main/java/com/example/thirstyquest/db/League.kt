@@ -12,7 +12,9 @@ fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) ->
         "owner uid" to uid,
         "name" to name,
         "xp" to 0,
-        "count" to 1
+        "count" to 1,
+        "total liters" to 0.0,
+        "total price" to 0.0,
     )
 
     db.collection("leagues").document(lid)
@@ -26,6 +28,7 @@ fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) ->
         .addOnFailureListener { e ->
             Log.e("FIRESTORE", "Erreur d'ajout : ", e)
         }
+
     db.collection("users").document(uid).collection("leagues").document(lid)
         .set(hashMapOf("League name" to name))
         .addOnSuccessListener { Log.d("FIRESTORE", "Ligue ajoutée à l'utilisateur !") }
@@ -148,6 +151,41 @@ suspend fun getAllLeagueMembers(leagueID: String): List<String> {
     }
 }
 
+suspend fun getLeagueXp(leagueID: String): Int {
+    val db = FirebaseFirestore.getInstance()
+    var xp = 0
+    try {
+        val result = db.collection("leagues").document(leagueID).get().await()
+        xp = result.get("xp") as Int
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+    }
+    return xp
+}
+
+suspend fun getLeagueTotalLiters(leagueID: String): Double {
+    val db = FirebaseFirestore.getInstance()
+    var totalLiters = 0.0
+    try {
+        val result = db.collection("leagues").document(leagueID).get().await()
+        totalLiters = result.get("total liters") as Double
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+    }
+    return totalLiters
+}
+
+suspend fun getLeagueTotalPrice(leagueID: String): Double {
+    val db = FirebaseFirestore.getInstance()
+    var totalPrice = 0.0
+    try {
+        val result = db.collection("leagues").document(leagueID).get().await()
+        totalPrice = result.get("total price") as Double
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+    }
+    return totalPrice
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      PUT

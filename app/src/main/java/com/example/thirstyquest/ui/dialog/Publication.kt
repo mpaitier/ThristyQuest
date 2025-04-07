@@ -1,7 +1,7 @@
 package com.example.thirstyquest.ui.dialog
 
 import android.graphics.Bitmap
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +23,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -33,13 +31,14 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,7 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,12 +61,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
-import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
-import java.util.UUID
 import com.example.thirstyquest.db.addPublicationToFirestore
+import com.example.thirstyquest.db.addPublicationToLeague
+import com.example.thirstyquest.db.getAllUserLeague
 import com.example.thirstyquest.db.uploadImageToFirebase
 import kotlinx.coroutines.launch
 
@@ -200,7 +198,9 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
-    var drinkVolume by remember { mutableStateOf(0) }
+    var drinkVolume by remember { mutableIntStateOf(0) }
+    var points by remember { mutableDoubleStateOf(0.0) }
+    var publicationId by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -212,31 +212,49 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
         "Pichet (1L)" to 100
     )
 
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
                 coroutineScope.launch {
+                    points = 500.0                                                                  // TODO : obtenir le vrai nombre de points en fonction de la catégorie
                     if (imageBitmap != null) {
                         val url = uploadImageToFirebase(userId, imageBitmap)
-                        addPublicationToFirestore(
+                        publicationId = addPublicationToFirestore(
                             userId,
                             drinkName,
                             drinkPrice,
                             drinkCategory,
                             drinkVolume,
+                            points,
                             url ?: ""
                         )
                     } else {
-                        addPublicationToFirestore(
+                        publicationId = addPublicationToFirestore(
                             userId,
                             drinkName,
                             drinkPrice,
                             drinkCategory,
                             drinkVolume,
+                            points,
                             ""
                         )
                     }
+                    // get all users league
+                    getAllUserLeague(uid = userId) { leagueList ->
+                        leagueList.forEach { leagueId ->
+                            Toast.makeText(context, leagueId, Toast.LENGTH_SHORT).show()
+                            addPublicationToLeague(
+                                pid = publicationId,
+                                lid = leagueId,
+                                price = drinkPrice.toDouble(),
+                                volume = drinkVolume.toDouble(),
+                                points = points
+                            )
+                        }
+                    }
+
                     onDismiss()
                 }
             }) {

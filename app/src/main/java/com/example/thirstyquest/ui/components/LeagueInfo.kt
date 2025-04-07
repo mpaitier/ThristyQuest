@@ -15,6 +15,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,15 +30,24 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getAllLeagueMembers
+import com.example.thirstyquest.db.getLeagueXp
+import com.example.thirstyquest.db.getUserXPById
 
 @Composable
 fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
+
+    var currentXP by remember { mutableStateOf(0) }
+    var currentLevel by remember { mutableStateOf(0) }
+    val requiredXP = 2000
+    LaunchedEffect(Unit) {
+        val currentXP = getLeagueXp(leagueID)
+        currentLevel =  currentXP % requiredXP
+    }
+
     // TODO : get informations with leagueID
     val leagueCode =  "ABCD"
-    val currentLevel = 3
-    val nextLevel = 4
-    val currentXP = 900
-    val requiredXP = 1000
+
 
     Column(
         modifier = Modifier.height(110.dp)
@@ -47,7 +61,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        LeagueProgressBar(currentLevel, nextLevel, currentXP, requiredXP)
+        LeagueProgressBar(currentLevel, currentLevel+1, currentXP, requiredXP)
         Spacer(modifier = Modifier.height(18.dp))
 
         // League code & share button

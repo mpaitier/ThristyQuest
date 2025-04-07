@@ -1,9 +1,6 @@
 package com.example.thirstyquest.db
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
@@ -12,24 +9,20 @@ import java.util.Locale
 import java.util.UUID
 import java.text.SimpleDateFormat
 import android.graphics.Bitmap
-import android.net.Uri
 import com.example.thirstyquest.data.Publication
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.math.max
 
-fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String) {
+fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, points: Double, photoUrl: String): String {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val currentDate = dateFormat.format(Date())
     val currentTime = timeFormat.format(Date())
-    val points = 500
 
     val publication = hashMapOf(
         "ID" to id,
@@ -49,6 +42,44 @@ fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: Str
         .set(publication)
         .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
+
+    db.collection("users")
+        .document(userId)
+        .collection("publications")
+        .document(id)
+        .set(hashMapOf("date" to currentDate, "hour" to currentTime))
+
+    db.collection("users").document(userId)
+        .update("xp", FieldValue.increment(points))
+        .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
+
+    return id
+}
+
+fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Double, points : Double) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("leagues").document(lid).collection("publications").document(pid)
+        .set(hashMapOf("pid" to pid))
+        .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée à la ligue avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
+
+    // Incrementer les valeurs "total liters" et "total price" de la ligue
+    db.collection("leagues").document(lid)
+        .update("total liters", FieldValue.increment(volume))
+        .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
+
+    db.collection("leagues").document(lid)
+        .update("total price", FieldValue.increment(price))
+        .addOnSuccessListener { Log.d("Firebase", "Prix total mis à jour avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e) }
+
+    db.collection("leagues").document(lid)
+        .update("xp", FieldValue.increment(points))
+        .addOnSuccessListener { Log.d("Firebase", "Prix total mis à jour avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e) }
 }
 
 suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
@@ -75,8 +106,6 @@ suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
         null
     }
 }
-
-
 
 suspend fun getTotalDrinkVolume(userID: String): Int {
     val db = FirebaseFirestore.getInstance()

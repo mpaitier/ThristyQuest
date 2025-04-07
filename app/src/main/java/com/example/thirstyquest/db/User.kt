@@ -2,6 +2,7 @@ package com.example.thirstyquest.db
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +142,43 @@ suspend fun getAllUsers(): List<Pair<String, String>> {
         Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
     }
     return userList
+}
+
+fun getAllUserLeague(uid: String, onResult: (List<String>) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    val leagueList = mutableListOf<String>()
+
+    db.collection("users").document(uid).collection("leagues")
+        .get()
+        .addOnSuccessListener { result ->
+            for (document in result) {
+                leagueList.add(document.id)
+            }
+            onResult(leagueList)
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur de récupération des ligues : ", e)
+            onResult(emptyList())
+        }
+}
+
+fun getLastPublications(uid: String) : List<String> {
+    val db = FirebaseFirestore.getInstance()
+    var publicationList = mutableListOf<String>()
+
+    db.collection("users").document(uid).collection("publications")
+        .orderBy("date", Query.Direction.DESCENDING)
+        .orderBy("hour", Query.Direction.DESCENDING)
+        .limit(10)
+        .get()
+        .addOnSuccessListener { result ->
+            publicationList = result.map { it.id } as MutableList<String>
+        }
+        .addOnFailureListener { e ->
+            Log.e("FIRESTORE", "Erreur de récupération des publications : ", e)
+        }
+
+    return publicationList
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
