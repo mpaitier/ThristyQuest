@@ -31,12 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getAllUserLeaguesIdCoroutine
 import com.example.thirstyquest.db.getLeagueMemberCount
@@ -44,6 +46,8 @@ import com.example.thirstyquest.db.getLeagueName
 import com.example.thirstyquest.db.getUserRank
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 /** In Social Screen */
 @Composable
@@ -81,8 +85,7 @@ fun LeagueItem(
     navController: NavController,
     authViewModel: AuthViewModel,
     leagueID: String
-)
-{
+) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -90,13 +93,25 @@ fun LeagueItem(
 
     var peopleCount by remember { mutableStateOf("") }
     var leagueName by remember { mutableStateOf("") }
-    LaunchedEffect(leagueID) {
-        peopleCount = getLeagueMemberCount(leagueID)
-        leagueName = getLeagueName(leagueID)
-    }
+    var leaguePhotoUrl by remember { mutableStateOf<String?>(null) }
 
     val currentUserUid by authViewModel.uid.observeAsState()
     var rank by remember { mutableStateOf("") }
+
+    LaunchedEffect(leagueID) {
+        peopleCount = getLeagueMemberCount(leagueID)
+        leagueName = getLeagueName(leagueID)
+
+        // 🔽 On récupère aussi la photo
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("leagues")
+            .document(leagueID)
+            .get()
+            .await()
+
+        leaguePhotoUrl = snapshot.getString("photoUrl")
+    }
+
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
             rank = getUserRank(uid, leagueID).toString()
@@ -109,7 +124,7 @@ fun LeagueItem(
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(if (isPressed) tertiaryColor else Color.Transparent)
-            .clickable (
+            .clickable(
                 interactionSource = interactionSource,
                 indication = null
             ) {
@@ -117,12 +132,27 @@ fun LeagueItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // TODO: get league image------------------------------------------------------------------------------------
-        Image(
-            painter = painterResource(id = R.drawable.league_logo),
-            contentDescription = "Image de ligue",
-            modifier = Modifier.size(60.dp)
-        )
+        if (!leaguePhotoUrl.isNullOrEmpty()) {
+            //Si une photo existe, on l'affiche
+            AsyncImage(
+                model = leaguePhotoUrl,
+                contentDescription = "Image de ligue",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            // ❗️Fallback si pas de photo
+            Image(
+                painter = painterResource(id = R.drawable.league_logo),
+                contentDescription = "Image de ligue",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+        }
+
         Spacer(modifier = Modifier.width(16.dp))
 
         Text(
@@ -157,3 +187,4 @@ fun LeagueItem(
         )
     }
 }
+

@@ -5,4 +5,5 @@ data class League(
     val name: String,
     val XP: Int,
     val leagueCode: String,
+    val photoUrl: String? = null
 )

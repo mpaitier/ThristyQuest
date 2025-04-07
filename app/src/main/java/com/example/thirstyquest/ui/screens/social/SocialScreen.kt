@@ -37,6 +37,10 @@ import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+
 
 @Composable
 fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -51,6 +55,18 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { result ->
+        if (result != null) {
+            capturedImage = result
+            showCreateLeagueDialog = true
+        }
+    }
+
+
 
     val currentUserUid by authViewModel.uid.observeAsState()
     LaunchedEffect(currentUserUid) {
@@ -143,15 +159,20 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     if (showCreateLeagueDialog) {
         CreateLeagueDialog(
             onDismiss = { showCreateLeagueDialog = false },
-            onValidate = { leagueName ->
+            onValidate = { leagueName, image ->
                 showCreateLeagueDialog = false
 
                 currentUserUid?.let { uid ->
-                    addLeagueToFirestore(uid = uid, name = leagueName) { newLeagueID ->
+                    addLeagueToFirestore(
+                        uid = uid,
+                        name = leagueName,
+                        imageBitmap = image
+                    ) { newLeagueID ->
                         navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
                     }
                 }
             }
         )
+
     }
 }
