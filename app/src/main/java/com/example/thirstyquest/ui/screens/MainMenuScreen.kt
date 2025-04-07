@@ -37,12 +37,14 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     val userId by authViewModel.uid.observeAsState()
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
     var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
@@ -181,18 +183,30 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
     }
 
     if (showDialog && userId != null) {
         AddPublicationDialog(
             userId = userId!!,
+            imageBitmap = capturedImage,
             onDismiss = {
                 showDialog = false
                 capturedImage = null
             },
-            imageBitmap = capturedImage // ← passe l'image au composable
+            onSuccess = {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Publication ajoutée avec succès")
+                }
+            }
         )
     }
+
 
 
     selectedPublication?.let { //TODO : faire le pop up du click en dynamique
@@ -221,3 +235,5 @@ fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: St
         Text(text = points, fontSize = 14.sp, color = Color.Gray)
     }
 }
+
+

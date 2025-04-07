@@ -15,18 +15,23 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.util.*
+import com.example.thirstyquest.data.DrinkCategories
+import com.example.thirstyquest.data.DrinkVolumes
 import kotlin.math.max
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, points: Double, photoUrl: String): String {
+fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): String {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val currentDate = dateFormat.format(Date())
     val currentTime = timeFormat.format(Date())
+    val basePoints = DrinkCategories.basePoints[drinkCategory] ?: 0
+    val multiplier = DrinkVolumes.volumeMultipliers[drinkVolume] ?: 1.0
+    val points = (basePoints * multiplier).toInt()
 
     val publication = hashMapOf(
         "ID" to id,
@@ -54,7 +59,7 @@ fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: Str
         .set(hashMapOf("date" to currentDate, "hour" to currentTime))
 
     db.collection("users").document(userId)
-        .update("xp", FieldValue.increment(points))
+        .update("xp", FieldValue.increment(points.toDouble()))
         .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
 

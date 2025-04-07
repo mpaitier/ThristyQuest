@@ -30,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.DrinkCategories
 import com.example.thirstyquest.data.Publication
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -194,7 +196,12 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
 }
 
 @Composable
-fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bitmap?) {
+fun AddPublicationDialog(
+    userId: String,
+    onDismiss: () -> Unit,
+    imageBitmap: Bitmap?,
+    onSuccess: () -> Unit // 🔥 ce callback est appelé APRÈS fermeture
+) {
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
@@ -212,55 +219,38 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
         "Pichet (1L)" to 100
     )
 
-    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
                 coroutineScope.launch {
-                    points = 500.0                                                                  // TODO : obtenir le vrai nombre de points en fonction de la catégorie
-                    if (imageBitmap != null) {
-                        val url = uploadImageToFirebase(userId, imageBitmap)
-                        publicationId = addPublicationToFirestore(
-                            userId,
-                            drinkName,
-                            drinkPrice,
-                            drinkCategory,
-                            drinkVolume,
-                            points,
-                            url ?: ""
-                        )
-                    } else {
-                        publicationId = addPublicationToFirestore(
-                            userId,
-                            drinkName,
-                            drinkPrice,
-                            drinkCategory,
-                            drinkVolume,
-                            points,
-                            ""
-                        )
-                    }
-                    // get all users league
+                    val url = imageBitmap?.let { uploadImageToFirebase(userId, it) } ?: ""
+
+                    publicationId = addPublicationToFirestore(
+                        userId, drinkName, drinkPrice, drinkCategory, drinkVolume, url
+                    )
+
                     getAllUserLeague(uid = userId) { leagueList ->
                         leagueList.forEach { leagueId ->
-                            Toast.makeText(context, leagueId, Toast.LENGTH_SHORT).show()
                             addPublicationToLeague(
                                 pid = publicationId,
                                 lid = leagueId,
-                                price = drinkPrice.toDouble(),
+                                price = drinkPrice.toDoubleOrNull() ?: 0.0,
                                 volume = drinkVolume.toDouble(),
                                 points = points
                             )
                         }
                     }
 
+                    // 1. Fermer le dialog
                     onDismiss()
+
+                    // 2. Afficher la snackbar (depuis le composant parent)
+                    onSuccess()
                 }
             }) {
                 Text("Ajouter")
             }
-
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Annuler") }
@@ -287,6 +277,7 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = drinkPrice,
                     onValueChange = { drinkPrice = it },
@@ -296,12 +287,10 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = drinkCategory,
-                    onValueChange = { drinkCategory = it },
-                    label = { Text("Catégorie") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+
+                CategoryDropdown(
+                    selectedCategory = drinkCategory,
+                    onCategorySelected = { drinkCategory = it }
                 )
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -323,7 +312,8 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = volumeOptions.find { it.second == drinkVolume }?.first ?: "Choisir un volume",
+                                text = volumeOptions.find { it.second == drinkVolume }?.first
+                                    ?: "Choisir un volume",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -355,6 +345,7 @@ fun AddPublicationDialog(userId: String, onDismiss: () -> Unit, imageBitmap: Bit
         }
     )
 }
+
 
 /*
 @Composable
@@ -467,3 +458,54 @@ fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)
         modifier = Modifier.padding(16.dp)
     )
 }
+
+@Composable
+fun CategoryDropdown(
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
+) {
+    val allCategories = DrinkCategories.basePoints.keys.toList()
+    var expanded by remember { mutableStateOf(false) }
+    var input by remember { mutableStateOf(selectedCategory) }
+
+    val filteredOptions = allCategories.filter {
+        it.contains(input, ignoreCase = true)
+    }
+
+    Column {
+        OutlinedTextField(
+            value = input,
+            onValueChange = {
+                input = it
+                expanded = true
+            },
+            label = { Text("Catégorie") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true },
+            trailingIcon = {
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Ouvrir menu")
+                }
+            }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            filteredOptions.forEach { category ->
+                DropdownMenuItem(
+                    text = { Text(category) },
+                    onClick = {
+                        input = category
+                        onCategorySelected(category)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
