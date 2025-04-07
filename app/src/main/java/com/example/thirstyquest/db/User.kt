@@ -54,6 +54,19 @@ fun updateUserName(userId: String, newName: String) {
         }
 }
 
+fun updateUserProfilePhotoUrl(userId: String, photoUrl: String) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").document(userId)
+        .update("photoUrl", photoUrl)
+        .addOnSuccessListener {
+            Log.d("Firebase", "Photo de profil mise à jour avec succès")
+        }
+        .addOnFailureListener { e ->
+            Log.e("Firebase", "Erreur mise à jour photo profil", e)
+        }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Getters
 

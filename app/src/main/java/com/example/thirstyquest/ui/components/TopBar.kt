@@ -62,16 +62,16 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
 
     LaunchedEffect(uid) {
         uid?.let { userId ->
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(userId)
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
                 .get()
-                .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        photoUrl = document.getString("photoUrl")
-                    }
-                }
+                .await()
+
+            photoUrl = snapshot.getString("photoUrl")
         }
     }
+
 
 
     CenterAlignedTopAppBar(
