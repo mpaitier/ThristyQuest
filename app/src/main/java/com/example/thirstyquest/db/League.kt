@@ -1,51 +1,113 @@
 package com.example.thirstyquest.db
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.navigation.NavController
+import com.example.thirstyquest.navigation.Screen
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) -> Unit) { //TODO : Voir comment stocker les informations des publications (dates, prix...)
+fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) -> Unit) {
     val db = FirebaseFirestore.getInstance()
-    val lid = db.collection("leagues").document().id
 
-    val league = hashMapOf(
-        "owner uid" to uid,
-        "name" to name,
-        "xp" to 0,
-        "count" to 1,
-        "total liters" to 0.0,
-        "total price" to 0.0,
-    )
+    fun generateLeagueId(): String {
+        val digits = (0..9).toList()
+        val letters = ('A'..'Z').toList()
+        val random = java.util.Random()
 
-    db.collection("leagues").document(lid)
-        .set(league)
-        .addOnSuccessListener {
-            // Add user to members list
-            db.collection("leagues").document(lid).collection("members").document(uid).set(hashMapOf(uid to uid))
-            onLeagueCreated(lid)
-            Log.d("FIRESTORE", "Ligue ajoutée !")
+        fun randomDigits(n: Int) = (1..n).map { digits[random.nextInt(digits.size)] }.joinToString("")
+        fun randomLetter() = letters[random.nextInt(letters.size)]
+
+        return randomDigits(3) + randomLetter() + randomDigits(3) + randomLetter() + randomDigits(3)
+    }
+
+    fun tryCreateLeague() {
+        val lid = generateLeagueId()
+
+        db.collection("leagues").document(lid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // L'ID est déjà utilisé, on en génère un autre
+                    tryCreateLeague()
+                } else {
+                    // L'ID est libre, on peut créer la ligue
+                    val league = hashMapOf(
+                        "owner uid" to uid,
+                        "name" to name,
+                        "xp" to 0,
+                        "count" to 1,
+                        "total liters" to 0.0,
+                        "total price" to 0.0,
+                    )
+
+                    db.collection("leagues").document(lid)
+                        .set(league)
+                        .addOnSuccessListener {
+                            // Ajouter l'utilisateur à la ligue
+                            db.collection("leagues").document(lid)
+                                .collection("members").document(uid)
+                                .set(hashMapOf(uid to uid))
+
+                            // Lier la ligue à l'utilisateur
+                            db.collection("users").document(uid)
+                                .collection("leagues").document(lid)
+                                .set(hashMapOf("League name" to name))
+
+                            onLeagueCreated(lid)
+                            Log.d("FIRESTORE", "Ligue ajoutée avec succès !")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIRESTORE", "Erreur lors de la création de la ligue : ", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIRESTORE", "Erreur lors de la vérification de l'ID de ligue : ", e)
+            }
+    }
+
+    tryCreateLeague()
+}
+
+
+fun joinLeagueIfExists(
+    uid: String,
+    leagueCode: String,
+    context: Context,
+    navController: NavController
+) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("leagues").document(leagueCode).get()
+        .addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Ajouter l'utilisateur comme membre
+                db.collection("leagues").document(leagueCode)
+                    .collection("members").document(uid)
+                    .set(hashMapOf(uid to uid))
+
+                // Lier la ligue à l'utilisateur
+                val leagueName = document.getString("name") ?: "Ligue"
+                db.collection("users").document(uid)
+                    .collection("leagues").document(leagueCode)
+                    .set(hashMapOf("League name" to leagueName))
+
+                // Redirection
+                navController.navigate(Screen.LeagueContent.name + "/$leagueCode")
+            } else {
+                Toast.makeText(context, "Code de ligue inconnu", Toast.LENGTH_SHORT).show()
+            }
         }
         .addOnFailureListener { e ->
-            Log.e("FIRESTORE", "Erreur d'ajout : ", e)
+            Log.e("FIRESTORE", "Erreur lors de la vérification du code de ligue", e)
+            Toast.makeText(context, "Erreur lors de la connexion", Toast.LENGTH_SHORT).show()
         }
-
-    db.collection("users").document(uid).collection("leagues").document(lid)
-        .set(hashMapOf("League name" to name))
-        .addOnSuccessListener { Log.d("FIRESTORE", "Ligue ajoutée à l'utilisateur !") }
-        .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur lors de l'ajout à l'utilisateur : ", e) }
 }
 
-fun joinLeague(uid: String, lid: String, leagueName: String) {
-    val db = FirebaseFirestore.getInstance()
-
-    db.collection("users").document(uid).collection("leagues").document(lid)
-        .set(hashMapOf("League name" to leagueName))
-        .addOnSuccessListener { Log.d("FIRESTORE", "Ligue rejointe !") }
-        .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur lors de la jointure : ", e) }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    GET
@@ -156,7 +218,7 @@ suspend fun getAllLeagueMembers(leagueID: String): List<String> {
 
 suspend fun getLeagueXp(leagueID: String): Double {
     val db = FirebaseFirestore.getInstance()
-    var xp = 100.0
+    var xp = 0.0
     try {
         val result = db.collection("leagues").document(leagueID).get().await()
         xp = result.get("xp") as Double

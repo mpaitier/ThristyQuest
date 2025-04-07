@@ -22,10 +22,13 @@ import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalContext
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.addLeagueToFirestore
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.db.getAllUserLeaguesIdCoroutine
+import com.example.thirstyquest.db.joinLeagueIfExists
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.FriendsList
 import com.example.thirstyquest.ui.components.LeagueList
@@ -36,14 +39,16 @@ import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) { //TODO : mise à jour du nombre d'amis
+fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
+    val context = LocalContext.current
+
     var showDialog by remember { mutableStateOf(false) }
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
     // State pour stocker dynamiquement le nombre d'amis
-    var friendNumber by remember { mutableStateOf(0) }
-    var leagueNumber by remember { mutableStateOf(0) }
+    var friendNumber by remember { mutableIntStateOf(0) }
+    var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -122,8 +127,14 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) { /
             onJoinLeague = { leagueCode ->
                 showDialog = false
 
-                val newLeagueID = addToLeagueList(leagueCode)
-                navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
+                currentUserUid?.let { uid ->
+                    joinLeagueIfExists(
+                        uid = uid,
+                        leagueCode = leagueCode,
+                        context = context,
+                        navController = navController
+                    )
+                }
             }
         )
     }
@@ -143,11 +154,4 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) { /
             }
         )
     }
-}
-
-
-fun addToLeagueList(leagueCode: String): Int
-{
-    // TODO : Add league to user's list
-    return 69 // Random value
 }

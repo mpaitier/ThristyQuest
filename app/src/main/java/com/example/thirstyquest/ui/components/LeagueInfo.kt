@@ -47,10 +47,6 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
         currentLevel =  (currentXP/requiredXP).toInt()+1
     }
 
-    // TODO : get informations with leagueID
-    val leagueCode =  "ABCD"
-
-
     Column(
         modifier = Modifier.height(110.dp)
     ) {
@@ -78,7 +74,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
                 text = buildAnnotatedString {
                     append("Code de ligue : ")
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
-                        append(leagueCode)
+                        append(leagueID)
                     }
                 },
                 textAlign = TextAlign.Center,
@@ -91,7 +87,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
                     val leagueName = "Alcooliques anonymes"
                     val shareMessage =
                         "Viens rejoindre la ligue $leagueName sur Thirsty Quest et partageons nos aventures de consommation ! \uD83C\uDF7B\n" +
-                                "Voici mon code de ligue : $leagueCode\n"
+                                "Voici mon code de ligue : $leagueID\n"
                     onShareClick(shareMessage)
                 },
                 modifier = Modifier.size(16.dp)

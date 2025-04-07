@@ -145,7 +145,7 @@ fun AddLeagueDialog(
 {
     var leagueCode by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
-    val maxCodeLength = 6
+    val maxCodeLength = 11
 
     AlertDialog(
         onDismissRequest = onDismiss,
