@@ -4,6 +4,9 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//    POST
+
 fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) -> Unit) { //TODO : Voir comment stocker les informations des publications (dates, prix...)
     val db = FirebaseFirestore.getInstance()
     val lid = db.collection("leagues").document().id
@@ -45,7 +48,7 @@ fun joinLeague(uid: String, lid: String, leagueName: String) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//      Getters
+//    GET
 
 suspend fun getAllUserLeaguesIdCoroutine(uid: String): List<String> {
     val db = FirebaseFirestore.getInstance()
@@ -151,12 +154,12 @@ suspend fun getAllLeagueMembers(leagueID: String): List<String> {
     }
 }
 
-suspend fun getLeagueXp(leagueID: String): Int {
+suspend fun getLeagueXp(leagueID: String): Double {
     val db = FirebaseFirestore.getInstance()
-    var xp = 0
+    var xp = 100.0
     try {
         val result = db.collection("leagues").document(leagueID).get().await()
-        xp = result.get("xp") as Int
+        xp = result.get("xp") as Double
     } catch (e: Exception) {
         Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
     }

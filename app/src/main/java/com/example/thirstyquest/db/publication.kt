@@ -10,11 +10,15 @@ import java.util.UUID
 import java.text.SimpleDateFormat
 import android.graphics.Bitmap
 import com.example.thirstyquest.data.Publication
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.util.*
 import kotlin.math.max
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//    POST
 
 fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, points: Double, photoUrl: String): String {
     val db = FirebaseFirestore.getInstance()
@@ -106,6 +110,9 @@ suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
         null
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//    GET
 
 suspend fun getTotalDrinkVolume(userID: String): Int {
     val db = FirebaseFirestore.getInstance()
@@ -226,7 +233,82 @@ suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
     }
 }
 
+suspend fun getLeaguePublications(leagueID: String): List<Publication> {
+    val db = FirebaseFirestore.getInstance()
+    val publications = mutableListOf<Publication>()
+
+    return try {
+        val result = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        for (document in result) {
+            // for each publication
+            val pid = document.getString("pid") ?: continue
+            val pubDoc = db.collection("publications").document(pid).get().await()
+
+            val publication = Publication(
+                ID = 0, // ← ou génère un ID local si besoin
+                description = pubDoc.getString("description") ?: "",
+                user_ID = (pubDoc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
+                date = pubDoc.getString("date") ?: "",
+                hour = pubDoc.getString("hour") ?: "",
+                category = pubDoc.getString("category") ?: "",
+                price = pubDoc.getDouble("price") ?: 0.0,
+                photo = pubDoc.getString("photo") ?: "",
+                points = pubDoc.getLong("points")?.toInt() ?: 0
+            )
+            publications.add(publication)
+        }
+
+        publications
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des publications de la ligue : ", e)
+        emptyList()
+    }
+}
+
+suspend fun getUserLastPublications(userID: String): List<Publication> {
+    val db = FirebaseFirestore.getInstance()
+    val publications = mutableListOf<Publication>()
+
+    return try {
+        val result = db.collection("users")
+            .document(userID)
+            .collection("publications")
+            .get()
+            .await()
+
+        for (document in result) {
+            val pid = document.id
+            val pubDoc = db.collection("publications").document(pid).get().await()
+
+            val publication = Publication(
+                ID = 0,
+                description = pubDoc.getString("description") ?: "",
+                user_ID = (pubDoc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
+                date = pubDoc.getString("date") ?: "",
+                hour = pubDoc.getString("hour") ?: "",
+                category = pubDoc.getString("category") ?: "",
+                price = pubDoc.getDouble("price") ?: 0.0,
+                photo = pubDoc.getString("photo") ?: "",
+                points = pubDoc.getLong("points")?.toInt() ?: 0
+            )
+            publications.add(publication)
+        }
+
+        publications
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des publications de l'utilisateur : ", e)
+        emptyList()
+    }
+}
+
+/*
 fun fetchUserPublications(userID: String, onResult: (List<Publication>) -> Unit) {
+    // TODO : essayer de récupérer uniquement les publications de l'utilisateur
     val db = FirebaseFirestore.getInstance()
 
     db.collection("publications")
@@ -260,4 +342,4 @@ fun fetchUserPublications(userID: String, onResult: (List<Publication>) -> Unit)
             onResult(publications)
         }
 }
-
+*/

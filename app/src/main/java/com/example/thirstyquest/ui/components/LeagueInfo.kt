@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,12 +39,12 @@ import com.example.thirstyquest.db.getUserXPById
 @Composable
 fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
 
-    var currentXP by remember { mutableStateOf(0) }
-    var currentLevel by remember { mutableStateOf(0) }
+    var currentXP by remember { mutableDoubleStateOf(0.0) }
+    var currentLevel by remember { mutableIntStateOf(0) }
     val requiredXP = 2000
     LaunchedEffect(Unit) {
-        val currentXP = getLeagueXp(leagueID)
-        currentLevel =  currentXP % requiredXP
+        currentXP = getLeagueXp(leagueID)
+        currentLevel =  (currentXP/requiredXP).toInt()+1
     }
 
     // TODO : get informations with leagueID
@@ -61,7 +63,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        LeagueProgressBar(currentLevel, currentLevel+1, currentXP, requiredXP)
+        LeagueProgressBar(currentLevel, currentXP, requiredXP)
         Spacer(modifier = Modifier.height(18.dp))
 
         // League code & share button

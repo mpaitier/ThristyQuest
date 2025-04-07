@@ -62,7 +62,7 @@ fun LeagueContentScreen(leagueID: String, navController: NavController, authView
         ) { page ->
             when (page) {
                 0 -> LeagueStatsScreenContent(leagueID)                     // Left
-                1 -> LeagueMembersScreenContent(leagueID, navController)    // Center
+                1 -> LeagueMembersScreenContent(leagueID, navController, authViewModel)    // Center
                 2 -> LeagueHistScreenContent(leagueID, navController)       // Right
             }
         }

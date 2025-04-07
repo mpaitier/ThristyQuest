@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,10 +48,12 @@ import com.example.thirstyquest.db.getUserLevelFromXP
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.getUserXPById
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LeagueMembersScreenContent(leagueID: String, navController: NavController) {
+fun LeagueMembersScreenContent(leagueID: String, navController: NavController, authViewModel: AuthViewModel) {
     var members by remember { mutableStateOf<List<Pair<String, Double>>>(emptyList()) }
+    val userId by authViewModel.uid.observeAsState()
 
     LaunchedEffect(Unit) {
         val memberList = getAllLeagueMembers(leagueID)
@@ -86,7 +89,7 @@ fun LeagueMembersScreenContent(leagueID: String, navController: NavController) {
                 .verticalScroll(rememberScrollState())
         ) {
             members.forEach { member ->
-                MemberItem(navController, leagueID, member.first, position)
+                MemberItem(navController, userId.toString(), leagueID, member.first, position)
                 position++
             }
         }
@@ -95,7 +98,7 @@ fun LeagueMembersScreenContent(leagueID: String, navController: NavController) {
 
 // ------------------------------ League Member Item ------------------------------
 @Composable
-fun MemberItem(navController: NavController, leagueID: String, uid: String, position: Int)
+fun MemberItem(navController: NavController, currentUid: String, leagueID: String, uid: String, position: Int)
 {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -127,7 +130,11 @@ fun MemberItem(navController: NavController, leagueID: String, uid: String, posi
             .background(if (isPressed) MaterialTheme.colorScheme.outlineVariant else Color.Transparent)
             .clickable (interactionSource = interactionSource, indication = null)
             {
-                navController.navigate(Screen.FriendProfile.name + "/$uid")
+                if(uid == currentUid) {
+                    navController.navigate(Screen.Profile.name)
+                } else {
+                    navController.navigate(Screen.FriendProfile.name + "/$uid")
+                }
             },
         verticalAlignment = Alignment.CenterVertically
     ) {

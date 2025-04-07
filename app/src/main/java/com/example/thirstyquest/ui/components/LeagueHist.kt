@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -18,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,23 +31,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.data.PublicationHist
+import com.example.thirstyquest.db.getLeaguePublications
 
 
 @Composable
 fun LeagueHistScreenContent(leagueID: String, navController: NavController)
 {
-                                                                                                    // TODO : get all publications with leagueID, sorted by date (most recent first)
+    // TODO : get all publications with leagueID, sorted by date (most recent first)
+    var publicationList by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var isDescending by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit)
+    {
+        publicationList = getLeaguePublications(leagueID = leagueID)
+    }
     // sort by date then time
     var sortedHist = if (isDescending) {
-        PublicationHist.sortedWith(compareBy({ it.date }, { it.hour })).reversed()
+        publicationList.sortedWith(compareBy({ it.date }, { it.hour })).reversed()
     } else {
-        PublicationHist.sortedWith(compareBy({ it.date }, { it.hour }))
+        publicationList.sortedWith(compareBy({ it.date }, { it.hour }))
     }
     var publicationNum = 0
 
-    Column {
+    Column (modifier = Modifier.fillMaxSize()) {
         // Title & sort button
         Row (verticalAlignment = Alignment.CenterVertically)
         {

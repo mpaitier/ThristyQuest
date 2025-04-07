@@ -35,7 +35,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-import com.example.thirstyquest.db.fetchUserPublications
+import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
@@ -57,11 +57,15 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         }
     }
 
-
     LaunchedEffect(userId) {
         userId?.let { uid ->
-            fetchUserPublications(uid) { newList ->
-                publications = newList
+            // fetchUserPublications(uid) { newList -> publications = newList }
+
+            publications = getUserLastPublications(uid)
+            publications = publications.sortedWith(compareBy({ it.date }, { it.hour })).reversed()
+            // get the last 2 publications
+            if (publications.size > 10) {
+                publications = publications.subList(0, 10)
             }
 
         }

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 
 // - - - - - - - - - - - - - - - League  - - - - - - - - - - - - - - -
 @Composable
-fun LeagueProgressBar(currentLevel: Int, nextLevel: Int, currentXP: Int, requiredXP: Int) {
+fun LeagueProgressBar(currentLevel: Int, currentXP: Double, requiredXP: Int) {
     val progress = currentXP.toFloat() / requiredXP
 
     Column {
@@ -39,7 +39,7 @@ fun LeagueProgressBar(currentLevel: Int, nextLevel: Int, currentXP: Int, require
                 color = MaterialTheme.colorScheme.tertiary,
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Niv. $nextLevel", style = MaterialTheme.typography.bodyLarge)
+            Text("Niv. ${currentLevel+1}", style = MaterialTheme.typography.bodyLarge)
         }
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -82,13 +82,4 @@ fun DrinkProgressBar(currentXP: Int, maxXP: Int) {
             modifier = Modifier.align(Alignment.Center)
         )
     }
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//                               Previews
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeagueXPProgress() {
-    LeagueProgressBar(currentLevel = 3, nextLevel = 4, currentXP = 600, requiredXP = 1000)
 }
