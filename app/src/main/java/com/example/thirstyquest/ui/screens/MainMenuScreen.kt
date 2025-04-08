@@ -35,8 +35,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import coil.compose.AsyncImage
+import com.example.thirstyquest.db.DrinkPointManager.getAllDrinksFromFirestore
+import com.example.thirstyquest.db.DrinkPointManager.getTopDrinksFromFirestore
 import com.example.thirstyquest.db.getUserLastPublications
+import com.example.thirstyquest.ui.dialog.AllDrinksDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -49,9 +53,18 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
-    var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }           // ???
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    var showAllDrinksDialog by remember { mutableStateOf(false) }
+    var topDrinks by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    var allDrinks by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+
+    // Charger les points des boissons
+    LaunchedEffect(Unit) {
+        topDrinks = getTopDrinksFromFirestore()
+        allDrinks = getAllDrinksFromFirestore()
+    }
+
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { result: Bitmap? ->
@@ -61,15 +74,11 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         }
     }
 
+    // Charger les publications de l'utilisateur
     LaunchedEffect(userId) {
         userId?.let { uid ->
-            // get all publications of the user
             getUserLastPublications(uid) { newList -> publications = newList }
-            // select the last 10 publications
-            if (publications.size > 10) {
-                publications = publications.subList(0, 10)
-            }
-
+            if (publications.size > 10) publications = publications.take(10)
         }
     }
 
@@ -79,39 +88,50 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Show 3 best drinks
-            Text(stringResource(id = R.string.top_drinks), fontSize = 20.sp, modifier = Modifier.padding(bottom = 16.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            // Section TOP DRINKS
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { showAllDrinksDialog = true } // 👉 maintenant tout est cliquable
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TopDrinkItem(Icons.Filled.WineBar, "Vin rouge", "3 000 points")
-                TopDrinkItem(Icons.Filled.LocalDrink, "Bière rouge", "2 800 points")
-                TopDrinkItem(Icons.Filled.LocalBar, "Gin Tonic", "2 600 points")
+                Text(
+                    text = stringResource(id = R.string.top_drinks),
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                topDrinks.forEach { (name, points) ->
+                    val icon = when (name) {
+                        "Bière" -> Icons.Filled.LocalDrink
+                        "Vin" -> Icons.Filled.WineBar
+                        "Cocktail" -> Icons.Filled.LocalBar
+                        "Shot" -> Icons.Filled.CameraAlt
+                        else -> Icons.Filled.LocalDrink
+                    }
+                    TopDrinkItem(icon, name, "$points points")
+                }
             }
+
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Bouton Ajouter une consommation
+            // Bouton Ajouter une conso
             Button(
                 onClick = {
-                    if (userId != null) {
-                        takePictureLauncher.launch(null)
-                        // showDialog = true // Ouvrir la boîte de dialogue pour ajouter une publication
-                    } else {
-                        navController.navigate("login") // Rediriger vers l'écran de connexion
-                    }
+                    if (userId != null) takePictureLauncher.launch(null)
+                    else navController.navigate("login")
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .height(100.dp)
-                    .align(Alignment.CenterHorizontally),
+                    .height(100.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(
@@ -119,13 +139,15 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Icon(Icons.Filled.CameraAlt, contentDescription = stringResource(id = R.string.add_drink))
+                    Icon(Icons.Filled.CameraAlt, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(id = R.string.add_drink), fontSize = 18.sp)
                 }
             }
+
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Historique
             Text(stringResource(id = R.string.personal_hist), fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
 
             Column(
@@ -141,10 +163,8 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                             .padding(8.dp)
                             .clickable { selectedPublication = pub }
-
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
@@ -170,7 +190,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                                 }
                             }
 
-
                             Spacer(modifier = Modifier.width(8.dp))
 
                             Column {
@@ -180,7 +199,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                         }
                     }
                 }
-
             }
         }
 
@@ -188,9 +206,9 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
-
     }
 
+    //Dialog pour ajout de publication
     if (showDialog && userId != null) {
         AddPublicationDialog(
             userId = userId!!,
@@ -202,16 +220,25 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             onSuccess = {
                 coroutineScope.launch {
                     Toast.makeText(context, "Publication ajoutée avec succès", Toast.LENGTH_SHORT).show()
-                    //snackbarHostState.showSnackbar("Publication ajoutée avec succès")
                 }
             }
         )
     }
 
-    selectedPublication?.let { //TODO : faire le pop up du click en dynamique
+    // Dialog publication détail
+    selectedPublication?.let {
         PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
+
+    // Dialog avec toutes les boissons
+    if (showAllDrinksDialog) {
+        AllDrinksDialog(
+            drinks = allDrinks,
+            onDismiss = { showAllDrinksDialog = false }
+        )
+    }
 }
+
 
 
 @Composable

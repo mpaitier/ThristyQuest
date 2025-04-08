@@ -16,6 +16,7 @@ import com.example.thirstyquest.ui.components.BottomNavBar
 import com.example.thirstyquest.ui.components.TopBar
 import com.example.thirstyquest.ui.theme.ThirstyQuestTheme
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.example.thirstyquest.db.DrinkPointManager
 import com.google.firebase.firestore.FirebaseFirestore
 
 
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val authViewModel : AuthViewModel by viewModels()
+        DrinkPointManager.checkAndUpdateDrinkPointsIfNeeded()
         setContent {
             ThirstyQuestTheme {
                 ThirstyQuestApp(authViewModel = authViewModel)
