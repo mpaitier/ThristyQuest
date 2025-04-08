@@ -108,7 +108,7 @@ fun DrinkDetailDialog (
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
-                DrinkProgressBar(drink.points, drink.nextLevelPoints)
+                DrinkProgressBar(drink.points, drink.nextLevelPoints,modifier = Modifier.padding(8.dp))
                 Spacer(modifier = Modifier.height(12.dp))
                 // Filter
                 val filteredHist = hist.filter { it.category == drink.name }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -54,13 +52,12 @@ fun LeagueProgressBar(currentLevel: Int, currentXP: Double, requiredXP: Int) {
 
 // - - - - - - - - - - - - - - - Drink  - - - - - - - - - - - - - - -
 @Composable
-fun DrinkProgressBar(currentXP: Int, maxXP: Int) {
+fun DrinkProgressBar(currentXP: Int, maxXP: Int, modifier: Modifier = Modifier) {
     val progress = currentXP.toFloat() / maxXP.toFloat()
     val backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
     Box(
         modifier = Modifier
-            .fillMaxWidth()
             .height(30.dp)
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
@@ -68,7 +65,7 @@ fun DrinkProgressBar(currentXP: Int, maxXP: Int) {
         LinearProgressIndicator(
             progress = progress,
             modifier = Modifier
-                .fillMaxWidth()
+                .width(280.dp)
                 .height(20.dp),
             color = tertiaryColor,
             trackColor = backgroundColor

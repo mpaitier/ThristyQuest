@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens.social
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,9 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,28 +48,38 @@ import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
+import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.ui.dialog.BadgeFriendDialog
 import com.example.thirstyquest.ui.dialog.CollectionDialog
 import com.example.thirstyquest.ui.dialog.FriendPublicationDialog
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.dialog.StatisticsDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.tasks.await
 
 
 
 @Composable
-fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel)
-{
+fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel) {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
-
-    var showFullCollectionDialog by remember { mutableStateOf(false) }
     var showFullStatsDialog by remember { mutableStateOf(false) }
     var showFullBadgesDialog by remember { mutableStateOf(false) }
 
     var friendName by remember { mutableStateOf<String?>(null) }
 
+    // Variables pour stocker les publications
+    var publications by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var allPublications by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var showMorePublications by remember { mutableStateOf(false) }
+
     LaunchedEffect(friendId) {
+        val fetchedPublications = getFriendPublications(friendId)
+        publications = fetchedPublications.take(3)
+        allPublications = fetchedPublications
+
         getUserNameById(friendId) { name ->
             friendName = name
         }
@@ -76,7 +90,6 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // Top bar with return button & friend name
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,56 +99,107 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
             }
-            if (friendName != null) {
-                Text(
-                    text = friendName ?: "Nom non trouvé",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            } else {
-                Text(
-                    text = "",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            Text(
+                text = friendName ?: "Nom non trouvé",  // Simplification du texte
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
 
-        // Friends information
         FriendProfileHeader(
             friendId,
             friendName ?: "",
-            onPublicationClick = {showPublicationsDialog = true},
-            onFollowerClick = {showFriendsListDialog = true},
+            onPublicationClick = { showPublicationsDialog = true },
+            onFollowerClick = { showFriendsListDialog = true },
             authViewModel
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Friend's collection
-        FriendProfileCategoryHeader(sectionTitle = stringResource(R.string.collec), onClick = {showFullCollectionDialog = true})
-        // Friend's stats
-        FriendProfileCategoryHeader(sectionTitle = stringResource(R.string.stats), onClick = {showFullStatsDialog = true})
-        // Friend's badges
-        FriendProfileCategoryHeader(sectionTitle = stringResource(R.string.badge), onClick = {showFullBadgesDialog = true})
+        Text(
+            text = "Publications récentes",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacement entre les publications
+            ) {
+                publications.take(3).forEach { publication ->
+                    PublicationItem(publication.first, publication.second, modifier = Modifier.weight(1f))
+                }
+            }
+
+            // Afficher le bouton "+" si on a plus de publications à afficher
+            if (allPublications.size > 3 && !showMorePublications) {
+                Button(
+                    onClick = { showMorePublications = true },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = "+")
+                }
+            }
+
+            // Affichage des publications supplémentaires si nécessaire
+            if (showMorePublications) {
+                // Afficher les publications restantes
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacement entre les publications
+                ) {
+                    allPublications.drop(3).forEach { publication ->
+                        PublicationItem(publication.first, publication.second, modifier = Modifier.weight(1f))
+                    }
+                }
+
+                // Bouton "-" pour masquer les publications supplémentaires
+                Button(
+                    onClick = { showMorePublications = false },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = "-")
+                }
+            }
+        }
+
+
+
+
+
+        Text(
+                text = "Statistiques",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(16.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Badges",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(16.dp)
+            )
     }
 
-    if (showPublicationsDialog) {
+    // Suppression des dialogues commentés qui ne sont pas utilisés
+    /*if (showPublicationsDialog) {
         FriendPublicationDialog(userID = friendId, onDismiss = { showPublicationsDialog = false })
     }
     if (showFriendsListDialog) {
-        FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController,authViewModel = authViewModel)
-    }
-    if (showFullCollectionDialog) {
-        CollectionDialog(userID = friendId, onDismiss = { showFullCollectionDialog = false })
+        FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController, authViewModel = authViewModel)
     }
     if (showFullStatsDialog) {
         StatisticsDialog(userID = friendId, onDismiss = { showFullStatsDialog = false })
     }
     if (showFullBadgesDialog) {
         BadgeFriendDialog(userID = friendId, onDismiss = { showFullBadgesDialog = false })
-    }
+    }*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,15 +260,25 @@ fun FriendProfileHeader(friendId: String, friendName: String, onPublicationClick
             }
         }
 
-        Row (
-            modifier = Modifier.padding(horizontal = 20.dp),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // TODO : Change username with XP bar
-            Text(text = friendName)
-            Spacer(modifier = Modifier.weight(1F))
+            // DrinkProgressBar occupe une largeur fixe ou flexible selon l'approche
+            DrinkProgressBar(
+                currentXP = 50,
+                maxXP = 100,
+                modifier = Modifier.weight(1f) // Cela permet de donner à la barre une largeur proportionnelle
+            )
+
+            Spacer(modifier = Modifier.width(8.dp)) // Espace entre les éléments
+
+            // Le bouton occupe son espace minimum
             AddFriendButton(friendId = friendId, authViewModel = authViewModel)
         }
+
     }
 }
 
@@ -294,5 +368,59 @@ fun FollowItem(uid:String, navController: NavController, authViewModel: AuthView
         Spacer(modifier = Modifier.weight(1F))
         // Friend button
         AddFriendButton(uid, authViewModel)
+    }
+}
+
+
+suspend fun getFriendPublications(friendId: String): List<Pair<String, String>> {
+    val db = FirebaseFirestore.getInstance()
+    val publications = mutableListOf<Pair<String, String>>()
+
+    try {
+        val result = db.collection("publications")
+            .whereEqualTo("user_ID", friendId)
+            .orderBy("date", Query.Direction.DESCENDING)
+            .orderBy("hour", Query.Direction.DESCENDING)
+            .limit(10)
+            .get()
+            .await()
+
+        // Récupérer les publications sous forme de Paires (description, points)
+        for (document in result) {
+            val description = document.getString("description") ?: ""
+            val points = document.getLong("points")?.toString() ?: "0"
+            publications.add(Pair(description, points))
+        }
+    } catch (e: Exception) {
+        Log.e("Firestore", "Erreur de récupération des publications", e)
+    }
+
+    return publications
+}
+
+@Composable
+fun PublicationItem(description: String, points: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .height(100.dp)
+            .padding(4.dp)
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column {
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary,
+                //maxLines = 2,
+                overflow = TextOverflow.Ellipsis // Coupe le texte avec "..."
+            )
+            Text(
+                text = "Points: $points",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
     }
 }
