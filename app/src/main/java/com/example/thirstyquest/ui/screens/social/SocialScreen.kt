@@ -40,6 +40,8 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.DisposableEffect
+import com.example.thirstyquest.db.getAllfollowingIdSnap
 
 
 @Composable
@@ -51,7 +53,6 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var searchQuery by remember { mutableStateOf("") }
 
     // State pour stocker dynamiquement le nombre d'amis
-    var friendNumber by remember { mutableIntStateOf(0) }
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -65,18 +66,25 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             showCreateLeagueDialog = true
         }
     }
-
-
-
     val currentUserUid by authViewModel.uid.observeAsState()
+
+
+    DisposableEffect(currentUserUid) {
+        val uid = currentUserUid
+        if (uid != null) {
+            getAllfollowingIdSnap(uid) { updatedList ->
+                friendsList = updatedList
+            }
+        }
+        onDispose {  }
+    }
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
-            friendsList = getAllFollowingIdCoroutine(uid)
-            friendNumber = friendsList.size
             leagueList = getAllUserLeaguesIdCoroutine(uid)
             leagueNumber = leagueList.size
         }
     }
+
 
     Column(
         modifier = Modifier
@@ -120,7 +128,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             // Friend list
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = stringResource(id = R.string.friends) + " ($friendNumber)",
+                text = stringResource(id = R.string.friends) + " (${friendsList.size})",
                 fontSize = 20.sp,
                 color = primaryColor
             )

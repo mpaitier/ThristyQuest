@@ -258,6 +258,26 @@ suspend fun getAllFollowingIdCoroutine(uid: String): List<String> {
     }
     return friendList
 }
+fun getAllfollowingIdSnap(uid: String, onFriendsUpdate: (List<String>) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("users")
+        .document(uid)
+        .collection("following")
+        .addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.e("FIRESTORE", "Erreur de récupération en temps réel : ", error)
+                return@addSnapshotListener
+            }
+
+            val filteredFriends = snapshot?.documents
+                ?.filter { !it.contains("initialized") }
+                ?.map { it.id }
+                ?: emptyList()
+
+            onFriendsUpdate(filteredFriends)
+        }
+}
 
 
 fun getFollowerStatus(uid:String,friendId: String):Boolean{
