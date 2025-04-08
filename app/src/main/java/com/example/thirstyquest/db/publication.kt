@@ -22,14 +22,15 @@ import kotlin.math.max
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): String {
+suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): String {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val currentDate = dateFormat.format(Date())
     val currentTime = timeFormat.format(Date())
-    val basePoints = DrinkCategories.basePoints[drinkCategory] ?: 0
+    val drinkPointsSnapshot = db.collection("drinkPoints").document("current").get().await()
+    val basePoints = (drinkPointsSnapshot.getDouble(drinkCategory) ?: 0.0).toInt()
     val multiplier = DrinkVolumes.volumeMultipliers[drinkVolume] ?: 1.0
     val points = (basePoints * multiplier).toInt()
 
