@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
-import com.example.thirstyquest.data.PublicationHist
 import com.example.thirstyquest.db.getLeaguePublications
 
 

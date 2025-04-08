@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,12 +29,18 @@ import androidx.navigation.NavController
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.navigation.Screen
 import coil.compose.AsyncImage
+import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 
 @Composable
 fun PublicationItemLeague(publication: Publication, publicationNum: Int, navController: NavController)
 {
-    val name = "Membre n°${publication.user_ID}"
+    var userName by remember { mutableStateOf("") }
+
+    LaunchedEffect(publication.user_ID) {
+        userName = getUserNameCoroutine(publication.user_ID)
+    }
+
     val interactionSource = remember { MutableInteractionSource() }
     var showPublicationDialog by remember { mutableStateOf(false) }
 
@@ -42,7 +49,6 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
         "drawable_ricard" to com.example.thirstyquest.R.drawable.ricard,
         "drawable_vodka" to com.example.thirstyquest.R.drawable.vodka
     )
-
 
     Row(
         modifier = Modifier
@@ -83,7 +89,7 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = name,
+                text = userName,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.tertiary,
                 maxLines = 1,

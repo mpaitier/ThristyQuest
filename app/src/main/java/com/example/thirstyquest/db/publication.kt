@@ -257,7 +257,7 @@ suspend fun getLeaguePublications(leagueID: String): List<Publication> {
             val publication = Publication(
                 ID = 0, // ← ou génère un ID local si besoin
                 description = pubDoc.getString("description") ?: "",
-                user_ID = (pubDoc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
+                user_ID = pubDoc.getString("user_ID") ?: "",
                 date = pubDoc.getString("date") ?: "",
                 hour = pubDoc.getString("hour") ?: "",
                 category = pubDoc.getString("category") ?: "",
@@ -310,7 +310,7 @@ fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Uni
                         val publication = Publication(
                             ID = 0,
                             description = pubDoc.getString("description") ?: "",
-                            user_ID = (pubDoc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
+                            user_ID = pubDoc.getString("user_ID") ?: "",
                             date = pubDoc.getString("date") ?: "",
                             hour = pubDoc.getString("hour") ?: "",
                             category = pubDoc.getString("category") ?: "",

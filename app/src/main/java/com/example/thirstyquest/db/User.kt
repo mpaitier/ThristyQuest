@@ -2,8 +2,6 @@ package com.example.thirstyquest.db
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.tasks.await
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Setters
@@ -26,9 +24,6 @@ fun addUserToFirestore(uid: String, name: String, profileImageUrl: String? = nul
         }
         .addOnFailureListener { e -> Log.e("FIRESTORE", "Erreur d'ajout : ", e) }
 }
-
-
-
 
 private fun createEmptyCollections(db: FirebaseFirestore, uid: String) {
     val collections = listOf("following","followers")
@@ -123,7 +118,6 @@ fun getUserProfileImageUrl(uid: String, onResult: (String?) -> Unit) {
         }
 }
 
-
 fun getAllUsersExcept(uidToExclude: String, onResult: (List<Map<String, Any>>) -> Unit) {
     val db = FirebaseFirestore.getInstance()
 
@@ -138,23 +132,6 @@ fun getAllUsersExcept(uidToExclude: String, onResult: (List<Map<String, Any>>) -
             Log.e("FIRESTORE", "Erreur lors de la récupération des utilisateurs", e)
             onResult(emptyList())
         }
-}
-
-suspend fun getAllUsers(): List<Pair<String, String>> {
-    val db = FirebaseFirestore.getInstance()
-    val userList = mutableListOf<Pair<String, String>>()
-
-    try {
-        val result = db.collection("users").get().await()
-        for (document in result) {
-            val id = document.getString("uid") ?: ""
-            val name = document.getString("name") ?: ""
-            userList.add(id to name)
-        }
-    } catch (e: Exception) {
-        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
-    }
-    return userList
 }
 
 fun getAllUserLeague(uid: String, onResult: (List<String>) -> Unit) {
@@ -175,24 +152,6 @@ fun getAllUserLeague(uid: String, onResult: (List<String>) -> Unit) {
         }
 }
 
-fun getLastPublications(uid: String) : List<String> {
-    val db = FirebaseFirestore.getInstance()
-    var publicationList = mutableListOf<String>()
-
-    db.collection("users").document(uid).collection("publications")
-        .orderBy("date", Query.Direction.DESCENDING)
-        .orderBy("hour", Query.Direction.DESCENDING)
-        .limit(10)
-        .get()
-        .addOnSuccessListener { result ->
-            publicationList = result.map { it.id } as MutableList<String>
-        }
-        .addOnFailureListener { e ->
-            Log.e("FIRESTORE", "Erreur de récupération des publications : ", e)
-        }
-
-    return publicationList
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // XP to level conversion

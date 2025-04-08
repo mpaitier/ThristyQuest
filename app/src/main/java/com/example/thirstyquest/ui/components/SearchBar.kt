@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -66,6 +68,16 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
                 contentDescription = "Rechercher"
             )
         },
+        trailingIcon = {
+            if (searchQuery.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Effacer la recherche"
+                    )
+                }
+            }
+        },
         placeholder = { Text(text = stringResource(id = R.string.research)) },
         shape = CircleShape,
         singleLine = true,
@@ -78,8 +90,6 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit) {
         )
     )
 }
-
-
 
 // --------------------------------- Search results ---------------------------------
 @Composable

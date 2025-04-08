@@ -72,8 +72,6 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
         }
     }
 
-
-
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -163,7 +161,6 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
         }
     }
 
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -230,6 +227,7 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 }
             }
         }
+        /*
         else {
             Icon(
                 imageVector = Icons.Filled.Menu,
@@ -237,7 +235,7 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 modifier = Modifier.size(60.dp)
             )
         }
-
+        */
 
         Spacer(modifier = Modifier.width(8.dp))
 
