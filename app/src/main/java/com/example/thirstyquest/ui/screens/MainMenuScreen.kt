@@ -1,6 +1,5 @@
 package com.example.thirstyquest.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,11 +28,13 @@ import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.dialog.AddPublicationDialog
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
@@ -42,12 +43,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
+    val context = LocalContext.current
     val userId by authViewModel.uid.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
-    var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
+    var descriptions by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }           // ???
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -61,11 +63,9 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     LaunchedEffect(userId) {
         userId?.let { uid ->
-            // fetchUserPublications(uid) { newList -> publications = newList }
-
-            publications = getUserLastPublications(uid)
-            publications = publications.sortedWith(compareBy({ it.date }, { it.hour })).reversed()
-            // get the last 2 publications
+            // get all publications of the user
+            getUserLastPublications(uid) { newList -> publications = newList }
+            // select the last 10 publications
             if (publications.size > 10) {
                 publications = publications.subList(0, 10)
             }
@@ -201,13 +201,12 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             },
             onSuccess = {
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Publication ajoutée avec succès")
+                    Toast.makeText(context, "Publication ajoutée avec succès", Toast.LENGTH_SHORT).show()
+                    //snackbarHostState.showSnackbar("Publication ajoutée avec succès")
                 }
             }
         )
     }
-
-
 
     selectedPublication?.let { //TODO : faire le pop up du click en dynamique
         PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })

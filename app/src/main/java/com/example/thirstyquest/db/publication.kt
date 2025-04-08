@@ -275,76 +275,65 @@ suspend fun getLeaguePublications(leagueID: String): List<Publication> {
     }
 }
 
-suspend fun getUserLastPublications(userID: String): List<Publication> {
+fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Unit) {
     val db = FirebaseFirestore.getInstance()
     val publications = mutableListOf<Publication>()
 
-    return try {
-        val result = db.collection("users")
-            .document(userID)
-            .collection("publications")
-            .get()
-            .await()
-
-        for (document in result) {
-            val pid = document.id
-            val pubDoc = db.collection("publications").document(pid).get().await()
-
-            val publication = Publication(
-                ID = 0,
-                description = pubDoc.getString("description") ?: "",
-                user_ID = (pubDoc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
-                date = pubDoc.getString("date") ?: "",
-                hour = pubDoc.getString("hour") ?: "",
-                category = pubDoc.getString("category") ?: "",
-                price = pubDoc.getDouble("price") ?: 0.0,
-                photo = pubDoc.getString("photo") ?: "",
-                points = pubDoc.getLong("points")?.toInt() ?: 0
-            )
-            publications.add(publication)
-        }
-
-        publications
-    } catch (e: Exception) {
-        Log.e("FIRESTORE", "Erreur de récupération des publications de l'utilisateur : ", e)
-        emptyList()
-    }
-}
-
-/*
-fun fetchUserPublications(userID: String, onResult: (List<Publication>) -> Unit) {
-    // TODO : essayer de récupérer uniquement les publications de l'utilisateur
-    val db = FirebaseFirestore.getInstance()
-
-    db.collection("publications")
-        .whereEqualTo("user_ID", userID)
-        .orderBy("date", Query.Direction.DESCENDING)
-        .orderBy("hour", Query.Direction.DESCENDING)
-        .limit(10)
-        .addSnapshotListener { snapshots, error ->
+    db.collection("users")
+        .document(userID)
+        .collection("publications")
+        .addSnapshotListener { userPubSnapshots, error ->
             if (error != null) {
-                Log.e("Firestore", "Erreur de récupération : ${error.message}", error)
+                Log.e("FIRESTORE", "Erreur lors de l'écoute des publications utilisateur : ", error)
+                onResult(emptyList())
                 return@addSnapshotListener
             }
 
-            val publications = mutableListOf<Publication>()
-
-            snapshots?.forEach { doc ->
-                val pub = Publication(
-                    ID = 0, // ← ou génère un ID local si besoin
-                    description = doc.getString("description") ?: "",
-                    user_ID = (doc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
-                    date = doc.getString("date") ?: "",
-                    hour = doc.getString("hour") ?: "",
-                    category = doc.getString("category") ?: "",
-                    price = doc.getDouble("price") ?: 0.0,
-                    photo = doc.getString("photo") ?: "",
-                    points = doc.getLong("points")?.toInt() ?: 0
-                )
-                publications.add(pub)
+            if (userPubSnapshots == null || userPubSnapshots.isEmpty) {
+                onResult(emptyList())
+                return@addSnapshotListener
             }
 
-            onResult(publications)
+            // Vide les anciennes publications
+            publications.clear()
+
+            val pubRefs = userPubSnapshots.documents
+            var fetched = 0
+
+            for (docRef in pubRefs) {
+                val pubID = docRef.id
+
+                db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .addOnSuccessListener { pubDoc ->
+                        val publication = Publication(
+                            ID = 0,
+                            description = pubDoc.getString("description") ?: "",
+                            user_ID = (pubDoc.getString("user_ID") ?: "0").toIntOrNull() ?: 0,
+                            date = pubDoc.getString("date") ?: "",
+                            hour = pubDoc.getString("hour") ?: "",
+                            category = pubDoc.getString("category") ?: "",
+                            price = pubDoc.getDouble("price") ?: 0.0,
+                            photo = pubDoc.getString("photo") ?: "",
+                            points = pubDoc.getLong("points")?.toInt() ?: 0
+                        )
+                        publications.add(publication)
+                        fetched++
+
+                        // Une fois qu'on a tout récupéré, on retourne la liste
+                        if (fetched == pubRefs.size) {
+                            // Tu peux aussi trier ici par date/heure si besoin
+                            onResult(publications.sortedByDescending { it.date + it.hour })
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("FIRESTORE", "Erreur de récupération de publication $pubID", e)
+                        fetched++
+                        if (fetched == pubRefs.size) {
+                            onResult(publications.sortedByDescending { it.date + it.hour })
+                        }
+                    }
+            }
         }
 }
-*/
