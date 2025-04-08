@@ -44,8 +44,19 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getLeagueName
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.draw.clip
+import com.example.thirstyquest.db.uploadImageToFirebase
+import com.example.thirstyquest.db.updateLeagueName
+import com.example.thirstyquest.db.updateLeaguePhotoUrl
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.ui.components.AddPicture
+import kotlinx.coroutines.launch
 
 @Composable
 fun LeagueEditDialog(
@@ -56,6 +67,14 @@ fun LeagueEditDialog(
     // TODO : get league picture with leagueID
     var leagueName by remember { mutableStateOf("") }
     var newLeagueName by remember { mutableStateOf("") }
+
+    // Nouveau : capture d'image
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+        if (it != null) capturedImage = it
+    }
+
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(leagueID) {
         leagueName = getLeagueName(leagueID)
@@ -80,9 +99,20 @@ fun LeagueEditDialog(
                     contentAlignment = Alignment.BottomEnd,
                     modifier = Modifier.size(140.dp)
                 ) {
+                    // Affiche la photo prise
+                    capturedImage?.let {
+                        Image(
+                            bitmap = it.asImageBitmap(),
+                            contentDescription = "League image",
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
+                        )
+                    }
+
                     // Add picture button
                     IconButton(
-                        onClick = { /* TODO: Add picture selection */ },
+                        onClick = { launcher.launch(null) }, // Lance la caméra
                         modifier = Modifier
                             .size(48.dp)
                             .offset(x = 8.dp, y = 8.dp)
@@ -96,6 +126,7 @@ fun LeagueEditDialog(
                         )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(24.dp))
                 // League's name entry
                 OutlinedTextField(
@@ -105,6 +136,7 @@ fun LeagueEditDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Spacer(modifier = Modifier.height(24.dp))
                 // Cancel & validate buttons
                 Row(
@@ -122,9 +154,27 @@ fun LeagueEditDialog(
                     ) {
                         Text(stringResource(R.string.cancel))
                     }
+
                     // Validate button
                     Button(
-                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName) },          // TODO : Add picture save
+                        onClick = {
+                            scope.launch {
+                                if (leagueName.isNotBlank()) {
+                                    updateLeagueName(leagueID, leagueName)
+                                    onValidate(leagueName)
+                                }
+
+                                // Si une photo a été prise, on l’upload
+                                if (capturedImage != null) {
+                                    val url = uploadImageToFirebase(leagueID, capturedImage!!)
+                                    if (url != null) {
+                                        updateLeaguePhotoUrl(leagueID, url)
+                                    }
+                                }
+
+                                onDismiss()
+                            }
+                        },
                         enabled = leagueName.isNotBlank(),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -135,6 +185,7 @@ fun LeagueEditDialog(
         }
     }
 }
+
 
 @Composable
 fun AddLeagueDialog(
@@ -220,9 +271,14 @@ fun AddLeagueDialog(
 @Composable
 fun CreateLeagueDialog(
     onDismiss: () -> Unit,
-    onValidate: (String) -> Unit
+    onValidate: (String, Bitmap?) -> Unit
 ) {
     var leagueName by remember { mutableStateOf("") }
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+        if (it != null) capturedImage = it
+    }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
@@ -238,11 +294,44 @@ fun CreateLeagueDialog(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AddPicture()
+
+                // Zone d’image + bouton
+                Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.size(140.dp)) {
+                    if (capturedImage != null) {
+                        Image(
+                            bitmap = capturedImage!!.asImageBitmap(),
+                            contentDescription = "League image",
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { launcher.launch(null) },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .offset(x = 8.dp, y = 8.dp)
+                            .background(MaterialTheme.colorScheme.tertiary, CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AddCircleOutline,
+                            contentDescription = "Prendre une photo",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // League's name entry
                 OutlinedTextField(
                     value = leagueName,
                     onValueChange = { leagueName = it },
@@ -253,13 +342,11 @@ fun CreateLeagueDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Cancel & validate buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Cancel button
                     Button(
                         onClick = { onDismiss() },
                         colors = ButtonDefaults.buttonColors(
@@ -270,9 +357,8 @@ fun CreateLeagueDialog(
                         Text(stringResource(R.string.cancel))
                     }
 
-                    // Validate button
                     Button(
-                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName) },  // TODO : Add picture save
+                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName, capturedImage) },
                         enabled = leagueName.isNotBlank(),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -283,3 +369,5 @@ fun CreateLeagueDialog(
         }
     }
 }
+
+

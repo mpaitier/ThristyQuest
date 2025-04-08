@@ -1,17 +1,27 @@
 package com.example.thirstyquest.db
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.navigation.NavController
 import com.example.thirstyquest.navigation.Screen
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
+import java.util.UUID
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) -> Unit) {
+fun addLeagueToFirestore(
+    uid: String,
+    name: String,
+    imageBitmap: Bitmap?,                             // 👈 ajoute ce paramètre ici
+    onLeagueCreated: (String) -> Unit
+) {
     val db = FirebaseFirestore.getInstance()
 
     fun generateLeagueId(): String {
@@ -25,53 +35,57 @@ fun addLeagueToFirestore(uid: String, name: String, onLeagueCreated: (String) ->
         return randomDigits(3) + randomLetter() + randomDigits(3) + randomLetter() + randomDigits(3)
     }
 
+    fun createLeagueWithPhotoUrl(lid: String, imageUrl: String?) {
+        val league = hashMapOf(
+            "owner uid" to uid,
+            "name" to name,
+            "xp" to 0,
+            "count" to 1,
+            "total liters" to 0.0,
+            "total price" to 0.0
+        ).apply {
+            if (!imageUrl.isNullOrEmpty()) this["photoUrl"] = imageUrl // 👈 ajoute l'URL à Firestore si elle existe
+        }
+
+        db.collection("leagues").document(lid)
+            .set(league)
+            .addOnSuccessListener {
+                db.collection("leagues").document(lid)
+                    .collection("members").document(uid)
+                    .set(hashMapOf(uid to uid))
+
+                db.collection("users").document(uid)
+                    .collection("leagues").document(lid)
+                    .set(hashMapOf("League name" to name))
+
+                onLeagueCreated(lid)
+            }
+    }
+
     fun tryCreateLeague() {
         val lid = generateLeagueId()
 
         db.collection("leagues").document(lid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // L'ID est déjà utilisé, on en génère un autre
                     tryCreateLeague()
                 } else {
-                    // L'ID est libre, on peut créer la ligue
-                    val league = hashMapOf(
-                        "owner uid" to uid,
-                        "name" to name,
-                        "xp" to 0,
-                        "count" to 1,
-                        "total liters" to 0.0,
-                        "total price" to 0.0,
-                    )
-
-                    db.collection("leagues").document(lid)
-                        .set(league)
-                        .addOnSuccessListener {
-                            // Ajouter l'utilisateur à la ligue
-                            db.collection("leagues").document(lid)
-                                .collection("members").document(uid)
-                                .set(hashMapOf(uid to uid))
-
-                            // Lier la ligue à l'utilisateur
-                            db.collection("users").document(uid)
-                                .collection("leagues").document(lid)
-                                .set(hashMapOf("League name" to name))
-
-                            onLeagueCreated(lid)
-                            Log.d("FIRESTORE", "Ligue ajoutée avec succès !")
+                    // 👇 Upload photo si dispo
+                    if (imageBitmap != null) {
+                        uploadImageToFirebase(lid, imageBitmap) { imageUrl ->
+                            createLeagueWithPhotoUrl(lid, imageUrl)
                         }
-                        .addOnFailureListener { e ->
-                            Log.e("FIRESTORE", "Erreur lors de la création de la ligue : ", e)
-                        }
+                    } else {
+                        createLeagueWithPhotoUrl(lid, null)
+                    }
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e("FIRESTORE", "Erreur lors de la vérification de l'ID de ligue : ", e)
             }
     }
 
     tryCreateLeague()
 }
+
+
 
 
 fun joinLeagueIfExists(
@@ -267,3 +281,39 @@ fun updateLeagueName(leagueID: String, newName: String) {
             Log.e("FIRESTORE", "Erreur lors de la mise à jour du nom", e)
         }
 }
+
+fun updateLeaguePhotoUrl(leagueId: String, photoUrl: String) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("leagues").document(leagueId)
+        .update("photoUrl", photoUrl)
+        .addOnSuccessListener {
+            Log.d("Firebase", "Photo de ligue mise à jour avec succès")
+        }
+        .addOnFailureListener { e ->
+            Log.e("Firebase", "Erreur mise à jour photo ligue", e)
+        }
+}
+
+fun uploadImageToFirebase(id: String, bitmap: Bitmap, onUploaded: (String?) -> Unit) {
+    val storageRef = FirebaseStorage.getInstance().reference.child("leagueImages/$id.jpg")
+
+    val baos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+    val data = baos.toByteArray()
+
+    val uploadTask = storageRef.putBytes(data)
+    uploadTask.continueWithTask { task ->
+        if (!task.isSuccessful) {
+            task.exception?.let { throw it }
+        }
+        storageRef.downloadUrl
+    }.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val downloadUri = task.result.toString()
+            onUploaded(downloadUri)
+        } else {
+            onUploaded(null)
+        }
+    }
+}
+

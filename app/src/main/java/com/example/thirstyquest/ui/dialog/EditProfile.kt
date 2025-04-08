@@ -32,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.updateUserName
+import com.example.thirstyquest.db.updateUserProfilePhotoUrl
+import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
@@ -43,6 +45,9 @@ fun EditProfileDialog(
     var userName by remember { mutableStateOf("") }
     var newUserName by remember { mutableStateOf("") }
 
+    var showImageDialog by remember { mutableStateOf(false) }
+    var profileImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
             getUserNameById(uid) { name ->
@@ -53,10 +58,10 @@ fun EditProfileDialog(
     }
 
     AlertDialog(
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = onDismiss,
         title = {
             Text(
-                "Modifier le nom",
+                "Modifier le profil",
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -69,12 +74,37 @@ fun EditProfileDialog(
                     label = { Text("Nom", color = MaterialTheme.colorScheme.primary) },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = { showImageDialog = true }) {
+                    Text("Modifier la photo de profil")
+                }
+
+                profileImageBitmap?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondary)
+                    )
+                }
             }
         },
         confirmButton = {
             TextButton(onClick = {
                 currentUserUid?.let { uid ->
                     updateUserName(uid, newUserName)
+
+                    // Upload image if available
+                    profileImageBitmap?.let { bitmap ->
+                        uploadImageToFirebase(uid, bitmap) { url ->
+                            url?.let { updateUserProfilePhotoUrl(uid, it) }
+                        }
+                    }
                 }
                 onDismiss()
             }) {
@@ -82,12 +112,22 @@ fun EditProfileDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
+            TextButton(onClick = onDismiss) {
                 Text("Annuler", color = MaterialTheme.colorScheme.secondary)
             }
         },
         containerColor = MaterialTheme.colorScheme.surface
     )
+
+    if (showImageDialog) {
+        AddProfilePictureDialog(
+            onDismiss = { showImageDialog = false },
+            onImageCaptured = {
+                profileImageBitmap = it
+                showImageDialog = false
+            }
+        )
+    }
 }
 
 @Composable
