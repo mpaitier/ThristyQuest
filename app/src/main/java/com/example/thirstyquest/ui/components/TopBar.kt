@@ -58,9 +58,11 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
     var photoUrl by remember { mutableStateOf<String?>(null) }
+    var refreshKey by remember { mutableStateOf(0) } // 👈 Ajouté pour forcer le rafraîchissement
     val uid by authViewModel.uid.observeAsState()
 
-    LaunchedEffect(uid) {
+    // 🔄 Recharge la photo à chaque changement de refreshKey
+    LaunchedEffect(uid, refreshKey) {
         uid?.let { userId ->
             val snapshot = FirebaseFirestore.getInstance()
                 .collection("users")
@@ -105,7 +107,6 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
                     )
                 }
             }
-
         },
         actions = {
             if (currentBackStackEntry.value?.destination?.route == Screen.Profile.name) {
@@ -128,13 +129,16 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
         )
     )
 
+    // 📦 Ouvre le Dialog d’édition de profil
     if (showDialog) {
         EditProfileDialog(
             authViewModel = authViewModel,
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false },
+            onPhotoUpdated = { refreshKey++ } // 👈 Rafraîchit l’image quand elle est modifiée
         )
     }
 }
+
 
 // ------------------------------ League Top Bar ------------------------------
 @Composable
