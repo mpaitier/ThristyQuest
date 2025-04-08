@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -15,6 +16,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,14 +27,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getAllFollowersIdCoroutine
+import com.example.thirstyquest.db.getAllFollowingIdCoroutine
+import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.ui.screens.social.FollowItem
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 
 @Composable
 fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavController, authViewModel: AuthViewModel)
 {
     var showFollowers by remember { mutableStateOf(true) }
+    var followersList by remember { mutableStateOf<List<String>>(emptyList()) }
+    var followingList by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    LaunchedEffect(uid){
+        //followingList = getAllFollowingIdCoroutine(uid)
+        //followersList = getAllFollowersIdCoroutine(uid)
+
+        val followingNamesDeferred = getAllFollowingIdCoroutine(uid).map { id ->
+            async { getUserNameCoroutine(id) }
+        }
+        followingList = followingNamesDeferred.awaitAll()
+
+        // Récupérer les noms des utilisateurs pour chaque ID dans followersList
+        val followersNamesDeferred = getAllFollowersIdCoroutine(uid).map { id ->
+            async { getUserNameCoroutine(id) }
+        }
+        followersList = followersNamesDeferred.awaitAll()
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -71,11 +96,29 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
                         .height(325.dp)
                 ) {
                     if (showFollowers) {
-                        // TODO : get lists
-                        //FollowersPage(getFollowers(uid), navController,authViewModel)
+                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            followersList.forEach { follower ->
+                                Text(
+                                    text = follower,
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     } else {
-                        //FollowingPage(getFollowing(uid), navController,authViewModel)
+                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            followingList.forEach { following ->
+                                Text(
+                                    text = following,
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     }
+
                 }
             }
         },

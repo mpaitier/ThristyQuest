@@ -255,7 +255,7 @@ suspend fun getLeaguePublications(leagueID: String): List<Publication> {
             val pubDoc = db.collection("publications").document(pid).get().await()
 
             val publication = Publication(
-                ID = 0, // ← ou génère un ID local si besoin
+                ID = "", // ← ou génère un ID local si besoin
                 description = pubDoc.getString("description") ?: "",
                 user_ID = pubDoc.getString("user_ID") ?: "",
                 date = pubDoc.getString("date") ?: "",
@@ -308,7 +308,7 @@ fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Uni
                     .get()
                     .addOnSuccessListener { pubDoc ->
                         val publication = Publication(
-                            ID = 0,
+                            ID = "",
                             description = pubDoc.getString("description") ?: "",
                             user_ID = pubDoc.getString("user_ID") ?: "",
                             date = pubDoc.getString("date") ?: "",
@@ -336,4 +336,29 @@ fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Uni
                     }
             }
         }
+}
+suspend fun getFriendPublications(friendId: String): List<Pair<String, String>> {
+    val db = FirebaseFirestore.getInstance()
+    val publications = mutableListOf<Pair<String, String>>()
+
+    try {
+        val result = db.collection("publications")
+            .whereEqualTo("user_ID", friendId)
+            .orderBy("date", Query.Direction.DESCENDING)
+            .orderBy("hour", Query.Direction.DESCENDING)
+            .limit(10)
+            .get()
+            .await()
+
+        // Récupérer les publications sous forme de Paires (description, points)
+        for (document in result) {
+            val description = document.getString("description") ?: ""
+            val points = document.getLong("points")?.toString() ?: "0"
+            publications.add(Pair(description, points))
+        }
+    } catch (e: Exception) {
+        Log.e("Firestore", "Erreur de récupération des publications", e)
+    }
+
+    return publications
 }

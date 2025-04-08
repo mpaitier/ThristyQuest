@@ -214,31 +214,27 @@ suspend fun getAllUsers(): List<Pair<String, String>> {
     return userList
 }
 */
-// Récupérer tous les abonnés d'un utilisateur
-fun getAllFollowerId(uid: String): List<String> {
+suspend fun getFollowerCount(uid: String): Int {
     val db = FirebaseFirestore.getInstance()
-    var followerList = mutableListOf<String>()
-    db.collection("users").document(uid).collection("followers")
-        .get()
-        .addOnSuccessListener { result ->
-            for (document in result) {
-                followerList.add(document.getString("uid") ?: "")
-            }
-        }
-    return followerList
+    return try {
+        val snapshot = db.collection("users").document(uid).collection("followers").get().await()
+        snapshot.documents.count { !it.contains("initialized") }
+    } catch (e: Exception) {
+        Log.e("FIRESTORE_DEBUG", "Erreur Firestore: ${e.message}")
+        0
+    }
 }
-fun getAllFollowingId(uid: String): List<String> {
+suspend fun getFollowingCount(uid: String): Int {
     val db = FirebaseFirestore.getInstance()
-    var followingList = mutableListOf<String>()
-    db.collection("users").document(uid).collection("following")
-        .get()
-        .addOnSuccessListener { result ->
-            for (document in result) {
-                followingList.add(document.getString("uid") ?: "")
-            }
-        }
-    return followingList
+    return try {
+        val snapshot = db.collection("users").document(uid).collection("following").get().await()
+        snapshot.documents.count { !it.contains("initialized") }
+    } catch (e: Exception) {
+        Log.e("FIRESTORE_DEBUG", "Erreur Firestore: ${e.message}")
+        0
+    }
 }
+
 
 suspend fun getAllFollowingIdCoroutine(uid: String): List<String> {
     val db = FirebaseFirestore.getInstance()
@@ -278,7 +274,24 @@ fun getAllfollowingIdSnap(uid: String, onFriendsUpdate: (List<String>) -> Unit) 
             onFriendsUpdate(filteredFriends)
         }
 }
-
+suspend fun getAllFollowersIdCoroutine(uid: String): List<String> {
+    val db = FirebaseFirestore.getInstance()
+    val friendList = mutableListOf<String>()
+    try {
+        val result = db.collection("users").document(uid).collection("followers")
+            .get()
+            .await()
+        // Parcours tous les documents récupérés
+        for (document in result) {
+            if (!document.contains("initialized")) {
+                friendList.add(document.id)
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des utilisateurs : ", e)
+    }
+    return friendList
+}
 
 fun getFollowerStatus(uid:String,friendId: String):Boolean{
     val db = FirebaseFirestore.getInstance()

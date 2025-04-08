@@ -35,7 +35,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.checkIfFriend
-import com.example.thirstyquest.db.getAllFollowingId
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.db.getUserName
 import com.example.thirstyquest.db.getUserNameCoroutine

@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,11 +43,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getFollowerCount
+import com.example.thirstyquest.db.getFollowingCount
+import com.example.thirstyquest.db.getFriendPublications
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
@@ -53,6 +60,7 @@ import com.example.thirstyquest.ui.dialog.BadgeFriendDialog
 import com.example.thirstyquest.ui.dialog.CollectionDialog
 import com.example.thirstyquest.ui.dialog.FriendPublicationDialog
 import com.example.thirstyquest.ui.dialog.FollowDialog
+import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import com.example.thirstyquest.ui.dialog.StatisticsDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -61,6 +69,7 @@ import kotlinx.coroutines.tasks.await
 
 
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel) {
     var showFriendsListDialog by remember { mutableStateOf(false) }
@@ -74,11 +83,25 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var publications by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var allPublications by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var showMorePublications by remember { mutableStateOf(false) }
+    val displayedPublications = if (showMorePublications) allPublications else allPublications.take(3)
+
+    var publiNumber by remember { mutableStateOf(0) }
+    var followerNumber by remember { mutableStateOf(0) }
+    var followingNumber by remember { mutableStateOf(0) }
+
+
+    var showDetailDialog by remember { mutableStateOf(false) }
+    var selectedPublication by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     LaunchedEffect(friendId) {
         val fetchedPublications = getFriendPublications(friendId)
         publications = fetchedPublications.take(3)
         allPublications = fetchedPublications
+        publiNumber = allPublications.size
+        followerNumber = getFollowerCount(friendId)
+        followingNumber = getFollowingCount(friendId)
+
+
 
         getUserNameById(friendId) { name ->
             friendName = name
@@ -109,7 +132,9 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 
         FriendProfileHeader(
             friendId,
-            friendName ?: "",
+            publiNumber,
+            followerNumber,
+            followingNumber,
             onPublicationClick = { showPublicationsDialog = true },
             onFollowerClick = { showFriendsListDialog = true },
             authViewModel
@@ -124,46 +149,39 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
         )
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacement entre les publications
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                publications.take(3).forEach { publication ->
-                    PublicationItem(publication.first, publication.second, modifier = Modifier.weight(1f))
+                displayedPublications.forEach { publication ->
+                    // TODO : rendre les publi clickables
+                    PublicationItem(
+                        description = publication.first,
+                        points = publication.second,
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(100.dp)
+                    )
                 }
             }
 
-            // Afficher le bouton "+" si on a plus de publications à afficher
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Boutons + et -
             if (allPublications.size > 3 && !showMorePublications) {
                 Button(
                     onClick = { showMorePublications = true },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text(text = "+")
+                    Text("+")
                 }
-            }
-
-            // Affichage des publications supplémentaires si nécessaire
-            if (showMorePublications) {
-                // Afficher les publications restantes
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Espacement entre les publications
-                ) {
-                    allPublications.drop(3).forEach { publication ->
-                        PublicationItem(publication.first, publication.second, modifier = Modifier.weight(1f))
-                    }
-                }
-
-                // Bouton "-" pour masquer les publications supplémentaires
+            } else if (showMorePublications) {
                 Button(
                     onClick = { showMorePublications = false },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text(text = "-")
+                    Text("-")
                 }
             }
         }
@@ -187,13 +205,16 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             )
     }
 
+
+
+    if (showFriendsListDialog) {
+        FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController, authViewModel = authViewModel)
+    }
     // Suppression des dialogues commentés qui ne sont pas utilisés
     /*if (showPublicationsDialog) {
         FriendPublicationDialog(userID = friendId, onDismiss = { showPublicationsDialog = false })
     }
-    if (showFriendsListDialog) {
-        FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController, authViewModel = authViewModel)
-    }
+
     if (showFullStatsDialog) {
         StatisticsDialog(userID = friendId, onDismiss = { showFullStatsDialog = false })
     }
@@ -206,15 +227,8 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 //    Composable
 
 @Composable
-fun FriendProfileHeader(friendId: String, friendName: String, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
+fun FriendProfileHeader(friendId: String, publiNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
 {
-                                                                                                    // TODO : Get real values with userID
-    // Information data
-    val friendPublicationCount = 26
-    val friendFollowersCount = 8
-    val friendFollowingCount = 3
-
-
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -244,17 +258,17 @@ fun FriendProfileHeader(friendId: String, friendName: String, onPublicationClick
             ) {
                 InfoFriendStatItem(
                     title = stringResource(R.string.publi),
-                    count = friendPublicationCount,
+                    count = publiNumber,
                     onClick = onPublicationClick
                 )
                 InfoFriendStatItem(
                     title = stringResource(R.string.followers),
-                    count = friendFollowersCount,
+                    count = followerNumber,
                     onClick = onFollowerClick
                 )
                 InfoFriendStatItem(
                     title = stringResource(R.string.following),
-                    count = friendFollowingCount,
+                    count = followingNumber,
                     onClick = onFollowerClick
                 )
             }
@@ -372,55 +386,38 @@ fun FollowItem(uid:String, navController: NavController, authViewModel: AuthView
 }
 
 
-suspend fun getFriendPublications(friendId: String): List<Pair<String, String>> {
-    val db = FirebaseFirestore.getInstance()
-    val publications = mutableListOf<Pair<String, String>>()
 
-    try {
-        val result = db.collection("publications")
-            .whereEqualTo("user_ID", friendId)
-            .orderBy("date", Query.Direction.DESCENDING)
-            .orderBy("hour", Query.Direction.DESCENDING)
-            .limit(10)
-            .get()
-            .await()
-
-        // Récupérer les publications sous forme de Paires (description, points)
-        for (document in result) {
-            val description = document.getString("description") ?: ""
-            val points = document.getLong("points")?.toString() ?: "0"
-            publications.add(Pair(description, points))
-        }
-    } catch (e: Exception) {
-        Log.e("Firestore", "Erreur de récupération des publications", e)
-    }
-
-    return publications
-}
 
 @Composable
-fun PublicationItem(description: String, points: String, modifier: Modifier = Modifier) {
+fun PublicationItem(
+    description: String,
+    points: String,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
-            .height(100.dp)
-            .padding(4.dp)
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-                //maxLines = 2,
-                overflow = TextOverflow.Ellipsis // Coupe le texte avec "..."
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = "Points: $points",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.secondary
             )
         }
     }
 }
+
