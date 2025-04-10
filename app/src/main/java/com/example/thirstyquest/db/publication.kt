@@ -22,7 +22,7 @@ import kotlin.math.max
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): Pair<String,Int> {
+suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Double, photoUrl: String): Pair<String,Int> {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -31,7 +31,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
     val currentTime = timeFormat.format(Date())
     val drinkPointsSnapshot = db.collection("drinkPoints").document("current").get().await()
     val basePoints = (drinkPointsSnapshot.getDouble(drinkCategory) ?: 0.0).toInt()
-    val multiplier = DrinkVolumes.volumeMultipliers[drinkVolume] ?: 1.0
+    val multiplier = DrinkVolumes.volumeMultipliers[drinkVolume.toInt()] ?: 1.0
     val points = (basePoints * multiplier).toInt()
 
     val publication = hashMapOf(
@@ -61,6 +61,11 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
 
     db.collection("users").document(userId)
         .update("xp", FieldValue.increment(points.toDouble()))
+        .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
+        .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
+
+    db.collection("users").document(userId)
+        .update("total drink", FieldValue.increment(drinkVolume.toDouble()))
         .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
 
