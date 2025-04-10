@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getAllLeagueMembers
+import com.example.thirstyquest.db.getLeagueName
 import com.example.thirstyquest.db.getLeagueXp
 import com.example.thirstyquest.db.getUserXPById
 
@@ -41,10 +42,12 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
 
     var currentXP by remember { mutableDoubleStateOf(0.0) }
     var currentLevel by remember { mutableIntStateOf(0) }
+    var leagueName by remember { mutableStateOf("") }
     val requiredXP = 2000
     LaunchedEffect(Unit) {
         currentXP = getLeagueXp(leagueID)
         currentLevel =  (currentXP/requiredXP).toInt()+1
+        leagueName = getLeagueName(leagueID)
     }
 
     Column(
@@ -84,7 +87,6 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
             // Share button
             IconButton(
                 onClick = {
-                    val leagueName = "Alcooliques anonymes"
                     val shareMessage =
                         "Viens rejoindre la ligue $leagueName sur Thirsty Quest et partageons nos aventures de consommation ! \uD83C\uDF7B\n" +
                                 "Voici mon code de ligue : $leagueID\n"

@@ -84,7 +84,11 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.navigate(Screen.Login.name) }) {
+            IconButton(onClick = {
+                    navController.navigate(Screen.Login.name)
+                }
+            )
+            {
                 if (!photoUrl.isNullOrEmpty()) {
                     AsyncImage(
                         model = photoUrl,

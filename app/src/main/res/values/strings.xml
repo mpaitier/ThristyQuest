@@ -40,8 +40,8 @@
     <string name="pref">Préférences</string>
     <string name="total">Total</string>
     <string name="validate">Valider</string>
-    <string name="friend_added"> est maintenant ton ami(e) 🍻</string>
-    <string name="friend_deleted"> n\'est plus ton ami(e) ❌</string>
+    <string name="friend_added"> Vous suivez maintenant </string>
+    <string name="friend_deleted">Vous ne suivez plus </string>
     <string name="friend_profile">Profil ami</string>
     <string name="see_more">Voir plus</string>
     <string name="publi">Publications</string>
@@ -56,9 +56,9 @@
     <string name="level">Niveau</string>
     <string name="description">Description</string>
     <!--- ======== League ======== -->
-    <string name="research">Rechercher un ami ...</string>
+    <string name="research">Rechercher un utilisateur ...</string>
     <string name="leagues">Mes ligues</string>
-    <string name="friends">Mes amis</string>
+    <string name="friends">Mes abonnements</string>
     <string name="league_content">Contenu de la ligue</string>
     <string name="league_members">Membres de la ligue </string>
     <string name="league_stats">Statistiques de la ligue</string>
@@ -98,4 +98,6 @@
     <string name="close">Fermer</string>
     <string name="liters">Litres</string>
     <string name="drinks">Verres</string>
+    <string name="emoji_beer"> 🍻</string>
+    <string name="emoji_cross"> ❌</string>
 </resources>

@@ -84,9 +84,9 @@ fun AddFriendButton(friendId: String, authViewModel: AuthViewModel) {
                     isAnimating = false
                     isFriend = !isFriend
                     val message = if (isFriend) {
-                        "$friendName ${context.getString(R.string.friend_added)}"
+                        "${context.getString(R.string.friend_added)} $friendName ${context.getString(R.string.emoji_beer)}"
                     } else {
-                        "$friendName ${context.getString(R.string.friend_deleted)}"
+                        "${context.getString(R.string.friend_deleted)} $friendName ${context.getString(R.string.emoji_cross)}"
                     }
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }

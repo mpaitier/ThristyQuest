@@ -37,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,8 +79,6 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
     val outputFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.FRENCH)
     val formattedDate = outputFormat.format(parsedDate)
     var showImageFullscreen by remember { mutableStateOf(false) }
-
-
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -199,17 +196,17 @@ fun AddPublicationDialog(
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
-    var drinkVolume by remember { mutableDoubleStateOf(0.0) }
+    var drinkVolume by remember { mutableIntStateOf(0) }
     var publicationInfo by remember { mutableStateOf<Pair<String,Int>>(Pair("",0)) }
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     val volumeOptions = listOf(
-        "Shot (4cl)" to 0.04,
-        "Demi/Verre (25cl)" to 0.25,
-        "Bouteille (33cl)" to 0.33,
-        "Pinte (50cl)" to 0.50,
-        "Pichet (1L)" to 1
+        "Shot (4cl)" to 4,
+        "Demi/Verre (25cl)" to 25,
+        "Bouteille (33cl)" to 33,
+        "Pinte (50cl)" to 50,
+        "Pichet (1L)" to 100
     )
 
     AlertDialog(
@@ -267,7 +264,7 @@ fun AddPublicationDialog(
                     onValueChange = { drinkName = it },
                     label = { Text("Nom de la boisson") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -277,7 +274,7 @@ fun AddPublicationDialog(
                     label = { Text("Prix (€)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -327,7 +324,7 @@ fun AddPublicationDialog(
                             DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
-                                    drinkVolume = volume.toDouble()
+                                    drinkVolume = volume
                                     expanded = false
                                 }
                             )

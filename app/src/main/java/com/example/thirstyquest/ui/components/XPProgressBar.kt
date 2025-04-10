@@ -21,7 +21,8 @@ import androidx.compose.ui.unit.sp
 // - - - - - - - - - - - - - - - League  - - - - - - - - - - - - - - -
 @Composable
 fun LeagueProgressBar(currentLevel: Int, currentXP: Double, requiredXP: Int) {
-    val progress = currentXP.toFloat() / requiredXP
+    val newCurrentXP = (currentXP%requiredXP).toInt()
+    val progress = newCurrentXP.toFloat() / requiredXP
 
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -43,7 +44,7 @@ fun LeagueProgressBar(currentLevel: Int, currentXP: Double, requiredXP: Int) {
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            "$currentXP / $requiredXP XP",
+            "$newCurrentXP / $requiredXP XP",
             modifier = Modifier.align(Alignment.CenterHorizontally),
             style = MaterialTheme.typography.bodyMedium
         )

@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalContext
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.addLeagueToFirestore
-import com.example.thirstyquest.db.getAllFollowingIdCoroutine
 import com.example.thirstyquest.db.getAllUserLeaguesIdCoroutine
 import com.example.thirstyquest.db.joinLeagueIfExists
 import com.example.thirstyquest.navigation.Screen

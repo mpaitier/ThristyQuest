@@ -22,7 +22,7 @@ import kotlin.math.max
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Double, photoUrl: String): Pair<String,Int> {
+suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): Pair<String,Int> {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -31,7 +31,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
     val currentTime = timeFormat.format(Date())
     val drinkPointsSnapshot = db.collection("drinkPoints").document("current").get().await()
     val basePoints = (drinkPointsSnapshot.getDouble(drinkCategory) ?: 0.0).toInt()
-    val multiplier = DrinkVolumes.volumeMultipliers[drinkVolume.toInt()] ?: 1.0
+    val multiplier = DrinkVolumes.volumeMultipliers[drinkVolume] ?: 1.0
     val points = (basePoints * multiplier).toInt()
 
     val publication = hashMapOf(
@@ -41,7 +41,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         "date" to currentDate,
         "hour" to currentTime,
         "category" to drinkCategory,
-        "volume" to drinkVolume,
+        "volume" to drinkVolume/100,
         "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
         "photo" to photoUrl,
         "points" to points

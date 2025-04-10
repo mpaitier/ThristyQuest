@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.db.getUserNameById
@@ -76,22 +77,22 @@ fun EditProfileDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(onClick = { showImageDialog = true }) {
-                    Text("Modifier la photo de profil")
-                }
-
                 profileImageBitmap?.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     Image(
                         bitmap = it.asImageBitmap(),
                         contentDescription = null,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(100.dp)
+                            .size(140.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.secondary)
                     )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = { showImageDialog = true }) {
+                    Text("Modifier la photo de profil")
                 }
             }
         },
@@ -154,6 +155,7 @@ fun AddProfilePictureDialog(
                     Image(
                         bitmap = it.asImageBitmap(),
                         contentDescription = null,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(100.dp)
                             .clip(CircleShape)

@@ -123,8 +123,8 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
 
         getUserXPById(uid) { xp ->
             memberXP = xp ?: 0.0
+            memberLevel = getLevelFromXp(memberXP)
         }
-        memberLevel = getLevelFromXp(memberXP)
 
         // Get profile picture
         val snapshot = FirebaseFirestore.getInstance()
