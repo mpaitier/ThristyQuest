@@ -156,24 +156,14 @@ fun getAllUserLeague(uid: String, onResult: (List<String>) -> Unit) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // XP to level conversion
 
-fun getUserLevelFromXP(xp: Double): Int {
+fun getLevelFromXp(xp: Double, baseXp: Int = 200, growthRate: Double = 1.12): Int {
     var level = 1
-    var xpNeeded = 100.0  // XP nécessaire pour passer au niveau suivant
-    var totalXP = 0.0  // XP cumulé jusqu'à présent
+    var totalXpForNextLevel = baseXp
 
-    while (xp >= totalXP + xpNeeded) {
-        totalXP += xpNeeded
+    while (xp >= totalXpForNextLevel) {
         level++
-
-        // Augmente l'XP nécessaire jusqu'à 1000 (pour le niveau 20)
-        if (level <= 20) {
-            xpNeeded += 50.0
-            if (xpNeeded > 1000) xpNeeded = 1000.0
-        } else {
-            xpNeeded = 1000.0  // À partir du niveau 21, il faut toujours 1000 XP
-        }
+        totalXpForNextLevel += (baseXp * Math.pow(level.toDouble(), growthRate)).toInt()
     }
 
     return level
 }
-

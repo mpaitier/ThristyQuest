@@ -2,16 +2,15 @@ package com.example.thirstyquest.db
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.navigation.NavController
 import com.example.thirstyquest.navigation.Screen
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
-import java.util.UUID
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
@@ -19,7 +18,7 @@ import java.util.UUID
 fun addLeagueToFirestore(
     uid: String,
     name: String,
-    imageBitmap: Bitmap?,                             // 👈 ajoute ce paramètre ici
+    imageBitmap: Bitmap?,
     onLeagueCreated: (String) -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -32,7 +31,7 @@ fun addLeagueToFirestore(
         fun randomDigits(n: Int) = (1..n).map { digits[random.nextInt(digits.size)] }.joinToString("")
         fun randomLetter() = letters[random.nextInt(letters.size)]
 
-        return randomDigits(3) + randomLetter() + randomDigits(3) + randomLetter() + randomDigits(3)
+        return randomDigits(2) + randomLetter() + randomLetter() + randomDigits(2)
     }
 
     fun createLeagueWithPhotoUrl(lid: String, imageUrl: String?) {
@@ -44,7 +43,7 @@ fun addLeagueToFirestore(
             "total liters" to 0.0,
             "total price" to 0.0
         ).apply {
-            if (!imageUrl.isNullOrEmpty()) this["photoUrl"] = imageUrl // 👈 ajoute l'URL à Firestore si elle existe
+            if (!imageUrl.isNullOrEmpty()) this["photoUrl"] = imageUrl
         }
 
         db.collection("leagues").document(lid)
@@ -85,9 +84,6 @@ fun addLeagueToFirestore(
     tryCreateLeague()
 }
 
-
-
-
 fun joinLeagueIfExists(
     uid: String,
     leagueCode: String,
@@ -109,6 +105,9 @@ fun joinLeagueIfExists(
                 db.collection("users").document(uid)
                     .collection("leagues").document(leagueCode)
                     .set(hashMapOf("League name" to leagueName))
+
+                db.collection("leagues").document(leagueCode)
+                    .update("count", FieldValue.increment(1))
 
                 // Redirection
                 navController.navigate(Screen.LeagueContent.name + "/$leagueCode")

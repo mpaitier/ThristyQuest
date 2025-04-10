@@ -55,8 +55,6 @@ import androidx.compose.ui.layout.ContentScale
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.db.updateLeaguePhotoUrl
-import com.example.thirstyquest.db.getUserNameById
-import com.example.thirstyquest.ui.components.AddPicture
 import kotlinx.coroutines.launch
 
 @Composable
@@ -197,7 +195,7 @@ fun AddLeagueDialog(
 {
     var leagueCode by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
-    val maxCodeLength = 11
+    val maxCodeLength = 6
 
     AlertDialog(
         onDismissRequest = onDismiss,

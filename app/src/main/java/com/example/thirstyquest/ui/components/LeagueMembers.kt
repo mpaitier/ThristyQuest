@@ -48,6 +48,7 @@ import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getAllLeagueMembers
 import com.example.thirstyquest.db.getLeagueOwnerId
+import com.example.thirstyquest.db.getLevelFromXp
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.getUserXPById
 import com.example.thirstyquest.navigation.Screen
@@ -123,7 +124,7 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
         getUserXPById(uid) { xp ->
             memberXP = xp ?: 0.0
         }
-        memberLevel = (memberXP/2000).toInt()+1
+        memberLevel = getLevelFromXp(memberXP)
 
         // Get profile picture
         val snapshot = FirebaseFirestore.getInstance()
