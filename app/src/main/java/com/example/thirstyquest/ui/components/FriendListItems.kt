@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.checkIfFriend
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
@@ -40,7 +44,9 @@ import com.example.thirstyquest.db.getUserName
 import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 // --------------------------------- Friends List ---------------------------------
 
@@ -81,10 +87,19 @@ fun FriendItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var friendName by remember { mutableStateOf("") }
+    var photoUrl by remember { mutableStateOf<String?>(null) }
 
     // Récupération du nom dans un `LaunchedEffect`
     LaunchedEffect(friendID) {
         friendName = getUserNameCoroutine(friendID)
+
+        // Get profile picture
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(friendID)
+            .get()
+            .await()
+        photoUrl = snapshot.getString("photoUrl")
     }
 
     Column(
@@ -98,13 +113,27 @@ fun FriendItem(
                 navController.navigate(Screen.FriendProfile.name + "/$friendID")
             }
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.pdp),
-                contentDescription = "Friend Icon",
-                modifier = Modifier
-                    .size(70.dp)
-                    .align(Alignment.CenterHorizontally),
-            )
+            // Profile picture
+            if (!photoUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = "Friend profile picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(CircleShape)
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.pdp),
+                    contentDescription = "Friend profile default picture",
+                    modifier = Modifier
+                        .size(70.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(CircleShape)
+                )
+            }
 
             Text(
                 text = friendName,

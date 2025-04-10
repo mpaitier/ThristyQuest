@@ -51,6 +51,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.db.updateLeaguePhotoUrl
@@ -104,6 +105,7 @@ fun LeagueEditDialog(
                         Image(
                             bitmap = it.asImageBitmap(),
                             contentDescription = "League image",
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(140.dp)
                                 .clip(CircleShape)
@@ -185,7 +187,6 @@ fun LeagueEditDialog(
         }
     }
 }
-
 
 @Composable
 fun AddLeagueDialog(
@@ -301,6 +302,7 @@ fun CreateLeagueDialog(
                         Image(
                             bitmap = capturedImage!!.asImageBitmap(),
                             contentDescription = "League image",
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(140.dp)
                                 .clip(CircleShape)

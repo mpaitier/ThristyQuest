@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,25 +38,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getAllLeagueMembers
 import com.example.thirstyquest.db.getLeagueOwnerId
-import com.example.thirstyquest.db.getUserLevelFromXP
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.getUserXPById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun LeagueMembersScreenContent(leagueID: String, navController: NavController, authViewModel: AuthViewModel) {
     var members by remember { mutableStateOf<List<Pair<String, Double>>>(emptyList()) }
     val userId by authViewModel.uid.observeAsState()
+    var ownerID by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        ownerID = getLeagueOwnerId(leagueID)
         val memberList = getAllLeagueMembers(leagueID)
         val membersWithXP = mutableListOf<Pair<String, Double>>()
 
@@ -89,7 +96,7 @@ fun LeagueMembersScreenContent(leagueID: String, navController: NavController, a
                 .verticalScroll(rememberScrollState())
         ) {
             members.forEach { member ->
-                MemberItem(navController, userId.toString(), leagueID, member.first, position)
+                MemberItem(navController, userId.toString(), ownerID, member.first, position)
                 position++
             }
         }
@@ -98,19 +105,17 @@ fun LeagueMembersScreenContent(leagueID: String, navController: NavController, a
 
 // ------------------------------ League Member Item ------------------------------
 @Composable
-fun MemberItem(navController: NavController, currentUid: String, leagueID: String, uid: String, position: Int)
+fun MemberItem(navController: NavController, currentUid: String, ownerId: String, uid: String, position: Int)
 {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    var ownerID by remember { mutableStateOf("") }
     var memberName by remember { mutableStateOf("") }
     var memberXP by remember { mutableDoubleStateOf(0.0) }
     var memberLevel by remember { mutableIntStateOf(0) }
+    var photoUrl by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        ownerID = getLeagueOwnerId(leagueID)
-
         getUserNameById(uid) { name ->
             memberName = name ?: ""
         }
@@ -118,8 +123,15 @@ fun MemberItem(navController: NavController, currentUid: String, leagueID: Strin
         getUserXPById(uid) { xp ->
             memberXP = xp ?: 0.0
         }
-        // TODO : créer une fonction qui transforme l'XP en niveau
-        memberLevel = getUserLevelFromXP(memberXP)
+        memberLevel = (memberXP/2000).toInt()+1
+
+        // Get profile picture
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(uid)
+            .get()
+            .await()
+        photoUrl = snapshot.getString("photoUrl")
     }
 
     Row(
@@ -138,18 +150,32 @@ fun MemberItem(navController: NavController, currentUid: String, leagueID: Strin
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.pdp),
-            contentDescription = "Profil",
-            modifier = Modifier
-                .size(40.dp)
-        )
+        if (!photoUrl.isNullOrEmpty()) {
+            AsyncImage(
+                model = photoUrl,
+                contentDescription = "Photo de profil",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.pdp),
+                contentDescription = "Profil",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+        }
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {
             Text(
                 memberName,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = if(uid== currentUid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                fontWeight = if(uid== currentUid) FontWeight.Bold else FontWeight.Normal,
             )
             Text(
                 text = "Niveau $memberLevel",
@@ -159,7 +185,7 @@ fun MemberItem(navController: NavController, currentUid: String, leagueID: Strin
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (uid == ownerID) {
+        if (uid == ownerId) {
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = "Profil",
@@ -172,7 +198,8 @@ fun MemberItem(navController: NavController, currentUid: String, leagueID: Strin
             "#${position}",
             modifier = Modifier.padding(2.dp),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
+            fontSize = 20.sp
         )
     }
 }

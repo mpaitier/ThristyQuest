@@ -1,6 +1,5 @@
 package com.example.thirstyquest.ui.screens.social
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getFollowerCount
 import com.example.thirstyquest.db.getFollowingCount
@@ -56,18 +55,10 @@ import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.components.DrinkProgressBar
-import com.example.thirstyquest.ui.dialog.BadgeFriendDialog
-import com.example.thirstyquest.ui.dialog.CollectionDialog
-import com.example.thirstyquest.ui.dialog.FriendPublicationDialog
 import com.example.thirstyquest.ui.dialog.FollowDialog
-import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
-import com.example.thirstyquest.ui.dialog.StatisticsDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
-
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -88,6 +79,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var publiNumber by remember { mutableStateOf(0) }
     var followerNumber by remember { mutableStateOf(0) }
     var followingNumber by remember { mutableStateOf(0) }
+    var photoUrl by remember { mutableStateOf<String?>(null) }
 
 
     var showDetailDialog by remember { mutableStateOf(false) }
@@ -101,11 +93,17 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
         followerNumber = getFollowerCount(friendId)
         followingNumber = getFollowingCount(friendId)
 
-
-
         getUserNameById(friendId) { name ->
             friendName = name
         }
+
+        // Get profile picture
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(friendId)
+            .get()
+            .await()
+        photoUrl = snapshot.getString("photoUrl")
     }
 
     Column(
@@ -132,6 +130,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 
         FriendProfileHeader(
             friendId,
+            photoUrl.toString(),
             publiNumber,
             followerNumber,
             followingNumber,
@@ -186,10 +185,6 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             }
         }
 
-
-
-
-
         Text(
                 text = "Statistiques",
                 fontSize = 18.sp,
@@ -227,8 +222,10 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 //    Composable
 
 @Composable
-fun FriendProfileHeader(friendId: String, publiNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
+fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
 {
+    var showImageFullscreen by remember { mutableStateOf(false) }
+
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -240,14 +237,24 @@ fun FriendProfileHeader(friendId: String, publiNumber: Int, followerNumber : Int
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.pdp),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                if (!photoUrl.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = photoUrl,
+                        contentDescription = "Photo de profil",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { showImageFullscreen = true }, // Clic pour afficher,
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.pdp),
+                        contentDescription = "Profil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
             // Friend's count

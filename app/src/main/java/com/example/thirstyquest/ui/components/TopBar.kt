@@ -18,9 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -31,15 +31,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.thirstyquest.R
 import coil.compose.AsyncImage
-import com.example.thirstyquest.db.getUserProfileImageUrl
-import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.db.getLeagueName
 import com.example.thirstyquest.db.getLeagueOwnerId
-import com.example.thirstyquest.db.getUserProfileImageUrl
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.dialog.EditProfileDialog
@@ -58,10 +55,10 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
     var photoUrl by remember { mutableStateOf<String?>(null) }
-    var refreshKey by remember { mutableStateOf(0) } // 👈 Ajouté pour forcer le rafraîchissement
+    var refreshKey by remember { mutableIntStateOf(0) } // Ajouté pour forcer le rafraîchissement
     val uid by authViewModel.uid.observeAsState()
 
-    // 🔄 Recharge la photo à chaque changement de refreshKey
+    // Recharge la photo à chaque changement de refreshKey
     LaunchedEffect(uid, refreshKey) {
         uid?.let { userId ->
             val snapshot = FirebaseFirestore.getInstance()
@@ -129,12 +126,12 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
         )
     )
 
-    // 📦 Ouvre le Dialog d’édition de profil
+    // Ouvre le Dialog d’édition de profil
     if (showDialog) {
         EditProfileDialog(
             authViewModel = authViewModel,
             onDismiss = { showDialog = false },
-            onPhotoUpdated = { refreshKey++ } // 👈 Rafraîchit l’image quand elle est modifiée
+            onPhotoUpdated = { refreshKey++ } // Rafraîchit l’image quand elle est modifiée
         )
     }
 }
@@ -187,16 +184,18 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 model = leaguePhotoUrl,
                 contentDescription = "League image",
                 modifier = Modifier
-                    .size(60.dp)
+                    .size((0.04166* LocalConfiguration.current.screenHeightDp).dp)
                     .clip(CircleShape)
-                    .clickable { showImageFullscreen = true }, // 👈 Clic pour afficher
-                contentScale = ContentScale.Inside
+                    .clickable { showImageFullscreen = true }, // Clic pour afficher
+                contentScale = ContentScale.Crop
             )
         } else {
-            Icon(
-                imageVector = Icons.Filled.Menu,
-                contentDescription = "Default league icon",
-                modifier = Modifier.size(60.dp)
+            Image(
+                painter = painterResource(id = R.drawable.league_logo),
+                contentDescription = "Profil",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
             )
         }
 

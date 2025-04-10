@@ -1,7 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
 import android.graphics.Bitmap
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +50,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -189,10 +186,6 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
             }
         }
     }
-
-
-
-
 }
 
 @Composable
@@ -206,8 +199,7 @@ fun AddPublicationDialog(
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
     var drinkVolume by remember { mutableIntStateOf(0) }
-    var points by remember { mutableDoubleStateOf(0.0) }
-    var publicationId by remember { mutableStateOf("") }
+    var publicationInfo by remember { mutableStateOf<Pair<String,Int>>(Pair("",0)) }
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -226,18 +218,18 @@ fun AddPublicationDialog(
                 coroutineScope.launch {
                     val url = imageBitmap?.let { uploadImageToFirebase(userId, it) } ?: ""
 
-                    publicationId = addPublicationToFirestore(
+                    publicationInfo = addPublicationToFirestore(
                         userId, drinkName, drinkPrice, drinkCategory, drinkVolume, url
                     )
 
                     getAllUserLeague(uid = userId) { leagueList ->
                         leagueList.forEach { leagueId ->
                             addPublicationToLeague(
-                                pid = publicationId,
+                                pid = publicationInfo.first,
                                 lid = leagueId,
                                 price = drinkPrice.toDoubleOrNull() ?: 0.0,
                                 volume = drinkVolume.toDouble(),
-                                points = points
+                                points = publicationInfo.second
                             )
                         }
                     }
@@ -357,9 +349,6 @@ fun addInfoLeagues(userID: String){
     }
 }
 */
-
-
-
 
 @Composable
 fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)

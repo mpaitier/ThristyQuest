@@ -22,7 +22,7 @@ import kotlin.math.max
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
 
-suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): String {
+suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): Pair<String,Int> {
     val db = FirebaseFirestore.getInstance()
     val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -64,10 +64,10 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
 
-    return id
+    return Pair(id, points)
 }
 
-fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Double, points : Double) {
+fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Double, points: Int) {
     val db = FirebaseFirestore.getInstance()
 
     db.collection("leagues").document(lid).collection("publications").document(pid)
@@ -87,7 +87,7 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e) }
 
     db.collection("leagues").document(lid)
-        .update("xp", FieldValue.increment(points))
+        .update("xp", FieldValue.increment(points.toDouble()))
         .addOnSuccessListener { Log.d("Firebase", "Prix total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e) }
 }

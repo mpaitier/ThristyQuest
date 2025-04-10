@@ -48,6 +48,7 @@
     <string name="followers">Abonnés</string>
     <string name="following">Abonnements</string>
     <string name="contacts">Abonnés et abonnements</string>
+    <string name="show_more">Afficher plus</string>
     <!-- ======== Drink ======== -->
     <string name="hist">Historique</string>
     <string name="hist_not_found">Aucun historique trouvé</string>
