@@ -227,7 +227,8 @@ fun AddPublicationDialog(
                                 lid = leagueId,
                                 price = drinkPrice.toDoubleOrNull() ?: 0.0,
                                 volume = drinkVolume.toDouble(),
-                                points = publicationInfo.second
+                                points = publicationInfo.second,
+                                category = drinkCategory
                             )
                         }
                     }
@@ -453,40 +454,48 @@ fun CategoryDropdown(
 ) {
     val allCategories = DrinkCategories.basePoints.keys.toList()
     var expanded by remember { mutableStateOf(false) }
-    var input by remember { mutableStateOf(selectedCategory) }
 
-    val filteredOptions = allCategories.filter {
-        it.contains(input, ignoreCase = true)
-    }
-
-    Column {
-        OutlinedTextField(
-            value = input,
-            onValueChange = {
-                input = it
-                expanded = true
-            },
-            label = { Text("Catégorie") },
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Bouton stylisé
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true },
-            trailingIcon = {
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Ouvrir menu")
-                }
+                .clickable { expanded = true }
+                .padding(4.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = selectedCategory.ifEmpty { "Choisir une catégorie" },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Ouvrir menu",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
-        )
+        }
 
+        // Menu déroulant
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth()
         ) {
-            filteredOptions.forEach { category ->
+            allCategories.forEach { category ->
                 DropdownMenuItem(
                     text = { Text(category) },
                     onClick = {
-                        input = category
                         onCategorySelected(category)
                         expanded = false
                     }
@@ -495,4 +504,5 @@ fun CategoryDropdown(
         }
     }
 }
+
 

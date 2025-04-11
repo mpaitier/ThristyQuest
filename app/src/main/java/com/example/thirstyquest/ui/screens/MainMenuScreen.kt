@@ -33,6 +33,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -99,25 +100,36 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = stringResource(id = R.string.top_drinks),
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    textAlign = TextAlign.Center
-                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = stringResource(id = R.string.top_drinks),
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "Plus d'infos +",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                    )
+                }
+
 
                 topDrinks.forEach { (name, points) ->
                     val icon = when (name) {
-                        "Bière" -> Icons.Filled.LocalDrink
-                        "Vin" -> Icons.Filled.WineBar
-                        "Cocktail" -> Icons.Filled.LocalBar
-                        "Shot" -> Icons.Filled.CameraAlt
-                        else -> Icons.Filled.LocalDrink
+                        "Bière" -> painterResource(id = R.drawable.biere)
+                        "Vin" -> painterResource(id = R.drawable.vin)
+                        "Cocktail" -> painterResource(id = R.drawable.cocktail)
+                        "Shot" -> painterResource(id = R.drawable.shot)
+                        else -> painterResource(id = R.drawable.other)
                     }
-                    TopDrinkItem(icon, name, "$points points")
+                    TopDrinkItem(painter = icon, name = name, points = "$points points") // ✅ Ici on l'appelle !
                 }
+
             }
 
 
@@ -242,17 +254,15 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
 
 @Composable
-fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: String, points: String)
-{
-    // TODO : function takes top drink items in data base, we shouldn't need to declare them manually
+fun TopDrinkItem(painter: Painter, name: String, points: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
+        Image(
+            painter = painter,
             contentDescription = name,
             modifier = Modifier.size(40.dp)
         )
@@ -261,5 +271,6 @@ fun TopDrinkItem(icon: androidx.compose.ui.graphics.vector.ImageVector, name: St
         Text(text = points, fontSize = 14.sp, color = Color.Gray)
     }
 }
+
 
 

@@ -1,7 +1,13 @@
 package com.example.thirstyquest.db
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.time.temporal.WeekFields
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Setters
@@ -12,7 +18,9 @@ fun addUserToFirestore(uid: String, name: String, profileImageUrl: String? = nul
         "uid" to uid,
         "name" to name,
         "xp" to 0,
-        "photoUrl" to profileImageUrl
+        "photoUrl" to profileImageUrl,
+        "total drink" to 0.0,
+        "total paid" to 0.0,
     )
 
 
@@ -149,6 +157,76 @@ fun getAllUserLeague(uid: String, onResult: (List<String>) -> Unit) {
         .addOnFailureListener { e ->
             Log.e("FIRESTORE", "Erreur de récupération des ligues : ", e)
             onResult(emptyList())
+        }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun getUserConsumptionRawStats(
+    userId: String,
+    onResult: (List<Number>) -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("publications")
+        .whereEqualTo("user_ID", userId)
+        .get()
+        .addOnSuccessListener { documents ->
+
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            val now = LocalDate.now()
+
+            var volumeDay = 0.0
+            var volumeWeek = 0.0
+            var volumeMonth = 0.0
+            var volumeYear = 0.0
+
+            var countDay = 0
+            var countWeek = 0
+            var countMonth = 0
+            var countYear = 0
+
+            for (doc in documents) {
+                val dateStr = doc.getString("date") ?: continue
+                val volume = doc.getDouble("volume") ?: 0.0
+                val date = try {
+                    LocalDate.parse(dateStr, formatter)
+                } catch (e: Exception) {
+                    continue
+                }
+
+                val daysBetween = ChronoUnit.DAYS.between(date, now)
+                val sameWeek = date.get(WeekFields.ISO.weekOfWeekBasedYear()) == now.get(WeekFields.ISO.weekOfWeekBasedYear())
+                val sameMonth = date.month == now.month && date.year == now.year
+                val sameYear = date.year == now.year
+
+                if (daysBetween == 0L) {
+                    volumeDay += volume
+                    countDay++
+                }
+                if (sameWeek && sameYear) {
+                    volumeWeek += volume
+                    countWeek++
+                }
+                if (sameMonth) {
+                    volumeMonth += volume
+                    countMonth++
+                }
+                if (sameYear) {
+                    volumeYear += volume
+                    countYear++
+                }
+            }
+
+            onResult(
+                listOf(
+                    volumeDay, volumeWeek, volumeMonth, volumeYear,
+                    countDay, countWeek, countMonth, countYear
+                )
+            )
+        }
+        .addOnFailureListener {
+            onResult(
+                listOf(0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0)
+            )
         }
 }
 

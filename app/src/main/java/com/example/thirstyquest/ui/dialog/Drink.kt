@@ -222,6 +222,18 @@ fun PublicationHistItem(publication: Publication)
     }
 }
 
+// Fonction pour mapper chaque boisson à son icône
+@Composable
+fun getDrinkIcon(name: String): Int {
+    return when (name) {
+        "Bière" -> R.drawable.biere
+        "Vin" -> R.drawable.vin
+        "Cocktail" -> R.drawable.cocktail
+        "Shot" -> R.drawable.shot
+        else -> R.drawable.other
+    }
+}
+
 @Composable
 fun AllDrinksDialog(
     drinks: List<Pair<String, Int>>,
@@ -230,19 +242,55 @@ fun AllDrinksDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Points des boissons", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = "Points des boissons",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
         },
         text = {
             Column {
+                Text(
+                    text = "Tu peux ici consulter les points attribués à chaque boisson. Ces points changent toutes les 3 heures, sont attribués aléatoirement et déterminent le score que tu gagnes à chaque consommation.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Justify,
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .fillMaxWidth()
+                )
+
+                Text(
+                    text = "Distribution actuelle :",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
                 drinks.forEach { (name, points) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = name, style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "$points pts", style = MaterialTheme.typography.bodyMedium)
+                        Image(
+                            painter = painterResource(id = getDrinkIcon(name)),
+                            contentDescription = name,
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "$points pts",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     }
                 }
             }
@@ -251,7 +299,8 @@ fun AllDrinksDialog(
             TextButton(onClick = onDismiss) {
                 Text("Fermer")
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     )
 }
 

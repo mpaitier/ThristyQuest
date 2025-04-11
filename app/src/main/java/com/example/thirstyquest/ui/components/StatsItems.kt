@@ -30,6 +30,18 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import co.yml.charts.axis.AxisData
+import co.yml.charts.common.model.Point
+import co.yml.charts.ui.linechart.LineChart
+import co.yml.charts.ui.linechart.model.GridLines
+import co.yml.charts.ui.linechart.model.IntersectionPoint
+import co.yml.charts.ui.linechart.model.Line
+import co.yml.charts.ui.linechart.model.LineChartData
+import co.yml.charts.ui.linechart.model.LinePlotData
+import co.yml.charts.ui.linechart.model.LineStyle
+import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
+import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
+import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.thirstyquest.R
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,20 +82,22 @@ fun StatsCategory(category: String)
 @Composable
 fun StatsItemRowValueFirst(label: String, value: String)
 {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+    if(value != "-1" && label != "") {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
     }
 }
 
@@ -109,7 +123,7 @@ fun StatsItemRowLabelFirst(label: String, value: String)
 }
 
 @Composable
-fun StatsDrink(totalLiters: Double, totalDrinks: Double)
+fun StatsDrink(totalLiters: Double, totalDrinks: Int)
 {
     var selectedUnit by remember { mutableStateOf("Litres") }
     var expanded by remember { mutableStateOf(false) }
@@ -117,15 +131,15 @@ fun StatsDrink(totalLiters: Double, totalDrinks: Double)
     // Mapping of unit & convert
     val unitConversions = mapOf(
         stringResource(R.string.liters) to 1.0,
-        stringResource(R.string.drinks) to 0.0,
+        stringResource(R.string.drinks) to -1.0,
         stringResource(R.string.bath) to 150.0,
         stringResource(R.string.tank_truck) to 40000.0,
         stringResource(R.string.olymp_pool) to 2500000.0
     )
 
     val convertedValue =
-        if(unitConversions[selectedUnit] == 0.0){
-            totalDrinks
+        if(selectedUnit == stringResource(R.string.drinks)) {
+            totalDrinks.toDouble()
         }
         else {
             totalLiters / (unitConversions[selectedUnit] ?: 1.0)
@@ -172,4 +186,83 @@ fun StatsDrink(totalLiters: Double, totalDrinks: Double)
             }
         }
     }
+}
+
+
+
+
+@Composable
+fun ConsumptionChart(
+    pointsData : List<Point>,
+    selectedDuration : String = "Semaines"
+) {
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Label selection
+    val weekLabels = listOf("lu", "ma", "me", "je", "ve", "sa", "di")
+    val monthLabels = (1..pointsData.size).map { it.toString() }
+    val yearLabels = listOf("janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "août", "sept.", "oct.", "nov.", "dec.")
+
+    val xLabels = when (selectedDuration) {
+        "Dans la semaine" -> weekLabels
+        "Dans le mois" -> monthLabels
+        "Dans l'année" -> yearLabels
+        else -> List(pointsData.size) { it.toString() }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // X data
+    val xAxisData = AxisData.Builder()
+        .axisStepSize(100.dp)
+        .backgroundColor(MaterialTheme.colorScheme.background)
+        .axisLabelColor(MaterialTheme.colorScheme.onBackground)
+        .axisLineColor(MaterialTheme.colorScheme.onBackground)
+        .steps(pointsData.size - 1)
+        .labelData { i -> xLabels.getOrNull(i) ?: "" }
+        .labelAndAxisLinePadding(15.dp)
+        .startDrawPadding(20.dp)
+        .build()
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Y data
+    val yMax = pointsData.maxOfOrNull { it.y } ?: 100f
+    val ySteps = if (yMax < 5) { yMax.toInt() } else { 5 }          // ySteps = 5 or yMax if yMax < 5
+    val yAxisData = AxisData.Builder()
+        .steps(ySteps)
+        .backgroundColor(MaterialTheme.colorScheme.background)
+        .axisLabelColor(MaterialTheme.colorScheme.onBackground)
+        .axisLineColor(MaterialTheme.colorScheme.onBackground)
+        .labelAndAxisLinePadding(20.dp)
+        .labelData { i ->
+            val yScale = yMax / ySteps
+            String.format("%.1f", i * yScale)
+        }.build()
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Line data
+    val lineChartData = LineChartData(
+        linePlotData = LinePlotData(
+            lines = listOf(
+                Line(
+                    dataPoints = pointsData,
+                    LineStyle(color = MaterialTheme.colorScheme.secondary),
+                    IntersectionPoint(color = MaterialTheme.colorScheme.primary),
+                    SelectionHighlightPoint(color = MaterialTheme.colorScheme.tertiary),
+                    ShadowUnderLine(color = MaterialTheme.colorScheme.secondary),
+                    SelectionHighlightPopUp()
+                )
+            ),
+        ),
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        gridLines = GridLines(color = MaterialTheme.colorScheme.onBackground),
+        backgroundColor = MaterialTheme.colorScheme.background
+    )
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Line chart
+    LineChart(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        lineChartData = lineChartData,
+    )
 }

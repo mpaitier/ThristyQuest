@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream
 import java.util.*
 import com.example.thirstyquest.data.DrinkCategories
 import com.example.thirstyquest.data.DrinkVolumes
+import com.google.firebase.firestore.SetOptions
 import kotlin.math.max
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +42,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         "date" to currentDate,
         "hour" to currentTime,
         "category" to drinkCategory,
-        "volume" to drinkVolume/100,
+        "volume" to drinkVolume.toDouble()/100,
         "price" to (drinkPrice.toDoubleOrNull() ?: 0.0),
         "photo" to photoUrl,
         "points" to points
@@ -65,14 +66,26 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
 
     db.collection("users").document(userId)
-        .update("total drink", FieldValue.increment(drinkVolume.toDouble()))
+        .update("total drink", FieldValue.increment((drinkVolume.toDouble()/100)))
         .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
+
+    val userRef = db.collection("users").document(userId)
+    val data = mapOf(
+        "total paid" to FieldValue.increment(drinkPrice.toDouble()),
+    )
+    userRef.set(data, SetOptions.merge())
+        .addOnSuccessListener {
+            Log.d("Firebase", "Document mis à jour (ou créé) avec succès")
+        }
+        .addOnFailureListener { e ->
+            Log.w("Firebase", "Erreur lors de la mise à jour ou création de category", e)
+        }
 
     return Pair(id, points)
 }
 
-fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Double, points: Int) {
+fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Double, points: Int, category: String) {
     val db = FirebaseFirestore.getInstance()
 
     db.collection("leagues").document(lid).collection("publications").document(pid)
@@ -80,9 +93,9 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
         .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée à la ligue avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
 
-    // Incrementer les valeurs "total liters" et "total price" de la ligue
+    // Incrementer les valeurs "total liters", "total price" et "category" de la ligue
     db.collection("leagues").document(lid)
-        .update("total liters", FieldValue.increment(volume))
+        .update("total liters", FieldValue.increment(volume/100))
         .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
 
@@ -95,6 +108,20 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
         .update("xp", FieldValue.increment(points.toDouble()))
         .addOnSuccessListener { Log.d("Firebase", "Prix total mis à jour avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e) }
+
+
+    val categoryRef = db.collection("leagues").document(lid).collection("category").document(category)
+    val data = mapOf(
+        "total" to FieldValue.increment(1),
+        "total liters" to FieldValue.increment((volume / 100).toDouble())
+    )
+    categoryRef.set(data, SetOptions.merge())
+        .addOnSuccessListener {
+            Log.d("Firebase", "Document mis à jour (ou créé) avec succès")
+        }
+        .addOnFailureListener { e ->
+            Log.w("Firebase", "Erreur lors de la mise à jour ou création de category", e)
+        }
 }
 
 suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {

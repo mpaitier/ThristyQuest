@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,13 +15,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,11 +43,13 @@ import com.example.thirstyquest.db.getLeaguePublications
 @Composable
 fun LeagueHistScreenContent(leagueID: String, navController: NavController)
 {
-    // TODO : get all publications with leagueID, sorted by date (most recent first)
     var publicationList by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var isDescending by remember { mutableStateOf(true) }
+
+    var publicationsToShowCount by remember { mutableIntStateOf(10) } // Limit users to show
     LaunchedEffect(Unit)
     {
+        publicationsToShowCount = 10
         publicationList = getLeaguePublications(leagueID = leagueID)
     }
     // sort by date then time
@@ -88,17 +95,43 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // List of publication in the hist
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
+        if(publicationList == emptyList<Publication>())  {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
+        else {
+            // List of publication in the hist
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Column {
+                    val histToDisplay = sortedHist.take(publicationsToShowCount)
+                    histToDisplay.forEach { publication ->
+                        PublicationItemLeague(publication, publicationNum, navController)
+                        publicationNum++
+                    }
 
-            Column {
-                sortedHist.forEach { publication ->
-                    PublicationItemLeague(publication, publicationNum, navController)
-                    publicationNum++
+                    if (publicationsToShowCount < sortedHist.size) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { publicationsToShowCount *= 2 },
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.tertiary
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+                        ) {
+                            Text(
+                                stringResource(R.string.show_more),
+                                color = MaterialTheme.colorScheme.onSurface)
+                        }
+                    }
                 }
             }
         }

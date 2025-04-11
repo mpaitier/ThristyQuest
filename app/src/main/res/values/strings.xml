@@ -82,6 +82,7 @@
     <string name="liters_per_month">L/mois</string>
     <string name="liters_per_year">L/an</string>
     <string name="per_day">/jour</string>
+    <string name="per_week">/sem</string>
     <string name="per_month">/mois</string>
     <string name="per_year">/an</string>
     <string name="spent_money">dépensés</string>
