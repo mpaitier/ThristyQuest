@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.thirstyquest"
-        minSdk = 23
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -67,6 +67,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.8")
     implementation("com.google.firebase:firebase-storage:20.2.0")
+
+    // For charts
+    implementation("co.yml:ycharts:2.1.0")
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.11.0"))

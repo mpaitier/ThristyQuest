@@ -2,15 +2,28 @@ package com.example.thirstyquest.db
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.navigation.NavController
+import co.yml.charts.common.model.Point
 import com.example.thirstyquest.navigation.Screen
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.time.temporal.WeekFields
+import java.util.Locale
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
@@ -82,6 +95,29 @@ fun addLeagueToFirestore(
     }
 
     tryCreateLeague()
+}
+
+fun uploadImageToFirebase(id: String, bitmap: Bitmap, onUploaded: (String?) -> Unit) {
+    val storageRef = FirebaseStorage.getInstance().reference.child("leagueImages/$id.jpg")
+
+    val baos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+    val data = baos.toByteArray()
+
+    val uploadTask = storageRef.putBytes(data)
+    uploadTask.continueWithTask { task ->
+        if (!task.isSuccessful) {
+            task.exception?.let { throw it }
+        }
+        storageRef.downloadUrl
+    }.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val downloadUri = task.result.toString()
+            onUploaded(downloadUri)
+        } else {
+            onUploaded(null)
+        }
+    }
 }
 
 fun joinLeagueIfExists(
@@ -265,6 +301,379 @@ suspend fun getLeagueTotalPrice(leagueID: String): Double {
     return totalPrice
 }
 
+suspend fun getLeagueTotalPublications(leagueID: String): Int {
+    val db = FirebaseFirestore.getInstance()
+    return try {
+        val result = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        result.size()
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des publications de ligue : ", e)
+        0
+    }
+}
+
+suspend fun getLeagueUserStats(leagueID: String): List<Pair<String, Double>> {
+    val db = FirebaseFirestore.getInstance()
+
+    var maxDrink = Pair("", Double.MIN_VALUE)
+    var minDrink = Pair("", Double.MAX_VALUE)
+    var maxPaid = Pair("", Double.MIN_VALUE)
+    var minPaid = Pair("", Double.MAX_VALUE)
+
+    try {
+        val membersSnapshot = db.collection("leagues")
+            .document(leagueID)
+            .collection("members")
+            .get()
+            .await()
+
+        for (doc in membersSnapshot.documents) {
+            val userID = doc.id
+
+            try {
+                val userSnapshot = db.collection("users")
+                    .document(userID)
+                    .get()
+                    .await()
+
+                val name = userSnapshot.getString("name") ?: continue
+                val drink = userSnapshot.getDouble("total drink") ?: 0.0
+                val paid = userSnapshot.getDouble("total paid") ?: 0.0
+
+                if (drink > maxDrink.second) maxDrink = name to drink
+                if (drink < minDrink.second) minDrink = name to drink
+
+                if (paid > maxPaid.second) maxPaid = name to paid
+                if (paid < minPaid.second) minPaid = name to paid
+
+            } catch (e: Exception) {
+                Log.w("FIRESTORE", "Erreur récupération stats utilisateur $userID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur récupération des membres de la ligue", e)
+    }
+
+    return listOf(maxDrink, minDrink, maxPaid, minPaid)
+}
+
+suspend fun getTop3Categories(leagueID: String): List<Pair<String, Long>> {
+    val db = FirebaseFirestore.getInstance()
+    val categoryRef = db.collection("leagues").document(leagueID).collection("category")
+
+    return try {
+        val snapshot = categoryRef.get().await()
+
+        val categoryList = snapshot.documents.mapNotNull { doc ->
+            val total = doc.getLong("total")
+            val name = doc.id
+            if (total != null) name to total else null
+        }.sortedByDescending { it.second }
+
+        val paddedList = categoryList.take(3).toMutableList()
+
+        while (paddedList.size < 3) {
+            paddedList.add("" to -1L)
+        }
+
+        paddedList
+    } catch (e: Exception) {
+        Log.e("Firebase", "Erreur lors de la récupération des catégories", e)
+        listOf("" to -1L, "" to -1L, "" to -1L)
+    }
+}
+
+suspend fun getWeekConsumptionPoints(leagueID: String): List<Point> {
+    val db = FirebaseFirestore.getInstance()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE)
+
+    val today = LocalDate.now()
+    val startOfWeek = today.with(DayOfWeek.MONDAY)
+    val endOfWeek = today.with(DayOfWeek.SUNDAY)
+
+    val dailyCounts = MutableList(7) { 0 } // On stocke juste des compteurs
+
+    try {
+        val pubRefs = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        val publicationIDs = pubRefs.documents.mapNotNull { it.id }
+
+        for (pubID in publicationIDs) {
+            try {
+                val pubSnapshot = db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .await()
+
+                val dateStr = pubSnapshot.getString("date") ?: continue
+                val date = LocalDate.parse(dateStr, formatter)
+
+                if (!date.isBefore(startOfWeek) && !date.isAfter(endOfWeek)) {
+                    val dayOfWeek = date.dayOfWeek.value  // Lundi = 1, Dimanche = 7
+                    val index = (dayOfWeek - 1) % 7
+                    dailyCounts[index] += 1
+                }
+
+            } catch (e: Exception) {
+                Log.w("FETCH_PUBLICATION", "Erreur lors de la lecture de la publication $pubID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération des IDs de publications : ", e)
+    }
+
+    return dailyCounts.mapIndexed { index, count ->
+        Point(x = index.toFloat(), y = count.toFloat())
+    }
+}
+suspend fun getMonthConsumptionPoints(leagueID: String): List<Point> {
+    val db = FirebaseFirestore.getInstance()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE)
+
+    val today = LocalDate.now()
+    val startOfMonth = today.withDayOfMonth(1)
+    val endOfMonth = today.withDayOfMonth(today.lengthOfMonth())
+
+    val daysInMonth = today.lengthOfMonth()
+    val dailyCounts = MutableList(daysInMonth) { 0 }
+
+    try {
+        val pubRefs = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        val publicationIDs = pubRefs.documents.mapNotNull { it.id }
+
+        for (pubID in publicationIDs) {
+            try {
+                val pubSnapshot = db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .await()
+
+                val dateStr = pubSnapshot.getString("date") ?: continue
+                val date = LocalDate.parse(dateStr, formatter)
+
+                if (!date.isBefore(startOfMonth) && !date.isAfter(endOfMonth)) {
+                    val dayIndex = date.dayOfMonth - 1 // 0-based index
+                    dailyCounts[dayIndex] += 1
+                }
+
+            } catch (e: Exception) {
+                Log.w("FETCH_PUBLICATION", "Erreur lecture publication $pubID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur récupération des IDs de publications : ", e)
+    }
+
+    return dailyCounts.mapIndexed { index, count ->
+        Point(x = index.toFloat(), y = count.toFloat())
+    }
+}
+suspend fun getYearConsumptionPoints(leagueID: String): List<Point> {
+    val db = FirebaseFirestore.getInstance()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE)
+
+    val currentYear = LocalDate.now().year
+    val monthlyCounts = MutableList(12) { 0 }
+
+    try {
+        val pubRefs = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        val publicationIDs = pubRefs.documents.mapNotNull { it.id }
+
+        for (pubID in publicationIDs) {
+            try {
+                val pubSnapshot = db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .await()
+
+                val dateStr = pubSnapshot.getString("date") ?: continue
+                val date = LocalDate.parse(dateStr, formatter)
+
+                if (date.year == currentYear) {
+                    val monthIndex = date.monthValue - 1 // 0-based index
+                    monthlyCounts[monthIndex] += 1
+                }
+
+            } catch (e: Exception) {
+                Log.w("FETCH_PUBLICATION", "Erreur lecture publication $pubID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur récupération des IDs de publications : ", e)
+    }
+
+    return monthlyCounts.mapIndexed { index, count ->
+        Point(x = index.toFloat(), y = count.toFloat())
+    }
+}
+
+suspend fun getWeekVolumeConsumptionPoints(leagueID: String): List<Point> {
+    val db = FirebaseFirestore.getInstance()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE)
+
+    val today = LocalDate.now()
+    val startOfWeek = today.with(DayOfWeek.MONDAY)
+    val endOfWeek = today.with(DayOfWeek.SUNDAY)
+
+    val dailyVolumes = MutableList(7) { 0.0 }
+
+    try {
+        val pubRefs = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        val publicationIDs = pubRefs.documents.mapNotNull { it.id }
+
+        for (pubID in publicationIDs) {
+            try {
+                val pubSnapshot = db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .await()
+
+                val dateStr = pubSnapshot.getString("date") ?: continue
+                val volume = pubSnapshot.getDouble("volume") ?: continue
+                val date = LocalDate.parse(dateStr, formatter)
+
+                if (!date.isBefore(startOfWeek) && !date.isAfter(endOfWeek)) {
+                    val index = (date.dayOfWeek.value - 1) % 7 // Lundi = 0
+                    dailyVolumes[index] += volume
+                }
+
+            } catch (e: Exception) {
+                Log.w("FETCH_PUBLICATION", "Erreur lecture publication $pubID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur récupération des IDs de publications : ", e)
+    }
+
+    return dailyVolumes.mapIndexed { index, volume ->
+        Point(x = index.toFloat(), y = volume.toFloat())
+    }
+}
+suspend fun getMonthVolumeConsumptionPoints(leagueID: String): List<Point> {
+    val db = FirebaseFirestore.getInstance()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE)
+
+    val today = LocalDate.now()
+    val startOfMonth = today.withDayOfMonth(1)
+    val endOfMonth = today.withDayOfMonth(today.lengthOfMonth())
+
+    val daysInMonth = today.lengthOfMonth()
+    val dailyVolumes = MutableList(daysInMonth) { 0.0 }
+
+    try {
+        val pubRefs = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        val publicationIDs = pubRefs.documents.mapNotNull { it.id }
+
+        for (pubID in publicationIDs) {
+            try {
+                val pubSnapshot = db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .await()
+
+                val dateStr = pubSnapshot.getString("date") ?: continue
+                val volume = pubSnapshot.getDouble("volume") ?: continue
+                val date = LocalDate.parse(dateStr, formatter)
+
+                if (!date.isBefore(startOfMonth) && !date.isAfter(endOfMonth)) {
+                    val index = date.dayOfMonth - 1 // 0-based
+                    dailyVolumes[index] += volume
+                }
+
+            } catch (e: Exception) {
+                Log.w("FETCH_PUBLICATION", "Erreur lecture publication $pubID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur récupération des IDs de publications : ", e)
+    }
+
+    return dailyVolumes.mapIndexed { index, volume ->
+        Point(x = index.toFloat(), y = volume.toFloat())
+    }
+}
+suspend fun getYearVolumeConsumptionPoints(leagueID: String): List<Point> {
+    val db = FirebaseFirestore.getInstance()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.FRANCE)
+
+    val currentYear = LocalDate.now().year
+    val monthlyVolumes = MutableList(12) { 0.0 }
+
+    try {
+        val pubRefs = db.collection("leagues")
+            .document(leagueID)
+            .collection("publications")
+            .get()
+            .await()
+
+        val publicationIDs = pubRefs.documents.mapNotNull { it.id }
+
+        for (pubID in publicationIDs) {
+            try {
+                val pubSnapshot = db.collection("publications")
+                    .document(pubID)
+                    .get()
+                    .await()
+
+                val dateStr = pubSnapshot.getString("date") ?: continue
+                val volume = pubSnapshot.getDouble("volume") ?: continue
+
+                val date = LocalDate.parse(dateStr, formatter)
+
+                if (date.year == currentYear) {
+                    val monthIndex = date.monthValue - 1 // 0-based index
+                    monthlyVolumes[monthIndex] += volume
+                }
+
+            } catch (e: Exception) {
+                Log.w("FETCH_PUBLICATION", "Erreur lecture publication $pubID", e)
+            }
+        }
+
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur récupération des IDs de publications : ", e)
+    }
+
+    return monthlyVolumes.mapIndexed { index, volume ->
+        Point(x = index.toFloat(), y = volume.toFloat())
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      PUT
 
@@ -292,27 +701,3 @@ fun updateLeaguePhotoUrl(leagueId: String, photoUrl: String) {
             Log.e("Firebase", "Erreur mise à jour photo ligue", e)
         }
 }
-
-fun uploadImageToFirebase(id: String, bitmap: Bitmap, onUploaded: (String?) -> Unit) {
-    val storageRef = FirebaseStorage.getInstance().reference.child("leagueImages/$id.jpg")
-
-    val baos = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-    val data = baos.toByteArray()
-
-    val uploadTask = storageRef.putBytes(data)
-    uploadTask.continueWithTask { task ->
-        if (!task.isSuccessful) {
-            task.exception?.let { throw it }
-        }
-        storageRef.downloadUrl
-    }.addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            val downloadUri = task.result.toString()
-            onUploaded(downloadUri)
-        } else {
-            onUploaded(null)
-        }
-    }
-}
-

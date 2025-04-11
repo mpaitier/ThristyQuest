@@ -227,7 +227,8 @@ fun AddPublicationDialog(
                                 lid = leagueId,
                                 price = drinkPrice.toDoubleOrNull() ?: 0.0,
                                 volume = drinkVolume.toDouble(),
-                                points = publicationInfo.second
+                                points = publicationInfo.second,
+                                category = drinkCategory
                             )
                         }
                     }
