@@ -26,12 +26,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -191,14 +194,14 @@ fun AddPublicationDialog(
     userId: String,
     onDismiss: () -> Unit,
     imageBitmap: Bitmap?,
-    onSuccess: () -> Unit 
+    onSuccess: () -> Unit
 ) {
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }
     var drinkCategory by remember { mutableStateOf("") }
     var drinkVolume by remember { mutableIntStateOf(0) }
-    var publicationInfo by remember { mutableStateOf<Pair<String,Int>>(Pair("",0)) }
-    var expanded by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
 
     val volumeOptions = listOf(
@@ -209,42 +212,66 @@ fun AddPublicationDialog(
         "Pichet (1L)" to 100
     )
 
+    var expanded by remember { mutableStateOf(false) }
+    var showNameError by remember { mutableStateOf(false) }
+    var showCategoryError by remember { mutableStateOf(false) }
+    var showVolumeError by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = {
-                coroutineScope.launch {
-                    val url = imageBitmap?.let { uploadImageToFirebase(userId, it) } ?: ""
+            Button(
+                onClick = {
+                    showNameError = drinkName.isBlank()
+                    showCategoryError = drinkCategory.isBlank()
+                    showVolumeError = (drinkVolume == 0)
 
-                    publicationInfo = addPublicationToFirestore(
-                        userId, drinkName, drinkPrice, drinkCategory, drinkVolume, url
-                    )
+                    if (showNameError || showCategoryError || showVolumeError) return@Button
 
-                    getAllUserLeague(uid = userId) { leagueList ->
-                        leagueList.forEach { leagueId ->
-                            addPublicationToLeague(
-                                pid = publicationInfo.first,
-                                lid = leagueId,
-                                price = drinkPrice.toDoubleOrNull() ?: 0.0,
-                                volume = drinkVolume.toDouble(),
-                                points = publicationInfo.second,
-                                category = drinkCategory
-                            )
+                    coroutineScope.launch {
+                        isLoading = true
+
+                        val url = imageBitmap?.let { uploadImageToFirebase(userId, it) } ?: ""
+
+                        val publicationInfo = addPublicationToFirestore(
+                            userId, drinkName, drinkPrice, drinkCategory, drinkVolume, url
+                        )
+
+                        getAllUserLeague(uid = userId) { leagueList ->
+                            leagueList.forEach { leagueId ->
+                                addPublicationToLeague(
+                                    pid = publicationInfo.first,
+                                    lid = leagueId,
+                                    price = drinkPrice.toDoubleOrNull() ?: 0.0,
+                                    volume = drinkVolume.toDouble(),
+                                    points = publicationInfo.second,
+                                    category = drinkCategory
+                                )
+                            }
                         }
+
+                        isLoading = false
+                        onDismiss()
+                        onSuccess()
                     }
-
-                    // 1. Fermer le dialog
-                    onDismiss()
-
-                    // 2. Afficher la snackbar (depuis le composant parent)
-                    onSuccess()
+                },
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Text("Ajouter")
                 }
-            }) {
-                Text("Ajouter")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Annuler") }
+            TextButton(onClick = onDismiss) {
+                Text("Annuler")
+            }
         },
         text = {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -262,11 +289,19 @@ fun AddPublicationDialog(
 
                 OutlinedTextField(
                     value = drinkName,
-                    onValueChange = { drinkName = it },
+                    onValueChange = {
+                        drinkName = it
+                        showNameError = false
+                    },
                     label = { Text("Nom de la boisson") },
+                    isError = showNameError,
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                if (showNameError) {
+                    Text("Le nom est requis", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
@@ -277,12 +312,20 @@ fun AddPublicationDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 CategoryDropdown(
                     selectedCategory = drinkCategory,
-                    onCategorySelected = { drinkCategory = it }
+                    onCategorySelected = {
+                        drinkCategory = it
+                        showCategoryError = false
+                    }
                 )
+                if (showCategoryError) {
+                    Text("La catégorie est requise", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+
                 Spacer(modifier = Modifier.height(30.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -326,16 +369,23 @@ fun AddPublicationDialog(
                                 text = { Text(label) },
                                 onClick = {
                                     drinkVolume = volume
+                                    showVolumeError = false
                                     expanded = false
                                 }
                             )
                         }
                     }
                 }
+
+                if (showVolumeError) {
+                    Text("Le volume est requis", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
             }
         }
     )
 }
+
+
 
 
 /*
