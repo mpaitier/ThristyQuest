@@ -191,7 +191,7 @@ fun AddPublicationDialog(
     userId: String,
     onDismiss: () -> Unit,
     imageBitmap: Bitmap?,
-    onSuccess: () -> Unit // 🔥 ce callback est appelé APRÈS fermeture
+    onSuccess: () -> Unit 
 ) {
     var drinkName by remember { mutableStateOf("") }
     var drinkPrice by remember { mutableStateOf("") }

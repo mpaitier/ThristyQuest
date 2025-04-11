@@ -41,7 +41,7 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 fun EditProfileDialog(
     authViewModel: AuthViewModel,
     onDismiss: () -> Unit,
-    onPhotoUpdated: () -> Unit = {} // 👈 Ajouté ici
+    onPhotoUpdated: () -> Unit = {}
 ) {
     val currentUserUid by authViewModel.uid.observeAsState()
     var userName by remember { mutableStateOf("") }
@@ -101,12 +101,12 @@ fun EditProfileDialog(
                 currentUserUid?.let { uid ->
                     updateUserName(uid, newUserName)
 
-                    // 👇 Upload image si dispo
+
                     profileImageBitmap?.let { bitmap ->
                         uploadImageToFirebase(uid, bitmap) { url ->
                             url?.let {
                                 updateUserProfilePhotoUrl(uid, it)
-                                onPhotoUpdated() // 👈 Déclenche le rafraîchissement de la TopBar
+                                onPhotoUpdated()
                             }
                         }
                     }
