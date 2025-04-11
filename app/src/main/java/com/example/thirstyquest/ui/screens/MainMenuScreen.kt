@@ -94,7 +94,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showAllDrinksDialog = true } // 👉 maintenant tout est cliquable
+                    .clickable { showAllDrinksDialog = true }
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -227,7 +227,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     // Dialog publication détail
     selectedPublication?.let {
-        PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
+         PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
 
     // Dialog avec toutes les boissons

@@ -31,7 +31,7 @@
     <!-- ======== Profile & friends ======== -->
     <string name="my_collection">Ma collection</string>
     <string name="collec">La collection</string>
-    <string name="my_badge">Mes badges</string>
+    <string name="my_publication">Mes publications</string>
     <string name="badge">Les badges</string>
     <string name="my_stats">Mes statistiques</string>
     <string name="stats">Les statistiques</string>
