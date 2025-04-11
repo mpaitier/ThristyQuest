@@ -239,7 +239,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
 
     // Dialog publication détail
     selectedPublication?.let {
-        PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
+         PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
 
     // Dialog avec toutes les boissons

@@ -36,7 +36,8 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
     val currentUserUid by authViewModel.uid.observeAsState()
     var totalVolume by remember { mutableStateOf(0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
-    var totalDrinkCount by remember { mutableStateOf(0) }
+    var totalBeerCount by remember { mutableStateOf(0) }
+    var totalShotCount by remember { mutableStateOf(0) }
     var averageDayConsumption by remember { mutableStateOf(0.0) }
     var averageMonthConsumption by remember { mutableStateOf(0.0) }
     var averageYearConsumption by remember { mutableStateOf(0.0) }
@@ -45,7 +46,8 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
         currentUserUid?.let { uid ->
             totalVolume = getTotalDrinkVolume(uid)
             totalMoneySpent = getTotalMoneySpent(uid)
-            totalDrinkCount = getPublicationCountByCategory( "Biere blonde",uid)
+            totalBeerCount = getPublicationCountByCategory( "Biere blonde",uid)
+            totalShotCount = getPublicationCountByCategory("shot",uid)
             averageDayConsumption = getAverageDrinkConsumption("DAY",uid)
             averageMonthConsumption = getAverageDrinkConsumption("MONTH",uid)
             averageYearConsumption = getAverageDrinkConsumption("YEAR",uid)
@@ -91,8 +93,8 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn("Biere blonde", "$totalDrinkCount")
-            StatItemColumn("Fire ball", "32")
+            StatItemColumn("Biere blonde", "$totalBeerCount")
+            StatItemColumn("Shot", "$totalShotCount")
         }
         Spacer(modifier = Modifier.height(24.dp))
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

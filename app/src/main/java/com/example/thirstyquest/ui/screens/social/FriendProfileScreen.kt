@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.screens.social
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,14 +9,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,13 +54,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.db.getFollowerCount
 import com.example.thirstyquest.db.getFollowingCount
 import com.example.thirstyquest.db.getFriendPublications
+import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.components.DrinkProgressBar
+import com.example.thirstyquest.ui.components.FriendPublicationItem
+import com.example.thirstyquest.ui.components.FriendPublications
+import com.example.thirstyquest.ui.components.PublicationItem
+import com.example.thirstyquest.ui.components.UserPublications
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -65,31 +77,18 @@ import kotlinx.coroutines.tasks.await
 fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel) {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
-    var showFullStatsDialog by remember { mutableStateOf(false) }
-    var showFullBadgesDialog by remember { mutableStateOf(false) }
 
     var friendName by remember { mutableStateOf<String?>(null) }
-
-    // Variables pour stocker les publications
-    var publications by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
-    var allPublications by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
-    var showMorePublications by remember { mutableStateOf(false) }
-    val displayedPublications = if (showMorePublications) allPublications else allPublications.take(3)
 
     var publiNumber by remember { mutableStateOf(0) }
     var followerNumber by remember { mutableStateOf(0) }
     var followingNumber by remember { mutableStateOf(0) }
     var photoUrl by remember { mutableStateOf<String?>(null) }
 
-
-    var showDetailDialog by remember { mutableStateOf(false) }
-    var selectedPublication by remember { mutableStateOf<Pair<String, String>?>(null) }
-
     LaunchedEffect(friendId) {
-        val fetchedPublications = getFriendPublications(friendId)
-        publications = fetchedPublications.take(3)
-        allPublications = fetchedPublications
-        publiNumber = allPublications.size
+        getUserLastPublications(friendId) { newList ->
+            publiNumber = newList.size
+        }
         followerNumber = getFollowerCount(friendId)
         followingNumber = getFollowingCount(friendId)
 
@@ -97,7 +96,6 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             friendName = name
         }
 
-        // Get profile picture
         val snapshot = FirebaseFirestore.getInstance()
             .collection("users")
             .document(friendId)
@@ -121,7 +119,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
             }
             Text(
-                text = friendName ?: "Nom non trouvé",  // Simplification du texte
+                text = friendName ?: "Nom non trouvé",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 8.dp)
@@ -147,57 +145,23 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             modifier = Modifier.padding(16.dp)
         )
 
-        Column(modifier = Modifier.fillMaxWidth()) {
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                displayedPublications.forEach { publication ->
-                    // TODO : rendre les publi clickables
-                    PublicationItem(
-                        description = publication.first,
-                        points = publication.second,
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(100.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Boutons + et -
-            if (allPublications.size > 3 && !showMorePublications) {
-                Button(
-                    onClick = { showMorePublications = true },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text("+")
-                }
-            } else if (showMorePublications) {
-                Button(
-                    onClick = { showMorePublications = false },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text("-")
-                }
-            }
-        }
+        FriendPublications(friendId)
 
         Text(
-                text = "Statistiques",
+                text = "Collection",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Badges",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp)
-            )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Statistiques",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 
 
@@ -205,17 +169,6 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     if (showFriendsListDialog) {
         FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController, authViewModel = authViewModel)
     }
-    // Suppression des dialogues commentés qui ne sont pas utilisés
-    /*if (showPublicationsDialog) {
-        FriendPublicationDialog(userID = friendId, onDismiss = { showPublicationsDialog = false })
-    }
-
-    if (showFullStatsDialog) {
-        StatisticsDialog(userID = friendId, onDismiss = { showFullStatsDialog = false })
-    }
-    if (showFullBadgesDialog) {
-        BadgeFriendDialog(userID = friendId, onDismiss = { showFullBadgesDialog = false })
-    }*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -392,39 +345,4 @@ fun FollowItem(uid:String, navController: NavController, authViewModel: AuthView
     }
 }
 
-
-
-
-@Composable
-fun PublicationItem(
-    description: String,
-    points: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Points: $points",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
-}
 

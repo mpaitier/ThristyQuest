@@ -16,59 +16,20 @@ import androidx.navigation.NavController
 import com.example.thirstyquest.R
 import kotlinx.coroutines.launch
 import com.example.thirstyquest.ui.components.UserCollectionContent
-import com.example.thirstyquest.ui.components.UserBadgesContent
 import com.example.thirstyquest.ui.components.UserStatsContent
-import com.example.thirstyquest.data.PublicationHist
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.components.UserPublications
 import com.example.thirstyquest.ui.viewmodel.AuthState
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-
-//----------DATA--------
-
-data class Badge(
-    val name: String,
-    val descriptions: List<String>,
-    val currentLevel: Int,
-    val maxLevel: Int,
-    val progress: Int
-)
-val badgeList = listOf(
-    Badge(
-        name = "Connaisseur",
-        descriptions = listOf("Goûter 5 boissons différentes", "Goûter 10 boissons différentes", "Goûter 20 boissons différentes"),
-        currentLevel = 2,
-        maxLevel = 3,
-        progress = 11
-    ),
-    Badge(
-        name = "Explorateur",
-        descriptions = listOf("Découvrir 2 bars uniques", "Découvrir 5 bars uniques", "Découvrir 10 bars uniques"),
-        currentLevel = 3,
-        maxLevel = 3,
-        progress = 12
-    ),
-    Badge(
-        name = "Explorateur",
-        descriptions = listOf("Découvrir 2 bars uniques", "Découvrir 5 bars uniques", "Découvrir 10 bars uniques"),
-        currentLevel = 1,
-        maxLevel = 3,
-        progress = 3
-    ),
-    Badge(
-            name = "Explorateur",
-        descriptions = listOf("Boire 3 jours de la semaine", "Boire 5 jours de la semaine", "Boire 7 jours de la semaine"),
-        currentLevel = 3,
-        maxLevel = 3,
-        progress = 7
-    )
-)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                      Composable
 
 @Composable
 fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
-    val tabTitles = listOf(R.string.my_stats, R.string.my_collection,R.string.my_badge)
+    val tabTitles = listOf(R.string.my_stats,R.string.my_publication,R.string.my_collection)
+    val uid = authViewModel.uid.observeAsState()
+    val userId = uid.value ?: ""
     val pagerState = rememberPagerState { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
 
@@ -105,8 +66,8 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
         ) { page ->
             when (page) {
                 0 -> UserStatsContent(authViewModel)
-                1 -> UserCollectionContent()
-                2 -> UserBadgesContent()
+                1 -> UserPublications(userId)
+                2 -> UserCollectionContent()
             }
         }
     }
