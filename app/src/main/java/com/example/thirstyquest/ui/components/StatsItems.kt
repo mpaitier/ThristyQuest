@@ -246,7 +246,7 @@ fun ConsumptionChart(
                     LineStyle(color = MaterialTheme.colorScheme.secondary),
                     IntersectionPoint(color = MaterialTheme.colorScheme.primary),
                     SelectionHighlightPoint(color = MaterialTheme.colorScheme.tertiary),
-                    ShadowUnderLine(color = MaterialTheme.colorScheme.secondaryContainer),
+                    ShadowUnderLine(color = MaterialTheme.colorScheme.secondary),
                     SelectionHighlightPopUp()
                 )
             ),
