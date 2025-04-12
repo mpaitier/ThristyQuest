@@ -77,9 +77,9 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.liters_per_day), "$averageDayConsumption")
-            StatItemColumn(stringResource(R.string.liters_per_month), "$averageMonthConsumption")
-            StatItemColumn(stringResource(R.string.liters_per_year), "$averageYearConsumption")
+            StatItemColumn(stringResource(R.string.cons_per_day), "$averageDayConsumption")
+            StatItemColumn(stringResource(R.string.cons_per_month), "$averageMonthConsumption")
+            StatItemColumn(stringResource(R.string.cons_per_year), "$averageYearConsumption")
         }
 
         Spacer(modifier = Modifier.height(24.dp))
