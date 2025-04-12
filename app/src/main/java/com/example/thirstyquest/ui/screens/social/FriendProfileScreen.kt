@@ -83,7 +83,7 @@ import kotlinx.coroutines.tasks.await
 fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel) {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
-    //var showMoreCollection by remember { mutableStateOf(false) }
+    var showMoreCollection by remember { mutableStateOf(false) }
 
     var friendName by remember { mutableStateOf<String?>(null) }
 
@@ -92,6 +92,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var followingNumber by remember { mutableStateOf(0) }
     var photoUrl by remember { mutableStateOf<String?>(null) }
     var fullList by remember { mutableStateOf<List<Category>>(emptyList()) }
+    val visibleItems = if (showMoreCollection) fullList else fullList.take(3)
 
 
     LaunchedEffect(friendId) {
@@ -179,7 +180,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     .heightIn(min = 0.dp, max = 500.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp)
             ) {
-                items(fullList) { drink ->
+                items(visibleItems) { drink ->
                     val icon = when (drink.name) {
                         "Bière" -> painterResource(id = R.drawable.biere)
                         "Vin" -> painterResource(id = R.drawable.vin)
@@ -189,18 +190,18 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     }
                     DrinkItem(userId = friendId,drink = drink, icon = icon)
                 }
-                /*item {
-                    if (fullList.size > 3) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            Button(
-                                onClick = { showMoreCollection = !showMoreCollection },
-                            ) {
-                                Text(if (showMoreCollection) "-" else "+")
-                            }
-                        }
+            }
+            if (fullList.size > 3) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(onClick = { showMoreCollection = !showMoreCollection }) {
+                        Text(if (showMoreCollection) "-" else "+")
                     }
-                }*/
-
+                }
             }
         }
 
