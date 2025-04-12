@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -54,7 +56,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Publication
+import com.example.thirstyquest.db.getCollectionUser
 import com.example.thirstyquest.db.getFollowerCount
 import com.example.thirstyquest.db.getFollowingCount
 import com.example.thirstyquest.db.getFriendPublications
@@ -62,10 +66,12 @@ import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
+import com.example.thirstyquest.ui.components.DrinkItem
 import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.ui.components.FriendPublicationItem
 import com.example.thirstyquest.ui.components.FriendPublications
 import com.example.thirstyquest.ui.components.PublicationItem
+import com.example.thirstyquest.ui.components.SortButton
 import com.example.thirstyquest.ui.components.UserPublications
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
@@ -77,6 +83,7 @@ import kotlinx.coroutines.tasks.await
 fun FriendProfileScreen(friendId: String, navController: NavController, authViewModel: AuthViewModel) {
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
+    //var showMoreCollection by remember { mutableStateOf(false) }
 
     var friendName by remember { mutableStateOf<String?>(null) }
 
@@ -84,6 +91,8 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var followerNumber by remember { mutableStateOf(0) }
     var followingNumber by remember { mutableStateOf(0) }
     var photoUrl by remember { mutableStateOf<String?>(null) }
+    var fullList by remember { mutableStateOf<List<Category>>(emptyList()) }
+
 
     LaunchedEffect(friendId) {
         getUserLastPublications(friendId) { newList ->
@@ -102,66 +111,108 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             .get()
             .await()
         photoUrl = snapshot.getString("photoUrl")
+
+
+        fullList = getCollectionUser(friendId)
+
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 60.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+                }
+                Text(
+                    text = friendName ?: "Nom non trouvé",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
+
+            FriendProfileHeader(
+                friendId,
+                photoUrl.toString(),
+                publiNumber,
+                followerNumber,
+                followingNumber,
+                onPublicationClick = { showPublicationsDialog = true },
+                onFollowerClick = { showFriendsListDialog = true },
+                authViewModel
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
-                text = friendName ?: "Nom non trouvé",
-                fontSize = 22.sp,
+                text = "Publications récentes",
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(16.dp)
             )
         }
 
-        FriendProfileHeader(
-            friendId,
-            photoUrl.toString(),
-            publiNumber,
-            followerNumber,
-            followingNumber,
-            onPublicationClick = { showPublicationsDialog = true },
-            onFollowerClick = { showFriendsListDialog = true },
-            authViewModel
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            FriendPublications(friendId)
 
-        Text(
-            text = "Publications récentes",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        FriendPublications(friendId)
-
-        Text(
+            Text(
                 text = "Collection",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 0.dp, max = 500.dp),
+                contentPadding = PaddingValues(horizontal = 20.dp)
+            ) {
+                items(fullList) { drink ->
+                    val icon = when (drink.name) {
+                        "Bière" -> painterResource(id = R.drawable.biere)
+                        "Vin" -> painterResource(id = R.drawable.vin)
+                        "Cocktail" -> painterResource(id = R.drawable.cocktail)
+                        "Shot" -> painterResource(id = R.drawable.shot)
+                        else -> painterResource(id = R.drawable.other)
+                    }
+                    DrinkItem(userId = friendId,drink = drink, icon = icon)
+                }
+                /*item {
+                    if (fullList.size > 3) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            Button(
+                                onClick = { showMoreCollection = !showMoreCollection },
+                            ) {
+                                Text(if (showMoreCollection) "-" else "+")
+                            }
+                        }
+                    }
+                }*/
 
-        Text(
-            text = "Statistiques",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(16.dp)
-        )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Statistiques",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 
 
@@ -184,7 +235,6 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 24.dp)
         ) {
-            // Profile picture
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -197,7 +247,7 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
                         contentDescription = "Photo de profil",
                         modifier = Modifier
                             .fillMaxSize()
-                            .clickable { showImageFullscreen = true }, // Clic pour afficher,
+                            .clickable { showImageFullscreen = true },
                         contentScale = ContentScale.Crop
                     )
                 } else {
@@ -210,7 +260,6 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
                 }
             }
 
-            // Friend's count
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -240,16 +289,14 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // DrinkProgressBar occupe une largeur fixe ou flexible selon l'approche
             DrinkProgressBar(
                 currentXP = 50,
                 maxXP = 100,
-                modifier = Modifier.weight(1f) // Cela permet de donner à la barre une largeur proportionnelle
+                modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(8.dp)) // Espace entre les éléments
+            Spacer(modifier = Modifier.width(8.dp))
 
-            // Le bouton occupe son espace minimum
             AddFriendButton(friendId = friendId, authViewModel = authViewModel)
         }
 

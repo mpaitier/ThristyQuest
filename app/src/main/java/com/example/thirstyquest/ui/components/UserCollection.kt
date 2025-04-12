@@ -100,7 +100,7 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
                     "Shot" -> painterResource(id = R.drawable.shot)
                     else -> painterResource(id = R.drawable.other)
                 }
-                DrinkItem(authViewModel = authViewModel, drink = drink, icon = icon)
+                DrinkItem(userId = userId, drink = drink, icon = icon)
             }
         }
     }
@@ -108,11 +108,10 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
 
 
 @Composable
-fun DrinkItem(authViewModel: AuthViewModel, drink: Category, icon: Painter) {
+fun DrinkItem(userId : String, drink: Category, icon: Painter) {
     var showDialog by remember { mutableStateOf(false) }
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val userId by authViewModel.uid.observeAsState()
+    var primaryColor = MaterialTheme.colorScheme.primary
 
     LaunchedEffect(userId) {
         userId?.let { uid ->

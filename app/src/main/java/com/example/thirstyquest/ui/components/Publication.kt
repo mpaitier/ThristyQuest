@@ -203,6 +203,7 @@ fun FriendPublications(friendId: String) {
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var showMorePublications by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
+    val displayedPublications = if (showMorePublications) publications else publications.take(3)
 
     LaunchedEffect(friendId) {
         getUserLastPublications(friendId) { newList ->
@@ -210,7 +211,6 @@ fun FriendPublications(friendId: String) {
         }
     }
 
-    val displayedPublications = if (showMorePublications) publications else publications.take(3)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         FriendPublicationItem(
