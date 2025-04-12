@@ -28,8 +28,6 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 @Composable
 fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     val tabTitles = listOf(R.string.my_stats,R.string.my_publication,R.string.my_collection)
-    val uid = authViewModel.uid.observeAsState()
-    val userId = uid.value ?: ""
     val pagerState = rememberPagerState { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
 
@@ -66,7 +64,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
         ) { page ->
             when (page) {
                 0 -> UserStatsContent(authViewModel)
-                1 -> UserPublications(userId)
+                1 -> UserPublications(authViewModel)
                 2 -> UserCollectionContent()
             }
         }

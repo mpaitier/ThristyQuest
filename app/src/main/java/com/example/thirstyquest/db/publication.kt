@@ -82,6 +82,8 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
             Log.w("Firebase", "Erreur lors de la mise à jour ou création de category", e)
         }
 
+    
+
     return Pair(id, points)
 }
 
@@ -113,7 +115,7 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
     val categoryRef = db.collection("leagues").document(lid).collection("category").document(category)
     val data = mapOf(
         "total" to FieldValue.increment(1),
-        "total liters" to FieldValue.increment((volume / 100).toDouble())
+        "total liters" to FieldValue.increment((volume / 100))
     )
     categoryRef.set(data, SetOptions.merge())
         .addOnSuccessListener {

@@ -57,10 +57,10 @@ fun UserCollectionContent()
 
     fun sortDrinks(type: String) {
         if (selectedSort == type) {
-            isAscending = !isAscending // Inverse l'ordre si on reclique sur le même type
+            isAscending = !isAscending
         } else {
             selectedSort = type
-            isAscending = true                                                                      // Default: Ascending
+            isAscending = true
         }
                                                                                                     // TODO : Make sort item ("Nom","Niveau") in function's parameter to use stringResource
         sortedList = when (selectedSort) {
@@ -71,7 +71,6 @@ fun UserCollectionContent()
     }
 
     Column {
-        // Ajout du bouton de tri
         SortButton(selectedSort, isAscending) { sortDrinks(it) }
 
         LazyVerticalGrid(
@@ -82,43 +81,6 @@ fun UserCollectionContent()
             items(sortedList) { drink ->
                 DrinkItem(drink = drink)
             }
-        }
-    }
-}
-
-@Composable // Created composable to make it reusable
-fun SortButton(selectedSort: String, isAscending: Boolean, onSortSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.padding(16.dp)) {
-        Button(
-            onClick = { expanded = true },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-        ) {
-            Text(text = "Trier par : $selectedSort (${if (isAscending) "⬆️" else "⬇️"})")
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondary)
-        ) {
-            DropdownMenuItem(
-                text = { Text("Nom") },
-                onClick = {
-                    onSortSelected("Nom")
-                    expanded = false
-                },
-                colors = MenuDefaults.itemColors(textColor = Color.White)
-            )
-            DropdownMenuItem(
-                text = { Text("Level") },
-                onClick = {
-                    onSortSelected("Level")
-                    expanded = false
-                },
-                colors = MenuDefaults.itemColors(textColor = Color.White)
-            )
         }
     }
 }
@@ -165,5 +127,42 @@ fun DrinkItem(drink: Drink) {
 
     if (showDialog) {
         DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = PublicationHist)
+    }
+}
+
+@Composable // Created composable to make it reusable
+fun SortButton(selectedSort: String, isAscending: Boolean, onSortSelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.padding(16.dp)) {
+        Button(
+            onClick = { expanded = true },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text(text = "Trier par : $selectedSort (${if (isAscending) "⬆️" else "⬇️"})")
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary)
+        ) {
+            DropdownMenuItem(
+                text = { Text("Nom") },
+                onClick = {
+                    onSortSelected("Nom")
+                    expanded = false
+                },
+                colors = MenuDefaults.itemColors(textColor = Color.White)
+            )
+            DropdownMenuItem(
+                text = { Text("Level") },
+                onClick = {
+                    onSortSelected("Level")
+                    expanded = false
+                },
+                colors = MenuDefaults.itemColors(textColor = Color.White)
+            )
+        }
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,6 +49,7 @@ import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
+import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 @Composable
 fun PublicationItemLeague(publication: Publication, publicationNum: Int, navController: NavController)
@@ -139,7 +141,9 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
 
 
 @Composable
-fun UserPublications(userId : String) {
+fun UserPublications(authViewModel: AuthViewModel) {
+    val uid = authViewModel.uid.observeAsState()
+    val userId = uid.value ?: ""
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
     LaunchedEffect(userId) {
         getUserLastPublications(userId) { newList ->
