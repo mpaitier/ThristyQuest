@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -24,6 +26,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -123,10 +128,16 @@ fun DrinkDetailDialog (
                         fontSize = 18.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-
-                    filteredHist.forEachIndexed { index, publication ->
-                        DrinkHistItem(publication, index)
+                    LazyColumn(
+                        modifier = Modifier.height(300.dp)
+                    ) {
+                        // Utilisation de itemsIndexed pour afficher les éléments
+                        itemsIndexed(filteredHist) { index, publication ->
+                            DrinkHistItem(publication, index)
+                        }
                     }
+
+
                 } else {
                     Text(text = stringResource(R.string.hist_not_found))
                 }
@@ -140,14 +151,16 @@ fun DrinkDetailDialog (
 @Composable
 fun DrinkHistItem(publication: Publication, publicationNum: Int)
 {
-    // TODO : Add picture
-    // TODO : Make picture clickable and navigate to publication details
     // TODO : Make user's name clickable and navigate to user's profile
-    val price = "${publication.price} €"                                                    // TODO : get member name with user_ID
+    var showDialog = remember { mutableStateOf(false) }
+    val price = "${publication.price} €"
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable {
+                showDialog.value = true
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
@@ -189,6 +202,9 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+    if (showDialog.value) {
+        PublicationDetailDialog(onDismiss = { showDialog.value = false }, publication = publication)
     }
 }
 
