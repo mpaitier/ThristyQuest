@@ -72,8 +72,8 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
 
     val userRef = db.collection("users").document(userId)
     val data = mapOf(
-        "total paid" to FieldValue.increment(drinkPrice.toDouble()),
-    )
+        "total paid" to FieldValue.increment(drinkPrice.toDoubleOrNull() ?: 0.0),
+        )
     userRef.set(data, SetOptions.merge())
         .addOnSuccessListener {
             Log.d("Firebase", "Document mis à jour (ou créé) avec succès")

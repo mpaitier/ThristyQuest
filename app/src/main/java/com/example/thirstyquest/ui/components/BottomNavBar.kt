@@ -49,9 +49,11 @@ fun BottomNavBar(navController: NavController) {
                 },
                 selected = isSelected,
                 onClick = {
-                    navController.navigate(screen.name) {
-                        launchSingleTop = true
-                        restoreState = true
+                    if(!isSelected) {
+                        navController.navigate(screen.name) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
