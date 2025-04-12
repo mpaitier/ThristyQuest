@@ -34,7 +34,7 @@ import androidx.compose.runtime.setValue
 @Composable
 fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée et afficher dans les préférences en fonction
     val currentUserUid by authViewModel.uid.observeAsState()
-    var totalVolume by remember { mutableStateOf(0) }
+    var totalVolume by remember { mutableStateOf(0.0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
     var totalBeerCount by remember { mutableStateOf(0) }
     var totalShotCount by remember { mutableStateOf(0) }

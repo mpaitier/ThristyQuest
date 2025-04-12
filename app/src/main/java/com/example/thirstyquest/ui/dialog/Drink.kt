@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.data.Drink
@@ -49,8 +52,9 @@ val drawableMap = mapOf(
 @Composable
 fun DrinkDetailDialog (
     onDismiss: () -> Unit,
-    drink: Drink,
-    hist: List<Publication>
+    drink: Category,
+    hist: List<Publication>,
+    icon: Painter
 )
 {
     AlertDialog(
@@ -81,7 +85,7 @@ fun DrinkDetailDialog (
             Column {
                 // Drink's picture
                 Image(
-                    painter = painterResource(id = drink.imageRes),
+                    painter = icon,
                     contentDescription = drink.name,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -97,10 +101,10 @@ fun DrinkDetailDialog (
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 // Drink's description
-                Text(
+                /*Text(
                     text = stringResource(R.string.description) + ": ${drink.description}",
                     textAlign = TextAlign.Justify
-                )
+                )*/
                 Spacer(modifier = Modifier.height(8.dp))
                 // Drink's level
                 Text(
@@ -109,9 +113,8 @@ fun DrinkDetailDialog (
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
-                DrinkProgressBar(drink.points, drink.nextLevelPoints,modifier = Modifier.padding(8.dp))
+                //DrinkProgressBar(drink.points, drink.nextLevelPoints,modifier = Modifier.padding(8.dp))
                 Spacer(modifier = Modifier.height(12.dp))
-                // Filter
                 val filteredHist = hist.filter { it.category == drink.name }
                 if (filteredHist.isNotEmpty()) {
                     Text(
@@ -140,16 +143,17 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
     // TODO : Add picture
     // TODO : Make picture clickable and navigate to publication details
     // TODO : Make user's name clickable and navigate to user's profile
-    val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
+    val price = "${publication.price} €"                                                    // TODO : get member name with user_ID
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Filled.AccountBox,
+        AsyncImage(
+            model = publication.photo,
             contentDescription = "Publication picture",
+            contentScale = ContentScale.Crop,
             modifier = Modifier.size(80.dp)
         )
 
@@ -166,7 +170,7 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
 
                 )
             Text(
-                text = name,
+                text = price,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.tertiary,
                 maxLines = 1,

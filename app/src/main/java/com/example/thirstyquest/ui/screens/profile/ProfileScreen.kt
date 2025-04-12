@@ -65,7 +65,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             when (page) {
                 0 -> UserStatsContent(authViewModel)
                 1 -> UserPublications(authViewModel)
-                2 -> UserCollectionContent()
+                2 -> UserCollectionContent(authViewModel)
             }
         }
     }
