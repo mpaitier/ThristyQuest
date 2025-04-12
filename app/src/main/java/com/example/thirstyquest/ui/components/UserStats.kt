@@ -29,29 +29,32 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
+import com.example.thirstyquest.data.Category
+import com.example.thirstyquest.db.getTop2CategoriesByTotal
 
 
 @Composable
-fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée et afficher dans les préférences en fonction
-    val currentUserUid by authViewModel.uid.observeAsState()
+fun UserStatsContent(authViewModel: AuthViewModel) {
+    val uid = authViewModel.uid.observeAsState()
+    val userId = uid.value ?: ""
     var totalVolume by remember { mutableStateOf(0.0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
-    var totalBeerCount by remember { mutableStateOf(0) }
-    var totalShotCount by remember { mutableStateOf(0) }
+    var totaldrink1 by remember { mutableStateOf<Category?>(null) }
+    var totaldrink2 by remember { mutableStateOf<Category?>(null) }
     var averageDayConsumption by remember { mutableStateOf(0.0) }
     var averageMonthConsumption by remember { mutableStateOf(0.0) }
     var averageYearConsumption by remember { mutableStateOf(0.0) }
 
-    LaunchedEffect(currentUserUid) {
-        currentUserUid?.let { uid ->
-            totalVolume = getTotalDrinkVolume(uid)
-            totalMoneySpent = getTotalMoneySpent(uid)
-            totalBeerCount = getPublicationCountByCategory( "Biere blonde",uid)
-            totalShotCount = getPublicationCountByCategory("shot",uid)
-            averageDayConsumption = getAverageDrinkConsumption("DAY",uid)
-            averageMonthConsumption = getAverageDrinkConsumption("MONTH",uid)
-            averageYearConsumption = getAverageDrinkConsumption("YEAR",uid)
-        }
+    LaunchedEffect(userId) {
+        totalVolume = getTotalDrinkVolume(userId)
+        totalMoneySpent = getTotalMoneySpent(userId)
+        val topCategories = getTop2CategoriesByTotal(userId)
+        totaldrink1 = topCategories.getOrNull(0)
+        totaldrink2 = topCategories.getOrNull(1)
+        averageDayConsumption = getAverageDrinkConsumption("DAY",userId)
+        averageMonthConsumption = getAverageDrinkConsumption("MONTH",userId)
+        averageYearConsumption = getAverageDrinkConsumption("YEAR",userId)
+
     }
 
     Column(
@@ -93,8 +96,14 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn("Biere blonde", "$totalBeerCount")
-            StatItemColumn("Shot", "$totalShotCount")
+            totaldrink1?.let {
+                StatItemColumn(it.name, it.total.toString())
+            }
+
+            totaldrink2?.let {
+                StatItemColumn(it.name, it.total.toString())
+            }
+
         }
         Spacer(modifier = Modifier.height(24.dp))
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
