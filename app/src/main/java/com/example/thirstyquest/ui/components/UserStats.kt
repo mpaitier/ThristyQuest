@@ -29,29 +29,46 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
+import com.example.thirstyquest.data.Category
+import com.example.thirstyquest.db.calculateLevelAndRequiredXP
+import com.example.thirstyquest.db.getTop2CategoriesByTotal
+import com.example.thirstyquest.db.getUserXPById
 
 
 @Composable
-fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boisson la plus consommée et afficher dans les préférences en fonction
-    val currentUserUid by authViewModel.uid.observeAsState()
-    var totalVolume by remember { mutableStateOf(0) }
+fun UserStatsContent(authViewModel: AuthViewModel) {
+    val uid = authViewModel.uid.observeAsState()
+    val userId = uid.value ?: ""
+    var totalVolume by remember { mutableStateOf(0.0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
-    var totalBeerCount by remember { mutableStateOf(0) }
-    var totalShotCount by remember { mutableStateOf(0) }
+    var totaldrink1 by remember { mutableStateOf<Category?>(null) }
+    var totaldrink2 by remember { mutableStateOf<Category?>(null) }
     var averageDayConsumption by remember { mutableStateOf(0.0) }
     var averageMonthConsumption by remember { mutableStateOf(0.0) }
     var averageYearConsumption by remember { mutableStateOf(0.0) }
 
-    LaunchedEffect(currentUserUid) {
-        currentUserUid?.let { uid ->
-            totalVolume = getTotalDrinkVolume(uid)
-            totalMoneySpent = getTotalMoneySpent(uid)
-            totalBeerCount = getPublicationCountByCategory( "Biere blonde",uid)
-            totalShotCount = getPublicationCountByCategory("shot",uid)
-            averageDayConsumption = getAverageDrinkConsumption("DAY",uid)
-            averageMonthConsumption = getAverageDrinkConsumption("MONTH",uid)
-            averageYearConsumption = getAverageDrinkConsumption("YEAR",uid)
+    var userXP by remember { mutableStateOf(0.0) }
+    var userLevel by remember { mutableStateOf(1) }
+    var requiredXP by remember { mutableStateOf(2000) }
+
+
+    LaunchedEffect(userId) {
+        totalVolume = getTotalDrinkVolume(userId)
+        totalMoneySpent = getTotalMoneySpent(userId)
+        val topCategories = getTop2CategoriesByTotal(userId)
+        totaldrink1 = topCategories.getOrNull(0)
+        totaldrink2 = topCategories.getOrNull(1)
+        averageDayConsumption = getAverageDrinkConsumption("DAY",userId)
+        averageMonthConsumption = getAverageDrinkConsumption("MONTH",userId)
+        averageYearConsumption = getAverageDrinkConsumption("YEAR",userId)
+
+        getUserXPById(userId) { xp ->
+            userXP = xp ?: 0.0
+            val (lvl, reqXP) = calculateLevelAndRequiredXP(xp?: 0.0)
+            userLevel = lvl
+            requiredXP = reqXP
         }
+
     }
 
     Column(
@@ -74,9 +91,9 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.liters_per_day), "$averageDayConsumption")
-            StatItemColumn(stringResource(R.string.liters_per_month), "$averageMonthConsumption")
-            StatItemColumn(stringResource(R.string.liters_per_year), "$averageYearConsumption")
+            StatItemColumn(stringResource(R.string.cons_per_day), String.format("%.2f", averageDayConsumption))
+            StatItemColumn(stringResource(R.string.cons_per_month), String.format("%.2f", averageMonthConsumption))
+            StatItemColumn(stringResource(R.string.cons_per_year), String.format("%.2f", averageYearConsumption))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -93,10 +110,34 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn("Biere blonde", "$totalBeerCount")
-            StatItemColumn("Shot", "$totalShotCount")
+            totaldrink1?.let {
+                StatItemColumn(it.name, it.total.toString())
+            }
+
+            totaldrink2?.let {
+                StatItemColumn(it.name, it.total.toString())
+            }
+
         }
         Spacer(modifier = Modifier.height(24.dp))
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // XP part
+
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Niveau du Profil",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        ProgressBar(
+            currentLevel = userLevel,
+            currentXP = (userXP % requiredXP).toInt(),
+            requiredXP = requiredXP,
+            modifier = Modifier.fillMaxWidth()
+        )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Total part
         Text(
@@ -110,8 +151,8 @@ fun UserStatsContent(authViewModel: AuthViewModel) { // TODO : calculer la boiss
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.consumed_drink), "$totalVolume litres ")
-            StatItemColumn(stringResource(R.string.spent_money), "$totalMoneySpent €")
+            StatItemColumn(stringResource(R.string.consumed_drink), String.format("%.2f", totalVolume))
+            StatItemColumn(stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
 
         }
     }

@@ -234,6 +234,7 @@ fun getUserConsumptionRawStats(
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // XP to level conversion
 
+
 fun getLevelFromXp(xp: Double, baseXp: Int = 200, growthRate: Double = 1.12): Int {
     var level = 1
     var totalXpForNextLevel = baseXp
@@ -244,4 +245,18 @@ fun getLevelFromXp(xp: Double, baseXp: Int = 200, growthRate: Double = 1.12): In
     }
 
     return level
+}
+
+
+
+fun calculateLevelAndRequiredXP(xp: Double, baseXp: Int = 2000  , growthRate: Double = 1.12): Pair<Int, Int> {
+    var level = 1
+    var totalXpForNextLevel = baseXp
+
+    while (xp >= totalXpForNextLevel) {
+        level++
+        totalXpForNextLevel += (baseXp * Math.pow(level.toDouble(), growthRate)).toInt()
+    }
+
+    return level to (baseXp * Math.pow(level.toDouble(), growthRate)).toInt()
 }

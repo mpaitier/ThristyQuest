@@ -12,7 +12,7 @@ data class Drink(
 )
 
 val drinkList = listOf( // TODO : récupérer les vraies valeurs
-    Drink("Biere", R.drawable.biere, "Une bière rafraîchissante.", 10, 70, 80),
+    Drink("Biere", R.drawable.biere, "Boisson alcoolisé à base de malt et de houblon", 10, 70, 80),
     Drink("Vodka", R.drawable.vodka, "Une vodka premium.", 3, 9, 10),
     Drink("Coca", R.drawable.coca, "Boisson gazeuse classique.", 1, 1, 3),
     Drink("Jäger", R.drawable.yager, "Un mélange parfait d'herbes, d'épices et de notes d'agrumes.", 21, 103, 120),

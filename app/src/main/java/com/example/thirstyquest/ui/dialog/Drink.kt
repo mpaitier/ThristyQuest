@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,24 +9,36 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,9 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
+import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Publication
-import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.data.Drink
+import com.example.thirstyquest.db.calculateLevelAndRequiredXP
+import com.example.thirstyquest.db.getUserLastPublications
+import com.example.thirstyquest.ui.components.ProgressBar
 
 val drawableMap = mapOf(
     "drawable_biere" to R.drawable.biere,
@@ -49,10 +65,14 @@ val drawableMap = mapOf(
 @Composable
 fun DrinkDetailDialog (
     onDismiss: () -> Unit,
-    drink: Drink,
-    hist: List<Publication>
+    drink: Category,
+    hist: List<Publication>,
+    icon: Painter
 )
 {
+
+    val (currentLevel, requiredXP) = calculateLevelAndRequiredXP(drink.points)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -81,7 +101,7 @@ fun DrinkDetailDialog (
             Column {
                 // Drink's picture
                 Image(
-                    painter = painterResource(id = drink.imageRes),
+                    painter = icon,
                     contentDescription = drink.name,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -97,21 +117,19 @@ fun DrinkDetailDialog (
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 // Drink's description
-                Text(
+                /*Text(
                     text = stringResource(R.string.description) + ": ${drink.description}",
                     textAlign = TextAlign.Justify
-                )
+                )*/
                 Spacer(modifier = Modifier.height(8.dp))
-                // Drink's level
-                Text(
-                    text = stringResource(R.string.level) + ": ${drink.level}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.primary
+                ProgressBar(
+                    currentLevel = currentLevel,
+                    currentXP = drink.points.toInt(),
+                    requiredXP = requiredXP,
+                    modifier = Modifier.padding(8.dp)
                 )
-                DrinkProgressBar(drink.points, drink.nextLevelPoints,modifier = Modifier.padding(8.dp))
+
                 Spacer(modifier = Modifier.height(12.dp))
-                // Filter
                 val filteredHist = hist.filter { it.category == drink.name }
                 if (filteredHist.isNotEmpty()) {
                     Text(
@@ -120,10 +138,16 @@ fun DrinkDetailDialog (
                         fontSize = 18.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-
-                    filteredHist.forEachIndexed { index, publication ->
-                        DrinkHistItem(publication, index)
+                    LazyColumn(
+                        modifier = Modifier.height(300.dp)
+                    ) {
+                        // Utilisation de itemsIndexed pour afficher les éléments
+                        itemsIndexed(filteredHist) { index, publication ->
+                            DrinkHistItem(publication, index)
+                        }
                     }
+
+
                 } else {
                     Text(text = stringResource(R.string.hist_not_found))
                 }
@@ -134,22 +158,78 @@ fun DrinkDetailDialog (
     )
 }
 
+
+@Composable
+fun DrinkItem(userId : String, drink: Category, icon: Painter) {
+    var showDialog by remember { mutableStateOf(false) }
+    var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
+    var primaryColor = MaterialTheme.colorScheme.primary
+
+    LaunchedEffect(userId) {
+        userId?.let { uid ->
+            getUserLastPublications(uid) { newList -> publications = newList }
+        }
+    }
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { showDialog = true },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Card(
+            modifier = Modifier
+                .size(100.dp),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(Color(0xFFFFFFFF))
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = drink.name,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = drink.name,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = primaryColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    if (showDialog) {
+        DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = icon)
+    }
+}
+
+
+
+
 @Composable
 fun DrinkHistItem(publication: Publication, publicationNum: Int)
 {
-    // TODO : Add picture
-    // TODO : Make picture clickable and navigate to publication details
     // TODO : Make user's name clickable and navigate to user's profile
-    val name = "Membre n°${publication.user_ID}"                                                    // TODO : get member name with user_ID
+    var showDialog = remember { mutableStateOf(false) }
+    val price = "${publication.price} €"
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable {
+                showDialog.value = true
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Filled.AccountBox,
+        AsyncImage(
+            model = publication.photo,
             contentDescription = "Publication picture",
+            contentScale = ContentScale.Crop,
             modifier = Modifier.size(80.dp)
         )
 
@@ -166,7 +246,7 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
 
                 )
             Text(
-                text = name,
+                text = price,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.tertiary,
                 maxLines = 1,
@@ -185,6 +265,9 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+    if (showDialog.value) {
+        PublicationDetailDialog(onDismiss = { showDialog.value = false }, publication = publication)
     }
 }
 

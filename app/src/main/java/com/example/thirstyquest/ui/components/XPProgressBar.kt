@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -53,31 +55,55 @@ fun LeagueProgressBar(currentLevel: Int, currentXP: Double, requiredXP: Int) {
 
 // - - - - - - - - - - - - - - - Drink  - - - - - - - - - - - - - - -
 @Composable
-fun DrinkProgressBar(currentXP: Int, maxXP: Int, modifier: Modifier = Modifier) {
-    val progress = currentXP.toFloat() / maxXP.toFloat()
+fun ProgressBar(
+    currentLevel: Int,
+    currentXP: Int,
+    requiredXP: Int,
+    modifier: Modifier = Modifier
+) {
+    val progress = currentXP.toFloat() / requiredXP.toFloat()
     val backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
-    Box(
-        modifier = Modifier
-            .height(30.dp)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier
-                .width(280.dp)
-                .height(20.dp),
-            color = tertiaryColor,
-            trackColor = backgroundColor
-        )
 
-        Text(
-            text = "$currentXP / $maxXP",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.Center)
-        )
+    Column(modifier = modifier.padding(horizontal = 16.dp)) {
+
+        // Ligne avec niveaux et barre avec texte centré
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Niv. $currentLevel",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(20.dp)
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                LinearProgressIndicator(
+                    progress = progress.coerceIn(0f, 1f),
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = tertiaryColor,
+                    trackColor = backgroundColor
+                )
+
+                Text(
+                    text = "$currentXP / $requiredXP XP",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            Text(
+                text = "Niv. ${currentLevel + 1}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }

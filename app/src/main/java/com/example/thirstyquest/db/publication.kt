@@ -76,16 +76,31 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de la mise à jour du volume total", e) }
 
     val userRef = db.collection("users").document(userId)
-    val data = mapOf(
+    val data1 = mapOf(
         "total paid" to FieldValue.increment(drinkPrice.toDoubleOrNull() ?: 0.0),
         )
-    userRef.set(data, SetOptions.merge())
+    userRef.set(data1, SetOptions.merge())
+        .addOnSuccessListener {
+            Log.d("Firebase", "Document mis à jour (ou créé) avec succès")
+        }
+        .addOnFailureListener { e ->
+            Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e)
+        }
+    // TODO : faire systeme de level de boisson en fonction des points
+    val categoryRef = db.collection("users").document(userId).collection("category").document(drinkCategory)
+    val data2 = mapOf(
+        "total" to FieldValue.increment(1),
+        "point" to FieldValue.increment((points.toDouble())),
+        "level" to FieldValue.increment(0),
+    )
+    categoryRef.set(data2, SetOptions.merge())
         .addOnSuccessListener {
             Log.d("Firebase", "Document mis à jour (ou créé) avec succès")
         }
         .addOnFailureListener { e ->
             Log.w("Firebase", "Erreur lors de la mise à jour ou création de category", e)
         }
+    
 
     return Pair(id, points)
 }
@@ -118,7 +133,7 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
     val categoryRef = db.collection("leagues").document(lid).collection("category").document(category)
     val data = mapOf(
         "total" to FieldValue.increment(1),
-        "total liters" to FieldValue.increment((volume / 100).toDouble())
+        "total liters" to FieldValue.increment((volume / 100))
     )
     categoryRef.set(data, SetOptions.merge())
         .addOnSuccessListener {
@@ -177,29 +192,22 @@ suspend fun uploadImageToFirebase(userId: String, uri: Uri, context: Context): S
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    GET
 
-suspend fun getTotalDrinkVolume(userID: String): Int {
+suspend fun getTotalDrinkVolume(userID: String): Double {
     val db = FirebaseFirestore.getInstance()
 
-
-    var totalVolume = 0
-
     return try {
-        val result = db.collection("publications")
-            .whereEqualTo("user_ID",userID)
+        val snapshot = db.collection("users")
+            .document(userID)
             .get()
             .await()
 
-        for (document in result) {
-            val volume = document.getLong("volume")?.toInt() ?: 0
-            totalVolume += volume
-        }
-
-        totalVolume
+        snapshot.getDouble("total drink") ?: 0.0
     } catch (e: Exception) {
-        Log.e("FIRESTORE", "Erreur de récupération des volumes : ", e)
-        0
+        Log.e("FIRESTORE", "Erreur de récupération du total drink :", e)
+        0.0
     }
 }
+
 
 suspend fun getTotalMoneySpent(userID: String): Double {
     val db = FirebaseFirestore.getInstance()
