@@ -1,5 +1,6 @@
 package com.example.thirstyquest.db
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -9,6 +10,10 @@ import java.util.Locale
 import java.util.UUID
 import java.text.SimpleDateFormat
 import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.ExifInterface
+import android.net.Uri
+import android.provider.MediaStore
 import com.example.thirstyquest.data.Publication
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
@@ -139,30 +144,50 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
         }
 }
 
-suspend fun uploadImageToFirebase(userId: String, bitmap: Bitmap): String? {
-    Log.d("UPLOAD", "Début de l'upload image...")
+fun rotateBitmapIfRequired(context: Context, uri: Uri, bitmap: Bitmap): Bitmap {
+    val inputStream = context.contentResolver.openInputStream(uri)
+    val exif = inputStream?.let { ExifInterface(it) }
+    val orientation = exif?.getAttributeInt(
+        ExifInterface.TAG_ORIENTATION,
+        ExifInterface.ORIENTATION_NORMAL
+    )
 
+    val matrix = Matrix()
+    when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+        else -> return bitmap // Pas besoin de tourner
+    }
+
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+}
+
+
+//Pour les publis et le profil (ON CHOISI LA QUALITE ICI)
+suspend fun uploadImageToFirebase(userId: String, uri: Uri, context: Context): String? {
     return try {
-        val storage = FirebaseStorage.getInstance()
-        val storageRef = storage.reference
+        val storageRef = FirebaseStorage.getInstance().reference
         val imageRef = storageRef.child("images/${userId}_${UUID.randomUUID()}.jpg")
 
+        val originalBitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+        val fixedBitmap = rotateBitmapIfRequired(context, uri, originalBitmap)
+
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos) //choix qualité image ici
         val imageData = baos.toByteArray()
 
         imageRef.putBytes(imageData).await()
-        Log.d("UPLOAD", "Image bien uploadée")
 
-        val downloadUrl = imageRef.downloadUrl.await().toString()
-        Log.d("UPLOAD", "URL image : $downloadUrl")
 
-        return downloadUrl
+        // Récupérer l'URL
+        imageRef.downloadUrl.await().toString()
     } catch (e: Exception) {
-        Log.e("UPLOAD_ERROR", "Erreur upload", e)
+        Log.e("UPLOAD", "Erreur lors de l'upload compressé", e)
         null
     }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    GET

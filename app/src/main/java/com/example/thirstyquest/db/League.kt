@@ -84,7 +84,7 @@ fun addLeagueToFirestore(
                 } else {
                     // 👇 Upload photo si dispo
                     if (imageBitmap != null) {
-                        uploadImageToFirebase(lid, imageBitmap) { imageUrl ->
+                        uploadLeagueImageToFirebase(lid, imageBitmap) { imageUrl ->
                             createLeagueWithPhotoUrl(lid, imageUrl)
                         }
                     } else {
@@ -97,7 +97,7 @@ fun addLeagueToFirestore(
     tryCreateLeague()
 }
 
-fun uploadImageToFirebase(id: String, bitmap: Bitmap, onUploaded: (String?) -> Unit) {
+fun uploadLeagueImageToFirebase(id: String, bitmap: Bitmap, onUploaded: (String?) -> Unit) {
     val storageRef = FirebaseStorage.getInstance().reference.child("leagueImages/$id.jpg")
 
     val baos = ByteArrayOutputStream()
