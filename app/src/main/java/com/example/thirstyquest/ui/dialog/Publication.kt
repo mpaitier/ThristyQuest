@@ -1,6 +1,7 @@
 package com.example.thirstyquest.ui.dialog
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,8 +52,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -70,6 +71,8 @@ import com.example.thirstyquest.db.addPublicationToLeague
 import com.example.thirstyquest.db.getAllUserLeague
 import com.example.thirstyquest.db.uploadImageToFirebase
 import kotlinx.coroutines.launch
+
+
 
 @Composable
 fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
@@ -193,7 +196,7 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
 fun AddPublicationDialog(
     userId: String,
     onDismiss: () -> Unit,
-    imageBitmap: Bitmap?,
+    imageUri: Uri?,
     onSuccess: () -> Unit
 ) {
     var drinkName by remember { mutableStateOf("") }
@@ -201,6 +204,8 @@ fun AddPublicationDialog(
     var drinkCategory by remember { mutableStateOf("") }
     var drinkVolume by remember { mutableIntStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -231,7 +236,8 @@ fun AddPublicationDialog(
                     coroutineScope.launch {
                         isLoading = true
 
-                        val url = imageBitmap?.let { uploadImageToFirebase(userId, it) } ?: ""
+                        val url = imageUri?.let { uploadImageToFirebase(userId, it, context) } ?: ""
+
 
                         val publicationInfo = addPublicationToFirestore(
                             userId, drinkName, drinkPrice, drinkCategory, drinkVolume, url
@@ -275,10 +281,11 @@ fun AddPublicationDialog(
         },
         text = {
             Column(modifier = Modifier.padding(16.dp)) {
-                imageBitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
+                imageUri?.let {
+                    AsyncImage(
+                        model = it,
                         contentDescription = "Image capturée",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
@@ -286,6 +293,7 @@ fun AddPublicationDialog(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+
 
                 OutlinedTextField(
                     value = drinkName,

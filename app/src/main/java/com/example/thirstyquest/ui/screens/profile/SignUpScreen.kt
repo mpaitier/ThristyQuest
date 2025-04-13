@@ -48,10 +48,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
+import com.example.thirstyquest.db.updateUserProfilePhotoUrl
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.ui.dialog.AddProfilePictureDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
@@ -62,6 +65,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
 
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var showPhotoDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState.value) {
@@ -170,9 +174,17 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
                 showPhotoDialog = false
                 navController.navigate(Screen.Profile.name)
             },
-            onImageCaptured = { bitmap ->
-                authViewModel.uploadProfileImage(bitmap)
+            onImageCaptured = { uri ->
+                scope.launch {
+                    val userId = authViewModel.uid.value ?: return@launch
+                    val url = uploadImageToFirebase(userId, uri, context)
+                    if (url != null) {
+                        updateUserProfilePhotoUrl(userId, url)
+                    }
+                    navController.navigate(Screen.Profile.name)
+                }
             }
+
         )
     }
 

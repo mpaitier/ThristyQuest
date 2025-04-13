@@ -55,6 +55,7 @@ import androidx.compose.ui.layout.ContentScale
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.db.updateLeaguePhotoUrl
+import com.example.thirstyquest.db.uploadLeagueImageToFirebase
 import kotlinx.coroutines.launch
 
 @Composable
@@ -166,11 +167,16 @@ fun LeagueEditDialog(
 
                                 // Si une photo a été prise, on l’upload
                                 if (capturedImage != null) {
-                                    val url = uploadImageToFirebase(leagueID, capturedImage!!)
-                                    if (url != null) {
-                                        updateLeaguePhotoUrl(leagueID, url)
+                                    uploadLeagueImageToFirebase(leagueID, capturedImage!!) { url ->
+                                        if (url != null) {
+                                            updateLeaguePhotoUrl(leagueID, url)
+                                        }
+                                        onDismiss() // à déplacer ici pour qu’il attende la fin de l’upload
                                     }
+                                } else {
+                                    onDismiss()
                                 }
+
 
                                 onDismiss()
                             }

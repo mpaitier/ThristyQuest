@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.viewmodel
 
+import android.content.Context
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.UserProfileChangeRequest
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.thirstyquest.db.uploadImageToFirebase
@@ -109,11 +111,11 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun uploadProfileImageAndSignup(email: String, password: String, pseudo: String, bitmap: Bitmap) {
+    fun uploadProfileImageAndSignup(email: String, password: String, pseudo: String, uri: Uri, context: Context) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                val imageUrl = uploadImageToFirebase(pseudo, bitmap)
+                val imageUrl = uploadImageToFirebase(pseudo, uri, context)
                 signup(email = email, password = password, pseudo = pseudo, profileImageUrl = imageUrl)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error("Erreur lors de l'upload de la photo : ${e.message}")
@@ -121,10 +123,10 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun uploadProfileImage(bitmap: Bitmap) {
+    fun uploadProfileImage(uri: Uri, context: Context) {
         viewModelScope.launch {
             val currentUid = auth.currentUser?.uid ?: return@launch
-            val url = uploadImageToFirebase(currentUid, bitmap)
+            val url = uploadImageToFirebase(currentUid, uri, context)
             val db = FirebaseFirestore.getInstance()
             db.collection("users").document(currentUid)
                 .update("photoUrl", url ?: "")

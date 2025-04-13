@@ -28,6 +28,8 @@ import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.dialog.AddPublicationDialog
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,6 +39,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.thirstyquest.db.DrinkPointManager.getAllDrinksFromFirestore
 import com.example.thirstyquest.db.DrinkPointManager.getTopDrinksFromFirestore
@@ -44,6 +47,10 @@ import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.dialog.AllDrinksDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -55,7 +62,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
-    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
     var showAllDrinksDialog by remember { mutableStateOf(false) }
     var topDrinks by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
     var allDrinks by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
@@ -66,14 +72,23 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         allDrinks = getAllDrinksFromFirestore()
     }
 
+    val photoUri = remember { mutableStateOf<Uri?>(null) }
+
+    fun createImageFile(): File {
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile("JPEG_${timestamp}_", ".jpg", storageDir)
+    }
+
+
     val takePictureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { result: Bitmap? ->
-        if (result != null) {
-            capturedImage = result
+        contract = ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success && photoUri.value != null) {
             showDialog = true
         }
     }
+
 
     // Charger les publications de l'utilisateur
     LaunchedEffect(userId) {
@@ -138,7 +153,17 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             // Bouton Ajouter une conso
             Button(
                 onClick = {
-                    if (userId != null) takePictureLauncher.launch(null)
+                    if (userId != null) {
+                        val imageFile = createImageFile()
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.provider",
+                            imageFile
+                        )
+                        photoUri.value = uri
+                        takePictureLauncher.launch(uri)
+
+                    }
                     else navController.navigate("login")
                 },
                 modifier = Modifier
@@ -224,10 +249,9 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
     if (showDialog && userId != null) {
         AddPublicationDialog(
             userId = userId!!,
-            imageBitmap = capturedImage,
+            imageUri = photoUri.value,
             onDismiss = {
                 showDialog = false
-                capturedImage = null
             },
             onSuccess = {
                 coroutineScope.launch {
