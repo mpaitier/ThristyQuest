@@ -75,6 +75,7 @@ import com.example.thirstyquest.ui.components.ProgressBar
 import com.example.thirstyquest.ui.components.PublicationItem
 import com.example.thirstyquest.ui.components.SortButton
 import com.example.thirstyquest.ui.components.UserPublications
+import com.example.thirstyquest.ui.components.UserStatsContent
 import com.example.thirstyquest.ui.dialog.DrinkItem
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
@@ -158,7 +159,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 
             Text(
                 text = "Publications récentes",
-                fontSize = 18.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
@@ -169,7 +170,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 
             Text(
                 text = "Collection",
-                fontSize = 18.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
@@ -212,10 +213,13 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Statistiques",
-                fontSize = 18.sp,
+                fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
+        }
+        item {
+            UserStatsContent(authViewModel, userId = friendId, isFriend = true)
         }
     }
 

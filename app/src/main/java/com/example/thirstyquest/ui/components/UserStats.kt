@@ -36,9 +36,8 @@ import com.example.thirstyquest.db.getUserXPById
 
 
 @Composable
-fun UserStatsContent(authViewModel: AuthViewModel) {
-    val uid = authViewModel.uid.observeAsState()
-    val userId = uid.value ?: ""
+fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boolean) {
+
     var totalVolume by remember { mutableStateOf(0.0) }
     var totalMoneySpent by remember { mutableStateOf(0.0) }
     var totaldrink1 by remember { mutableStateOf<Category?>(null) }
@@ -124,20 +123,23 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // XP part
 
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "Niveau du Profil",
-            fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        ProgressBar(
-            currentLevel = userLevel,
-            currentXP = (userXP % requiredXP).toInt(),
-            requiredXP = requiredXP,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if(!isFriend){
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Niveau du Profil",
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            ProgressBar(
+                currentLevel = userLevel,
+                currentXP = (userXP % requiredXP).toInt(),
+                requiredXP = requiredXP,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Total part
         Text(

@@ -30,7 +30,8 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     val tabTitles = listOf(R.string.my_stats,R.string.my_publication,R.string.my_collection)
     val pagerState = rememberPagerState { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
-
+    val uid = authViewModel.uid.observeAsState()
+    val userId = uid.value ?: ""
     val authState = authViewModel.authState.observeAsState()
     LaunchedEffect(authState.value) {
         when(authState.value) {
@@ -63,7 +64,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.weight(1f)
         ) { page ->
             when (page) {
-                0 -> UserStatsContent(authViewModel)
+                0 -> UserStatsContent(authViewModel, userId = userId, isFriend = false)
                 1 -> UserPublications(authViewModel)
                 2 -> UserCollectionContent(authViewModel)
             }
