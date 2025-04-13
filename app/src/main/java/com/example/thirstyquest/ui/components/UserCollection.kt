@@ -52,6 +52,7 @@ import com.example.thirstyquest.ui.dialog.DrinkDetailDialog
 import com.example.thirstyquest.data.PublicationHist
 import com.example.thirstyquest.db.getCollectionUser
 import com.example.thirstyquest.db.getUserLastPublications
+import com.example.thirstyquest.ui.dialog.DrinkItem
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
 
@@ -106,55 +107,6 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
     }
 }
 
-
-@Composable
-fun DrinkItem(userId : String, drink: Category, icon: Painter) {
-    var showDialog by remember { mutableStateOf(false) }
-    var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
-    var primaryColor = MaterialTheme.colorScheme.primary
-
-    LaunchedEffect(userId) {
-        userId?.let { uid ->
-            getUserLastPublications(uid) { newList -> publications = newList }
-        }
-    }
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-            .clickable { showDialog = true },
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Card(
-            modifier = Modifier
-                .size(100.dp),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp),
-            colors = CardDefaults.cardColors(Color(0xFFFFFFFF))
-        ) {
-            Image(
-                painter = icon,
-                contentDescription = drink.name,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = drink.name,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = primaryColor,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-
-    if (showDialog) {
-        DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = icon)
-    }
-}
 
 @Composable
 fun SortButton(selectedSort: String, isAscending: Boolean, onSortSelected: (String) -> Unit) {

@@ -85,7 +85,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
     val categoryRef = db.collection("users").document(userId).collection("category").document(drinkCategory)
     val data2 = mapOf(
         "total" to FieldValue.increment(1),
-        "point " to FieldValue.increment((points.toDouble())),
+        "point" to FieldValue.increment((points.toDouble())),
         "level" to FieldValue.increment(0),
     )
     categoryRef.set(data2, SetOptions.merge())

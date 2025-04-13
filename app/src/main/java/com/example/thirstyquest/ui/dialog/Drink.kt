@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,18 +18,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,8 +51,10 @@ import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Publication
-import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.data.Drink
+import com.example.thirstyquest.db.calculateLevelAndRequiredXP
+import com.example.thirstyquest.db.getUserLastPublications
+import com.example.thirstyquest.ui.components.ProgressBar
 
 val drawableMap = mapOf(
     "drawable_biere" to R.drawable.biere,
@@ -62,6 +70,9 @@ fun DrinkDetailDialog (
     icon: Painter
 )
 {
+
+    val (currentLevel, requiredXP) = calculateLevelAndRequiredXP(drink.points)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -111,14 +122,13 @@ fun DrinkDetailDialog (
                     textAlign = TextAlign.Justify
                 )*/
                 Spacer(modifier = Modifier.height(8.dp))
-                // Drink's level
-                Text(
-                    text = stringResource(R.string.level) + ": ${drink.level}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.primary
+                ProgressBar(
+                    currentLevel = currentLevel,
+                    currentXP = drink.points.toInt(),
+                    requiredXP = requiredXP,
+                    modifier = Modifier.padding(8.dp)
                 )
-                //DrinkProgressBar(drink.points, drink.nextLevelPoints,modifier = Modifier.padding(8.dp))
+
                 Spacer(modifier = Modifier.height(12.dp))
                 val filteredHist = hist.filter { it.category == drink.name }
                 if (filteredHist.isNotEmpty()) {
@@ -147,6 +157,59 @@ fun DrinkDetailDialog (
         containerColor = Color.White
     )
 }
+
+
+@Composable
+fun DrinkItem(userId : String, drink: Category, icon: Painter) {
+    var showDialog by remember { mutableStateOf(false) }
+    var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
+    var primaryColor = MaterialTheme.colorScheme.primary
+
+    LaunchedEffect(userId) {
+        userId?.let { uid ->
+            getUserLastPublications(uid) { newList -> publications = newList }
+        }
+    }
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { showDialog = true },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Card(
+            modifier = Modifier
+                .size(100.dp),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(Color(0xFFFFFFFF))
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = drink.name,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = drink.name,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = primaryColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    if (showDialog) {
+        DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = icon)
+    }
+}
+
+
+
 
 @Composable
 fun DrinkHistItem(publication: Publication, publicationNum: Int)

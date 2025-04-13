@@ -30,7 +30,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import com.example.thirstyquest.data.Category
+import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getTop2CategoriesByTotal
+import com.example.thirstyquest.db.getUserXPById
 
 
 @Composable
@@ -45,6 +47,11 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
     var averageMonthConsumption by remember { mutableStateOf(0.0) }
     var averageYearConsumption by remember { mutableStateOf(0.0) }
 
+    var userXP by remember { mutableStateOf(0.0) }
+    var userLevel by remember { mutableStateOf(1) }
+    var requiredXP by remember { mutableStateOf(2000) }
+
+
     LaunchedEffect(userId) {
         totalVolume = getTotalDrinkVolume(userId)
         totalMoneySpent = getTotalMoneySpent(userId)
@@ -54,6 +61,13 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
         averageDayConsumption = getAverageDrinkConsumption("DAY",userId)
         averageMonthConsumption = getAverageDrinkConsumption("MONTH",userId)
         averageYearConsumption = getAverageDrinkConsumption("YEAR",userId)
+
+        getUserXPById(userId) { xp ->
+            userXP = xp ?: 0.0
+            val (lvl, reqXP) = calculateLevelAndRequiredXP(xp?: 0.0)
+            userLevel = lvl
+            requiredXP = reqXP
+        }
 
     }
 
@@ -77,9 +91,9 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.cons_per_day), "$averageDayConsumption")
-            StatItemColumn(stringResource(R.string.cons_per_month), "$averageMonthConsumption")
-            StatItemColumn(stringResource(R.string.cons_per_year), "$averageYearConsumption")
+            StatItemColumn(stringResource(R.string.cons_per_day), String.format("%.2f", averageDayConsumption))
+            StatItemColumn(stringResource(R.string.cons_per_month), String.format("%.2f", averageMonthConsumption))
+            StatItemColumn(stringResource(R.string.cons_per_year), String.format("%.2f", averageYearConsumption))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -106,6 +120,24 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
 
         }
         Spacer(modifier = Modifier.height(24.dp))
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // XP part
+
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Niveau du Profil",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        ProgressBar(
+            currentLevel = userLevel,
+            currentXP = (userXP % requiredXP).toInt(),
+            requiredXP = requiredXP,
+            modifier = Modifier.fillMaxWidth()
+        )
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Total part
         Text(
@@ -119,8 +151,8 @@ fun UserStatsContent(authViewModel: AuthViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItemColumn(stringResource(R.string.consumed_drink), "$totalVolume litres ")
-            StatItemColumn(stringResource(R.string.spent_money), "$totalMoneySpent €")
+            StatItemColumn(stringResource(R.string.consumed_drink), String.format("%.2f", totalVolume))
+            StatItemColumn(stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
 
         }
     }

@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,21 +59,23 @@ import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Publication
+import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getCollectionUser
 import com.example.thirstyquest.db.getFollowerCount
 import com.example.thirstyquest.db.getFollowingCount
 import com.example.thirstyquest.db.getFriendPublications
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameById
+import com.example.thirstyquest.db.getUserXPById
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
-import com.example.thirstyquest.ui.components.DrinkItem
-import com.example.thirstyquest.ui.components.DrinkProgressBar
 import com.example.thirstyquest.ui.components.FriendPublicationItem
 import com.example.thirstyquest.ui.components.FriendPublications
+import com.example.thirstyquest.ui.components.ProgressBar
 import com.example.thirstyquest.ui.components.PublicationItem
 import com.example.thirstyquest.ui.components.SortButton
 import com.example.thirstyquest.ui.components.UserPublications
+import com.example.thirstyquest.ui.dialog.DrinkItem
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -230,7 +233,18 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
 {
     var showImageFullscreen by remember { mutableStateOf(false) }
+    var userXP by remember { mutableStateOf(0.0) }
+    var currentLevel by remember { mutableStateOf(1) }
+    var requiredXP by remember { mutableStateOf(0) }
 
+    LaunchedEffect(friendId) {
+        getUserXPById(friendId) { xp ->
+            userXP = xp ?: 0.0
+            val (lvl, reqXP) = calculateLevelAndRequiredXP(xp?: 0.0)
+            currentLevel = lvl
+            requiredXP = reqXP
+        }
+    }
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -290,11 +304,12 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            DrinkProgressBar(
-                currentXP = 50,
-                maxXP = 100,
-                modifier = Modifier.weight(1f)
+            ProgressBar(
+                currentLevel = currentLevel,
+                currentXP = (userXP % requiredXP).toInt(),
+                requiredXP = requiredXP
             )
+
 
             Spacer(modifier = Modifier.width(8.dp))
 

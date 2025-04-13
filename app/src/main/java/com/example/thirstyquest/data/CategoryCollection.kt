@@ -5,4 +5,5 @@ data class Category(
     val level: Int = 0,
     val points: Double = 0.0,
     val total: Int = 0,
+    val nextLevel : Int = 0,
 )

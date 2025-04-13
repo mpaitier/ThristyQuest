@@ -21,6 +21,8 @@ suspend fun getCollectionUser(userID: String): List<Category> {
 
             val level = document.getLong("level")?.toInt() ?: 0
             val points = document.getDouble("point") ?: 0.0
+
+
             val total = document.getLong("total")?.toInt() ?: 0
 
             val category = Category(
