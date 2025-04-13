@@ -20,10 +20,11 @@ import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthState
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.example.thirstyquest.ui.viewmodel.SettingsViewModel
 
 
 @Composable
-fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel,settingsViewModel: SettingsViewModel) {
 
     // States for Switches
     var isDarkMode by remember { mutableStateOf(false) }
@@ -50,12 +51,13 @@ fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Mode sombre switch
         SettingsSwitchOption(
             title = stringResource(R.string.dark_mode),
             description = stringResource(R.string.dark_mode_detail),
             isChecked = isDarkMode,
-            onCheckedChange = { isDarkMode = it }
+            onCheckedChange = {
+                settingsViewModel.toggleDarkMode()
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -121,7 +123,7 @@ fun SettingsSwitchOption(
 
             Switch(
                 checked = isChecked,
-                onCheckedChange = onCheckedChange,
+                onCheckedChange =   { onCheckedChange(it) },
                 colors = SwitchDefaults.colors(
                     checkedTrackColor = MaterialTheme.colorScheme.tertiary
                 )

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
@@ -17,25 +19,37 @@ import com.example.thirstyquest.ui.components.TopBar
 import com.example.thirstyquest.ui.theme.ThirstyQuestTheme
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.example.thirstyquest.db.DrinkPointManager
+import com.example.thirstyquest.ui.viewmodel.SettingsViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val authViewModel : AuthViewModel by viewModels()
+
+        val authViewModel: AuthViewModel by viewModels()
+        val settingsViewModel: SettingsViewModel by viewModels()
+
         DrinkPointManager.checkAndUpdateDrinkPointsIfNeeded()
+
         setContent {
-            ThirstyQuestTheme {
-                ThirstyQuestApp(authViewModel = authViewModel)
+            val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
+
+            ThirstyQuestTheme(darkTheme = isDarkMode) {
+                ThirstyQuestApp(
+                    authViewModel = authViewModel,
+                    settingsViewModel = settingsViewModel,
+                    isDarkMode = isDarkMode
+                )
             }
         }
-    }
 
+    }
 }
 
+
 @Composable
-fun ThirstyQuestApp(authViewModel: AuthViewModel) {
+fun ThirstyQuestApp(authViewModel: AuthViewModel, settingsViewModel: SettingsViewModel, isDarkMode: Boolean) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -46,11 +60,11 @@ fun ThirstyQuestApp(authViewModel: AuthViewModel) {
         AppNavigation(
             navController = navController,
             modifier = Modifier.padding(innerPadding),
-            authViewModel = authViewModel
+            authViewModel = authViewModel,
+            settingsViewModel = settingsViewModel
         )
     }
 }
-
 
 
 

@@ -16,9 +16,10 @@ import com.example.thirstyquest.ui.screens.profile.SignInScreen
 import com.example.thirstyquest.ui.screens.profile.SignUpScreen
 import com.example.thirstyquest.ui.screens.social.FriendProfileScreen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.example.thirstyquest.ui.viewmodel.SettingsViewModel
 
 @Composable
-fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
+fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier, authViewModel: AuthViewModel, settingsViewModel: SettingsViewModel) {
     NavHost(
         navController = navController,
         startDestination = Screen.MainMenu.name,
@@ -66,7 +67,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
         }
         composable(Screen.Settings.name)
         {
-            SettingsScreen(navController, authViewModel)
+            SettingsScreen(navController, authViewModel, settingsViewModel)
         }
 
         composable(Screen.FriendProfile.name + "/{userId}")
