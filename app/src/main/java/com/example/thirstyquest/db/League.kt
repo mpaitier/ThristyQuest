@@ -2,7 +2,9 @@ package com.example.thirstyquest.db
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -29,9 +31,10 @@ import java.util.Locale
 //    POST
 
 fun addLeagueToFirestore(
+    context: Context,
     uid: String,
     name: String,
-    imageBitmap: Bitmap?,
+    imageUri: Uri?,
     onLeagueCreated: (String) -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -83,8 +86,8 @@ fun addLeagueToFirestore(
                     tryCreateLeague()
                 } else {
                     // 👇 Upload photo si dispo
-                    if (imageBitmap != null) {
-                        uploadLeagueImageToFirebase(lid, imageBitmap) { imageUrl ->
+                    if (imageUri != null) {
+                        uploadLeagueImageToFirebase(lid, imageUri, context) { imageUrl ->
                             createLeagueWithPhotoUrl(lid, imageUrl)
                         }
                     } else {
@@ -97,28 +100,42 @@ fun addLeagueToFirestore(
     tryCreateLeague()
 }
 
-fun uploadLeagueImageToFirebase(id: String, bitmap: Bitmap, onUploaded: (String?) -> Unit) {
+fun uploadLeagueImageToFirebase(
+    id: String,
+    uri: Uri,
+    context: Context,
+    onUploaded: (String?) -> Unit
+) {
     val storageRef = FirebaseStorage.getInstance().reference.child("leagueImages/$id.jpg")
 
-    val baos = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-    val data = baos.toByteArray()
+    try {
+        val originalBitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+        val fixedBitmap = rotateBitmapIfRequired(context, uri, originalBitmap)
 
-    val uploadTask = storageRef.putBytes(data)
-    uploadTask.continueWithTask { task ->
-        if (!task.isSuccessful) {
-            task.exception?.let { throw it }
+        val baos = ByteArrayOutputStream()
+        fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos) // Compression à 60%
+        val data = baos.toByteArray()
+
+        val uploadTask = storageRef.putBytes(data)
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let { throw it }
+            }
+            storageRef.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUri = task.result.toString()
+                onUploaded(downloadUri)
+            } else {
+                onUploaded(null)
+            }
         }
-        storageRef.downloadUrl
-    }.addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-            val downloadUri = task.result.toString()
-            onUploaded(downloadUri)
-        } else {
-            onUploaded(null)
-        }
+    } catch (e: Exception) {
+        Log.e("UPLOAD", "Erreur upload image de ligue", e)
+        onUploaded(null)
     }
 }
+
 
 fun joinLeagueIfExists(
     uid: String,

@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getLeagueName
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -52,11 +54,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import coil.compose.rememberAsyncImagePainter
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.db.updateLeaguePhotoUrl
 import com.example.thirstyquest.db.uploadLeagueImageToFirebase
 import kotlinx.coroutines.launch
+import java.io.File
+
 
 @Composable
 fun LeagueEditDialog(
@@ -67,11 +74,19 @@ fun LeagueEditDialog(
     // TODO : get league picture with leagueID
     var leagueName by remember { mutableStateOf("") }
     var newLeagueName by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val photoUri = remember { mutableStateOf<Uri?>(null) }
+    val imageFile = remember { createImageFile(context) }
+    val imageUri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        imageFile
+    )
 
-    // Nouveau : capture d'image
-    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-        if (it != null) capturedImage = it
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+        if (it) {
+            photoUri.value = imageUri
+        }
     }
 
     val scope = rememberCoroutineScope()
@@ -95,25 +110,27 @@ fun LeagueEditDialog(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    contentAlignment = Alignment.BottomEnd,
-                    modifier = Modifier.size(140.dp)
-                ) {
-                    // Affiche la photo prise
-                    capturedImage?.let {
+                Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.size(140.dp)) {
+                    if (photoUri.value != null) {
                         Image(
-                            bitmap = it.asImageBitmap(),
+                            painter = rememberAsyncImagePainter(photoUri.value),
                             contentDescription = "League image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(140.dp)
                                 .clip(CircleShape)
                         )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+                        )
                     }
 
-                    // Add picture button
                     IconButton(
-                        onClick = { launcher.launch(null) }, // Lance la caméra
+                        onClick = { launcher.launch(imageUri) },
                         modifier = Modifier
                             .size(48.dp)
                             .offset(x = 8.dp, y = 8.dp)
@@ -122,11 +139,12 @@ fun LeagueEditDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AddCircleOutline,
-                            contentDescription = "Add picture",
+                            contentDescription = "Prendre une photo",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
+
 
                 Spacer(modifier = Modifier.height(24.dp))
                 // League's name entry
@@ -165,20 +183,16 @@ fun LeagueEditDialog(
                                     onValidate(leagueName)
                                 }
 
-                                // Si une photo a été prise, on l’upload
-                                if (capturedImage != null) {
-                                    uploadLeagueImageToFirebase(leagueID, capturedImage!!) { url ->
+                                if (photoUri.value != null) {
+                                    uploadLeagueImageToFirebase(leagueID, photoUri.value!!, context) { url ->
                                         if (url != null) {
                                             updateLeaguePhotoUrl(leagueID, url)
                                         }
-                                        onDismiss() // à déplacer ici pour qu’il attende la fin de l’upload
+                                        onDismiss()
                                     }
                                 } else {
                                     onDismiss()
                                 }
-
-
-                                onDismiss()
                             }
                         },
                         enabled = leagueName.isNotBlank(),
@@ -276,13 +290,18 @@ fun AddLeagueDialog(
 @Composable
 fun CreateLeagueDialog(
     onDismiss: () -> Unit,
-    onValidate: (String, Bitmap?) -> Unit
+    onValidate: (String, Uri?) -> Unit
 ) {
     var leagueName by remember { mutableStateOf("") }
-    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    val context = LocalContext.current
+    val photoUri = remember { mutableStateOf<Uri?>(null) }
+    val imageFile = remember { createImageFile(context) }
+    val imageUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", imageFile)
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-        if (it != null) capturedImage = it
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+        if (it) {
+            photoUri.value = imageUri
+        }
     }
 
     Dialog(onDismissRequest = { onDismiss() }) {
@@ -299,12 +318,10 @@ fun CreateLeagueDialog(
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                // Zone d’image + bouton
                 Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.size(140.dp)) {
-                    if (capturedImage != null) {
+                    if (photoUri.value != null) {
                         Image(
-                            bitmap = capturedImage!!.asImageBitmap(),
+                            painter = rememberAsyncImagePainter(photoUri.value),
                             contentDescription = "League image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -321,7 +338,7 @@ fun CreateLeagueDialog(
                     }
 
                     IconButton(
-                        onClick = { launcher.launch(null) },
+                        onClick = { launcher.launch(imageUri) },
                         modifier = Modifier
                             .size(48.dp)
                             .offset(x = 8.dp, y = 8.dp)
@@ -364,7 +381,7 @@ fun CreateLeagueDialog(
                     }
 
                     Button(
-                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName, capturedImage) },
+                        onClick = { if (leagueName.isNotBlank()) onValidate(leagueName, photoUri.value) },
                         enabled = leagueName.isNotBlank(),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -375,5 +392,6 @@ fun CreateLeagueDialog(
         }
     }
 }
+
 
 

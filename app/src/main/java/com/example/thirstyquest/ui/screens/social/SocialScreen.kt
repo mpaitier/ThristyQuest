@@ -37,10 +37,13 @@ import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.content.FileProvider
 import com.example.thirstyquest.db.getAllfollowingIdSnap
+import com.example.thirstyquest.ui.dialog.createImageFile
 
 
 @Composable
@@ -55,16 +58,21 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
-    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+
+
+    val imageFile = remember { createImageFile(context) }
+    val imageUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", imageFile)
 
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { result ->
-        if (result != null) {
-            capturedImage = result
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            photoUri = imageUri
             showCreateLeagueDialog = true
         }
     }
+
     val currentUserUid by authViewModel.uid.observeAsState()
 
 
@@ -166,14 +174,15 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     if (showCreateLeagueDialog) {
         CreateLeagueDialog(
             onDismiss = { showCreateLeagueDialog = false },
-            onValidate = { leagueName, image ->
+            onValidate = { leagueName, imageUri ->
                 showCreateLeagueDialog = false
 
                 currentUserUid?.let { uid ->
                     addLeagueToFirestore(
                         uid = uid,
                         name = leagueName,
-                        imageBitmap = image
+                        imageUri = imageUri,
+                        context = context
                     ) { newLeagueID ->
                         navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
                     }
