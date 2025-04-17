@@ -64,7 +64,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.weight(1f)
         ) { page ->
             when (page) {
-                0 -> UserStatsContent(authViewModel, userId = userId, isFriend = false)
+                0 -> UserStatsContent(userId = userId, isFriend = false)
                 1 -> UserPublications(authViewModel)
                 2 -> UserCollectionContent(authViewModel)
             }

@@ -80,14 +80,22 @@ fun StatsCategory(category: String)
 }
 
 @Composable
-fun StatsItemRowValueFirst(label: String, value: String)
-{
-    if(value != "-1" && label != "") {
+fun StatsItemRowValueFirst(label: String, value: String) {
+    val displayValue = try {
+        if (value != "-1" && label != "") {
+            val number = value.toDouble()
+            String.format("%.2f", number)
+        } else value
+    } catch (e: NumberFormatException) {
+        value
+    }
+
+    if (displayValue != "-1" && label != "") {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = value,
+                text = displayValue,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.secondary
@@ -100,6 +108,7 @@ fun StatsItemRowValueFirst(label: String, value: String)
         }
     }
 }
+
 
 @Composable
 fun StatsItemRowLabelFirst(label: String, value: String)
@@ -188,9 +197,6 @@ fun StatsDrink(totalLiters: Double, totalDrinks: Int)
     }
 }
 
-
-
-
 @Composable
 fun ConsumptionChart(
     pointsData : List<Point>,
@@ -218,8 +224,8 @@ fun ConsumptionChart(
         .axisLineColor(MaterialTheme.colorScheme.onBackground)
         .steps(pointsData.size - 1)
         .labelData { i -> xLabels.getOrNull(i) ?: "" }
-        .labelAndAxisLinePadding(15.dp)
-        .startDrawPadding(20.dp)
+        .labelAndAxisLinePadding(0.dp)
+        .startDrawPadding(60.dp)
         .build()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

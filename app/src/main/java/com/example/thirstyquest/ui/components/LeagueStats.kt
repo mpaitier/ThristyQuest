@@ -64,74 +64,76 @@ fun LeagueStatsScreenContent(leagueID: String) {
 }
 
 @Composable
+fun LoadingSection() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
 fun LeagueStatsList(leagueID: String) {
+
+    // === Data ===
     var userStats by remember { mutableStateOf<List<Pair<String,Double>>>( listOf(Pair("", 0.0),Pair("", 0.0),Pair("", 0.0),Pair("", 0.0)) ) }
     // Consumption stats
-    var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f)) ) }
-    var monthlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f)) ) }
-    var yearlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f)) ) }
+    var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var monthlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var yearlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
 
-    var weeklyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f)) ) }
-    var monthlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f)) ) }
-    var yearlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f),Point(0f, 0f)) ) }
-    var showedList by remember { mutableStateOf<List<Point>>(weeklyConsumptionList) }
+    var weeklyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var monthlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var yearlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var showedList by remember { mutableStateOf<List<Point>>(listOf(Point(0f, 0f))) }
 
     // Top categories
-    var topCategories by remember { mutableStateOf<List<Pair<String,Long>>>( listOf(Pair("", 0L),Pair("", 0L),Pair("", 0L)) ) }
+    var topCategories by remember { mutableStateOf<List<Pair<String,Long>>>( listOf(Pair("", -1L),Pair("", -1L),Pair("", -1L)) ) }
 
     // Total league stats
-    var totalPaid by remember { mutableDoubleStateOf(0.0) }
-    var totalDrink by remember { mutableIntStateOf(0) }
-    var totalLiters by remember { mutableDoubleStateOf(0.0) }
+    var totalPaid by remember { mutableDoubleStateOf(-1.0) }
+    var totalDrink by remember { mutableIntStateOf(-1) }
+    var totalLiters by remember { mutableDoubleStateOf(-1.0) }
+
     LaunchedEffect(Unit) {
         userStats = getLeagueUserStats(leagueID)
-
-        weeklyConsumptionList = getWeekConsumptionPoints(leagueID)
-        monthlyConsumptionList = getMonthConsumptionPoints(leagueID)
-        yearlyConsumptionList = getYearConsumptionPoints(leagueID)
-
-        weeklyVolumeList = getWeekVolumeConsumptionPoints(leagueID)
-        monthlyVolumeList = getMonthVolumeConsumptionPoints(leagueID)
-        yearlyVolumeList = getYearVolumeConsumptionPoints(leagueID)
-        showedList = weeklyConsumptionList
 
         topCategories = getTop3Categories(leagueID)
 
         totalPaid = getLeagueTotalPrice(leagueID)
         totalDrink = getLeagueTotalPublications(leagueID)
         totalLiters = getLeagueTotalLiters(leagueID)
+
+        weeklyConsumptionList = getWeekConsumptionPoints(leagueID, "leagues")
+        monthlyConsumptionList = getMonthConsumptionPoints(leagueID, "leagues")
+        yearlyConsumptionList = getYearConsumptionPoints(leagueID, "leagues")
+
+        weeklyVolumeList = getWeekVolumeConsumptionPoints(leagueID, "leagues")
+        monthlyVolumeList = getMonthVolumeConsumptionPoints(leagueID, "leagues")
+        yearlyVolumeList = getYearVolumeConsumptionPoints(leagueID, "leagues")
+        showedList = weeklyConsumptionList
     }
 
-    val dataLoaded = userStats.none { it.first == "" && it.second == 0.0 }
-            && weeklyConsumptionList.any { it.y != 0f }
-            && monthlyConsumptionList.any { it.y != 0f }
-            && yearlyConsumptionList.any { it.y != 0f }
-            && weeklyVolumeList.any { it.y != 0f }
-            && monthlyVolumeList.any { it.y != 0f }
-            && yearlyVolumeList.any { it.y != 0f }
-            && topCategories.none { it.first == "" && it.second == 0L }
-            && totalPaid != 0.0
-            && totalDrink != 0
-            && totalLiters != 0.0
 
-    if (!dataLoaded) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp, 8.dp, 16.dp, 0.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // =========================================================================================
+        StatsCategory(stringResource(R.string.league_members))
+        Spacer(modifier = Modifier.height(12.dp))
+        if (
+            userStats == listOf(Pair("", 0.0),Pair("", 0.0),Pair("", 0.0),Pair("", 0.0))
         ) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            LoadingSection()
         }
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp, 8.dp, 16.dp, 0.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // =========================================================================================
-            StatsCategory(stringResource(R.string.league_members))
-            Spacer(modifier = Modifier.height(12.dp))
+        else {
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -179,119 +181,138 @@ fun LeagueStatsList(leagueID: String) {
                     "${userStats[3].second}"
                 )
             }
-            // =========================================================================================
-            Spacer(modifier = Modifier.height(12.dp))
-            StatsCategory(stringResource(R.string.league_conso))
-            Spacer(modifier = Modifier.height(12.dp))
+        }
 
-            // Duration & volume selection
-            var selectedDuration by remember { mutableStateOf("Dans la semaine") }
-            var durationExpanded by remember { mutableStateOf(false) }
-            val durationSelection = listOf("Dans la semaine", "Dans le mois", "Dans l'année")
+        // =========================================================================================
+        Spacer(modifier = Modifier.height(12.dp))
+        StatsCategory(stringResource(R.string.league_conso))
+        Spacer(modifier = Modifier.height(12.dp))
 
-            var selectedVolume by remember { mutableStateOf("Verres consommés") }
-            var volumeExpanded by remember { mutableStateOf(false) }
-            val volumeSelection = listOf("Verres consommés", "Litres consommés")
+        // Duration & volume selection
+        var selectedDuration by remember { mutableStateOf("Dans la semaine") }
+        var durationExpanded by remember { mutableStateOf(false) }
+        val durationSelection = listOf("Dans la semaine", "Dans le mois", "Dans l'année")
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box {
-                    TextButton(onClick = { volumeExpanded = true }) {
-                        Text(selectedVolume, color = MaterialTheme.colorScheme.tertiary)
-                        Icon(
-                            imageVector = if (volumeExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
-                            contentDescription = "Dropdown",
-                            tint = MaterialTheme.colorScheme.tertiary
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = volumeExpanded,
-                        onDismissRequest = { volumeExpanded = false }
-                    ) {
-                        volumeSelection.forEach { unit ->
-                            DropdownMenuItem(
-                                text = { Text(unit) },
-                                onClick = {
-                                    selectedVolume = unit
-                                    when (unit) {
-                                        "Verres consommés" ->
-                                            when (selectedDuration) {
-                                                "Dans la semaine" -> showedList =
-                                                    weeklyConsumptionList
+        var selectedVolume by remember { mutableStateOf("Verres consommés") }
+        var volumeExpanded by remember { mutableStateOf(false) }
+        val volumeSelection = listOf("Verres consommés", "Litres consommés")
 
-                                                "Dans le mois" -> showedList =
-                                                    monthlyConsumptionList
-
-                                                "Dans l'année" -> showedList = yearlyConsumptionList
-                                            }
-
-                                        "Litres consommés" ->
-                                            when (selectedDuration) {
-                                                "Dans la semaine" -> showedList = weeklyVolumeList
-                                                "Dans le mois" -> showedList = monthlyVolumeList
-                                                "Dans l'année" -> showedList = yearlyVolumeList
-                                            }
-                                    }
-                                    volumeExpanded = false
-                                }
-                            )
-                        }
-                    }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box {
+                TextButton(onClick = { volumeExpanded = true }) {
+                    Text(selectedVolume, color = MaterialTheme.colorScheme.tertiary)
+                    Icon(
+                        imageVector = if (volumeExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
+                        contentDescription = "Dropdown",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
                 }
-                Spacer(modifier = Modifier.weight(1F))
-                Box {
-                    TextButton(onClick = { durationExpanded = true }) {
-                        Text(selectedDuration, color = MaterialTheme.colorScheme.tertiary)
-                        Icon(
-                            imageVector = if (durationExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
-                            contentDescription = "Dropdown",
-                            tint = MaterialTheme.colorScheme.tertiary
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = durationExpanded,
-                        onDismissRequest = { durationExpanded = false }
-                    ) {
-                        durationSelection.forEach { unit ->
-                            DropdownMenuItem(
-                                text = { Text(unit) },
-                                onClick = {
-                                    selectedDuration = unit
-                                    when (unit) {
-                                        "Dans la semaine" -> when (selectedVolume) {
-                                            "Verres consommés" -> showedList = weeklyConsumptionList
-                                            "Litres consommés" -> showedList = weeklyVolumeList
-                                        }
+                DropdownMenu(
+                    expanded = volumeExpanded,
+                    onDismissRequest = { volumeExpanded = false }
+                ) {
+                    volumeSelection.forEach { unit ->
+                        DropdownMenuItem(
+                            text = { Text(unit) },
+                            onClick = {
+                                selectedVolume = unit
+                                when (unit) {
+                                    "Verres consommés" ->
+                                        when (selectedDuration) {
+                                            "Dans la semaine" -> showedList =
+                                                weeklyConsumptionList
 
-                                        "Dans le mois" -> when (selectedVolume) {
-                                            "Verres consommés" -> showedList =
+                                            "Dans le mois" -> showedList =
                                                 monthlyConsumptionList
 
-                                            "Litres consommés" -> showedList = monthlyVolumeList
+                                            "Dans l'année" -> showedList = yearlyConsumptionList
                                         }
 
-                                        "Dans l'année" -> when (selectedVolume) {
-                                            "Verres consommés" -> showedList = yearlyConsumptionList
-                                            "Litres consommés" -> showedList = yearlyVolumeList
+                                    "Litres consommés" ->
+                                        when (selectedDuration) {
+                                            "Dans la semaine" -> showedList = weeklyVolumeList
+                                            "Dans le mois" -> showedList = monthlyVolumeList
+                                            "Dans l'année" -> showedList = yearlyVolumeList
                                         }
-                                    }
-                                    durationExpanded = false
                                 }
-                            )
-                        }
+                                volumeExpanded = false
+                            }
+                        )
                     }
                 }
             }
+            Spacer(modifier = Modifier.weight(1F))
+            Box {
+                TextButton(onClick = { durationExpanded = true }) {
+                    Text(selectedDuration, color = MaterialTheme.colorScheme.tertiary)
+                    Icon(
+                        imageVector = if (durationExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
+                        contentDescription = "Dropdown",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+                DropdownMenu(
+                    expanded = durationExpanded,
+                    onDismissRequest = { durationExpanded = false }
+                ) {
+                    durationSelection.forEach { unit ->
+                        DropdownMenuItem(
+                            text = { Text(unit) },
+                            onClick = {
+                                selectedDuration = unit
+                                when (unit) {
+                                    "Dans la semaine" -> when (selectedVolume) {
+                                        "Verres consommés" -> showedList = weeklyConsumptionList
+                                        "Litres consommés" -> showedList = weeklyVolumeList
+                                    }
+
+                                    "Dans le mois" -> when (selectedVolume) {
+                                        "Verres consommés" -> showedList =
+                                            monthlyConsumptionList
+
+                                        "Litres consommés" -> showedList = monthlyVolumeList
+                                    }
+
+                                    "Dans l'année" -> when (selectedVolume) {
+                                        "Verres consommés" -> showedList = yearlyConsumptionList
+                                        "Litres consommés" -> showedList = yearlyVolumeList
+                                    }
+                                }
+                                durationExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        if (
+            weeklyConsumptionList == listOf(Point(-1f, -1f)) ||
+            monthlyConsumptionList == listOf(Point(-1f, -1f)) ||
+            yearlyConsumptionList == listOf(Point(-1f, -1f)) ||
+            weeklyVolumeList == listOf(Point(-1f, -1f)) ||
+            monthlyVolumeList == listOf(Point(-1f, -1f)) ||
+            yearlyVolumeList == listOf(Point(-1f, -1f))
+        ) {
+            LoadingSection()
+        }
+        else {
             ConsumptionChart(showedList, selectedDuration)
+        }
 
-            // =========================================================================================
-            Spacer(modifier = Modifier.height(12.dp))
-            StatsCategory(stringResource(R.string.league_pref))
-            Spacer(modifier = Modifier.height(12.dp))
+        // =========================================================================================
+        Spacer(modifier = Modifier.height(12.dp))
+        StatsCategory(stringResource(R.string.league_pref))
+        Spacer(modifier = Modifier.height(12.dp))
 
+        if ( topCategories == listOf(Pair("", -1L),Pair("", -1L),Pair("", -1L)) ) {
+            LoadingSection()
+        }
+        else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -301,11 +322,20 @@ fun LeagueStatsList(leagueID: String) {
                 StatsItemRowValueFirst(topCategories[1].first, "${topCategories[1].second}")
                 StatsItemRowValueFirst(topCategories[2].first, "${topCategories[2].second}")
             }
+        }
 
-            // =========================================================================================
-            Spacer(modifier = Modifier.height(12.dp))
-            StatsCategory(stringResource(R.string.total))
+        // =========================================================================================
+        Spacer(modifier = Modifier.height(12.dp))
+        StatsCategory(stringResource(R.string.total))
 
+        if (
+            totalPaid == -1.0 ||
+            totalDrink == -1 ||
+            totalLiters == -1.0
+        ) {
+            LoadingSection()
+        }
+        else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically

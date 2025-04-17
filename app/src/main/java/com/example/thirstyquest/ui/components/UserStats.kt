@@ -2,6 +2,7 @@ package com.example.thirstyquest.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,8 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -23,32 +33,48 @@ import androidx.compose.ui.unit.sp
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getTotalDrinkVolume
 import com.example.thirstyquest.db.getTotalMoneySpent
-import com.example.thirstyquest.db.getPublicationCountByCategory
 import com.example.thirstyquest.db.getAverageDrinkConsumption
-import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import co.yml.charts.common.model.Point
 import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.db.calculateLevelAndRequiredXP
+import com.example.thirstyquest.db.getMonthConsumptionPoints
+import com.example.thirstyquest.db.getMonthVolumeConsumptionPoints
 import com.example.thirstyquest.db.getTop2CategoriesByTotal
 import com.example.thirstyquest.db.getUserXPById
+import com.example.thirstyquest.db.getWeekConsumptionPoints
+import com.example.thirstyquest.db.getWeekVolumeConsumptionPoints
+import com.example.thirstyquest.db.getYearConsumptionPoints
+import com.example.thirstyquest.db.getYearVolumeConsumptionPoints
 
 
 @Composable
-fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boolean) {
+fun UserStatsContent(userId: String, isFriend: Boolean) {
 
-    var totalVolume by remember { mutableStateOf(0.0) }
-    var totalMoneySpent by remember { mutableStateOf(0.0) }
+    var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var monthlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var yearlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+
+    var weeklyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var monthlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var yearlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var showedList by remember { mutableStateOf<List<Point>>(listOf(Point(0f, 0f))) }
+
+    var totalVolume by remember { mutableDoubleStateOf(0.0) }
+    var totalMoneySpent by remember { mutableDoubleStateOf(0.0) }
     var totaldrink1 by remember { mutableStateOf<Category?>(null) }
     var totaldrink2 by remember { mutableStateOf<Category?>(null) }
-    var averageDayConsumption by remember { mutableStateOf(0.0) }
-    var averageMonthConsumption by remember { mutableStateOf(0.0) }
-    var averageYearConsumption by remember { mutableStateOf(0.0) }
+    var averageDayConsumption by remember { mutableDoubleStateOf(0.0) }
+    var averageMonthConsumption by remember { mutableDoubleStateOf(0.0) }
+    var averageYearConsumption by remember { mutableDoubleStateOf(0.0) }
 
-    var userXP by remember { mutableStateOf(0.0) }
-    var userLevel by remember { mutableStateOf(1) }
-    var requiredXP by remember { mutableStateOf(2000) }
+    var userXP by remember { mutableDoubleStateOf(0.0) }
+    var userLevel by remember { mutableIntStateOf(1) }
+    var requiredXP by remember { mutableIntStateOf(2000) }
 
 
     LaunchedEffect(userId) {
@@ -68,6 +94,14 @@ fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boo
             requiredXP = reqXP
         }
 
+        weeklyConsumptionList = getWeekConsumptionPoints(userId, "users")
+        monthlyConsumptionList = getMonthConsumptionPoints(userId, "users")
+        yearlyConsumptionList = getYearConsumptionPoints(userId, "users")
+
+        weeklyVolumeList = getWeekVolumeConsumptionPoints(userId, "users")
+        monthlyVolumeList = getMonthVolumeConsumptionPoints(userId, "users")
+        yearlyVolumeList = getYearVolumeConsumptionPoints(userId, "users")
+        showedList = weeklyConsumptionList
     }
 
     Column(
@@ -75,6 +109,7 @@ fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boo
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -86,6 +121,8 @@ fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boo
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(12.dp))
+
+        // old stats ?
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -93,6 +130,122 @@ fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boo
             StatItemColumn(stringResource(R.string.cons_per_day), String.format("%.2f", averageDayConsumption))
             StatItemColumn(stringResource(R.string.cons_per_month), String.format("%.2f", averageMonthConsumption))
             StatItemColumn(stringResource(R.string.cons_per_year), String.format("%.2f", averageYearConsumption))
+        }
+
+        // Duration & volume selection
+        var selectedDuration by remember { mutableStateOf("Dans la semaine") }
+        var durationExpanded by remember { mutableStateOf(false) }
+        val durationSelection = listOf("Dans la semaine", "Dans le mois", "Dans l'année")
+
+        var selectedVolume by remember { mutableStateOf("Verres consommés") }
+        var volumeExpanded by remember { mutableStateOf(false) }
+        val volumeSelection = listOf("Verres consommés", "Litres consommés")
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box {
+                TextButton(onClick = { volumeExpanded = true }) {
+                    Text(selectedVolume, color = MaterialTheme.colorScheme.tertiary)
+                    Icon(
+                        imageVector = if (volumeExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
+                        contentDescription = "Dropdown",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+                DropdownMenu(
+                    expanded = volumeExpanded,
+                    onDismissRequest = { volumeExpanded = false }
+                ) {
+                    volumeSelection.forEach { unit ->
+                        DropdownMenuItem(
+                            text = { Text(unit) },
+                            onClick = {
+                                selectedVolume = unit
+                                when (unit) {
+                                    "Verres consommés" ->
+                                        when (selectedDuration) {
+                                            "Dans la semaine" -> showedList =
+                                                weeklyConsumptionList
+
+                                            "Dans le mois" -> showedList =
+                                                monthlyConsumptionList
+
+                                            "Dans l'année" -> showedList = yearlyConsumptionList
+                                        }
+
+                                    "Litres consommés" ->
+                                        when (selectedDuration) {
+                                            "Dans la semaine" -> showedList = weeklyVolumeList
+                                            "Dans le mois" -> showedList = monthlyVolumeList
+                                            "Dans l'année" -> showedList = yearlyVolumeList
+                                        }
+                                }
+                                volumeExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.weight(1F))
+            Box {
+                TextButton(onClick = { durationExpanded = true }) {
+                    Text(selectedDuration, color = MaterialTheme.colorScheme.tertiary)
+                    Icon(
+                        imageVector = if (durationExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
+                        contentDescription = "Dropdown",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+                DropdownMenu(
+                    expanded = durationExpanded,
+                    onDismissRequest = { durationExpanded = false }
+                ) {
+                    durationSelection.forEach { unit ->
+                        DropdownMenuItem(
+                            text = { Text(unit) },
+                            onClick = {
+                                selectedDuration = unit
+                                when (unit) {
+                                    "Dans la semaine" -> when (selectedVolume) {
+                                        "Verres consommés" -> showedList = weeklyConsumptionList
+                                        "Litres consommés" -> showedList = weeklyVolumeList
+                                    }
+
+                                    "Dans le mois" -> when (selectedVolume) {
+                                        "Verres consommés" -> showedList =
+                                            monthlyConsumptionList
+
+                                        "Litres consommés" -> showedList = monthlyVolumeList
+                                    }
+
+                                    "Dans l'année" -> when (selectedVolume) {
+                                        "Verres consommés" -> showedList = yearlyConsumptionList
+                                        "Litres consommés" -> showedList = yearlyVolumeList
+                                    }
+                                }
+                                durationExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        if (
+            weeklyConsumptionList == listOf(Point(-1f, -1f)) ||
+            monthlyConsumptionList == listOf(Point(-1f, -1f)) ||
+            yearlyConsumptionList == listOf(Point(-1f, -1f)) ||
+            weeklyVolumeList == listOf(Point(-1f, -1f)) ||
+            monthlyVolumeList == listOf(Point(-1f, -1f)) ||
+            yearlyVolumeList == listOf(Point(-1f, -1f))
+        ) {
+            LoadingSection()
+        }
+        else {
+            ConsumptionChart(showedList, selectedDuration)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -139,6 +292,7 @@ fun UserStatsContent(authViewModel: AuthViewModel, userId: String, isFriend: Boo
                 modifier = Modifier.fillMaxWidth()
             )
         }
+        Spacer(modifier = Modifier.height(24.dp))
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Total part

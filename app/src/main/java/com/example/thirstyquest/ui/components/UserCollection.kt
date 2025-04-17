@@ -84,24 +84,34 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
     }
 
 
-    Column {
-        SortButton(selectedSort, isAscending) { sortDrinks(it) }
+    if( fullList.isEmpty() ) {
+        LoadingSection()
+    }
+    else {
+        Column {
+            SortButton(selectedSort, isAscending) { sortDrinks(it) }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(start = 20.dp, top = 15.dp, end = 20.dp, bottom = 60.dp),
-            modifier = Modifier.fillMaxHeight()
-        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                contentPadding = PaddingValues(
+                    start = 20.dp,
+                    top = 15.dp,
+                    end = 20.dp,
+                    bottom = 60.dp
+                ),
+                modifier = Modifier.fillMaxHeight()
+            ) {
 
-            items(fullList) { drink ->
-                val icon = when (drink.name) {
-                    "Bière" -> painterResource(id = R.drawable.biere)
-                    "Vin" -> painterResource(id = R.drawable.vin)
-                    "Cocktail" -> painterResource(id = R.drawable.cocktail)
-                    "Shot" -> painterResource(id = R.drawable.shot)
-                    else -> painterResource(id = R.drawable.other)
+                items(fullList) { drink ->
+                    val icon = when (drink.name) {
+                        "Bière" -> painterResource(id = R.drawable.biere)
+                        "Vin" -> painterResource(id = R.drawable.vin)
+                        "Cocktail" -> painterResource(id = R.drawable.cocktail)
+                        "Shot" -> painterResource(id = R.drawable.shot)
+                        else -> painterResource(id = R.drawable.other)
+                    }
+                    DrinkItem(userId = userId, drink = drink, icon = icon)
                 }
-                DrinkItem(userId = userId, drink = drink, icon = icon)
             }
         }
     }
