@@ -1,5 +1,6 @@
 package com.example.thirstyquest.db
 import android.util.Log
+import com.example.thirstyquest.data.DrinkCategories
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -46,17 +47,15 @@ object DrinkPointManager {
     }
 
     private fun generateRandomDrinkPoints(): Map<String, Any> {
-        val range = (300..700)
-        return mapOf(
-            "Bière" to range.random(),
-            "Vin" to range.random(),
-            "Cocktail" to range.random(),
-            "Shot" to range.random(),
-            "Autre" to range.random(),
-            "Sans alcool" to 100, // valeur fixe
-            "last_time" to Timestamp.now()
-        )
+        val range = 50..500
+
+        val drinkPoints = DrinkCategories.basePoints.mapValues { (drink, _) ->
+            if (drink == "Sans alcool") 10 else range.random()
+            if (drink == "Autre alcool") 50 else range.random()
+        }
+        return drinkPoints + mapOf("last_time" to Timestamp.now())
     }
+
 
     suspend fun getTopDrinksFromFirestore(): List<Pair<String, Int>> {
         val db = FirebaseFirestore.getInstance()

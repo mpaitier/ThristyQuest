@@ -45,6 +45,8 @@ import com.example.thirstyquest.db.DrinkPointManager.getAllDrinksFromFirestore
 import com.example.thirstyquest.db.DrinkPointManager.getTopDrinksFromFirestore
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.dialog.AllDrinksDialog
+import com.example.thirstyquest.ui.dialog.TopDrinkItem
+import com.example.thirstyquest.ui.dialog.getDrinkIcon
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -80,7 +82,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         return File.createTempFile("JPEG_${timestamp}_", ".jpg", storageDir)
     }
 
-
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success: Boolean ->
@@ -88,7 +89,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
             showDialog = true
         }
     }
-
 
     // Charger les publications de l'utilisateur
     LaunchedEffect(userId) {
@@ -133,18 +133,9 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
                     )
                 }
 
-
                 topDrinks.forEach { (name, points) ->
-                    val icon = when (name) {
-                        "Bière" -> painterResource(id = R.drawable.biere)
-                        "Vin" -> painterResource(id = R.drawable.vin)
-                        "Cocktail" -> painterResource(id = R.drawable.cocktail)
-                        "Shot" -> painterResource(id = R.drawable.shot)
-                        else -> painterResource(id = R.drawable.other)
-                    }
-                    TopDrinkItem(painter = icon, name = name, points = "$points points") // ✅ Ici on l'appelle !
+                    TopDrinkItem(name = name, points = "$points points")
                 }
-
             }
 
 
@@ -274,27 +265,5 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         )
     }
 }
-
-
-
-@Composable
-fun TopDrinkItem(painter: Painter, name: String, points: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = name,
-            modifier = Modifier.size(40.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = name, fontSize = 16.sp, modifier = Modifier.weight(1f))
-        Text(text = points, fontSize = 14.sp, color = Color.Gray)
-    }
-}
-
 
 

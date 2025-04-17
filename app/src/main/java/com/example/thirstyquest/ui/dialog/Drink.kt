@@ -1,6 +1,5 @@
 package com.example.thirstyquest.ui.dialog
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,10 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,7 +52,6 @@ import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Publication
-import com.example.thirstyquest.data.Drink
 import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.components.ProgressBar
@@ -61,6 +61,25 @@ val drawableMap = mapOf(
     "drawable_ricard" to R.drawable.ricard,
     "drawable_vodka" to R.drawable.vodka
 )
+
+@Composable
+fun TopDrinkItem(name: String, points: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = getDrinkIcon(name)),
+            contentDescription = name,
+            modifier = Modifier.size(40.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(text = name, fontSize = 16.sp, modifier = Modifier.weight(1f))
+        Text(text = points, fontSize = 14.sp, color = Color.Gray)
+    }
+}
 
 @Composable
 fun DrinkDetailDialog (
@@ -308,9 +327,17 @@ fun PublicationHistItem(publication: Publication)
 // Fonction pour mapper chaque boisson à son icône
 @Composable
 fun getDrinkIcon(name: String): Int {
+
     return when (name) {
-        "Bière" -> R.drawable.biere
-        "Vin" -> R.drawable.vin
+        "Bière blonde" -> R.drawable.biere
+        "Bière brune" -> R.drawable.biere
+        "Bière rousse" -> R.drawable.biere
+        "Bière IPA (& NEIPA, Double IPA, ...)" -> R.drawable.biere
+        "Stout (Guinness)" -> R.drawable.biere
+        "Bière pils" -> R.drawable.biere
+        "Bière blanche" -> R.drawable.biere
+        "Bière fruitée" -> R.drawable.biere
+        "Vin rouge" -> R.drawable.vin
         "Cocktail" -> R.drawable.cocktail
         "Shot" -> R.drawable.shot
         else -> R.drawable.other
@@ -333,7 +360,9 @@ fun AllDrinksDialog(
             )
         },
         text = {
-            Column {
+            // get actual screen height
+            val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+            Column ( modifier = Modifier.height(screenHeight/2) ){
                 Text(
                     text = "Tu peux ici consulter les points attribués à chaque boisson. Ces points changent toutes les 3 heures, sont attribués aléatoirement et déterminent le score que tu gagnes à chaque consommation.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -346,34 +375,39 @@ fun AllDrinksDialog(
 
                 Text(
                     text = "Distribution actuelle :",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                drinks.forEach { (name, points) ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = getDrinkIcon(name)),
-                            contentDescription = name,
-                            modifier = Modifier.size(40.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = "$points pts",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
+                Column (
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    drinks.forEach { (name, points) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = getDrinkIcon(name)),
+                                contentDescription = name,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = "$points pts",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
                     }
                 }
             }
