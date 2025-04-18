@@ -91,6 +91,8 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var showFriendsListDialog by remember { mutableStateOf(false) }
     var showPublicationsDialog by remember { mutableStateOf(false) }
     var showMoreCollection by remember { mutableStateOf(false) }
+    var defaultTabFollowers by remember { mutableStateOf(true) }
+
 
     var friendName by remember { mutableStateOf<String?>(null) }
 
@@ -190,7 +192,10 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     followerNumber,
                     followingNumber,
                     onPublicationClick = { showPublicationsDialog = true },
-                    onFollowerClick = { showFriendsListDialog = true },
+                    onFollowerClick = { showFriendsListDialog = true
+                        defaultTabFollowers = true },
+                    onFollowingClick = { showFriendsListDialog = true
+                        defaultTabFollowers = false},
                     authViewModel
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -268,6 +273,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                         StatItemColumn("€ "+stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
 
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
                     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     // Preferences part
                     Text(
@@ -440,7 +446,8 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                 uid = friendId,
                 onDismiss = { showFriendsListDialog = false },
                 navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                defaultTabFollowers = defaultTabFollowers
             )
         }
     }
@@ -450,7 +457,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 //    Composable
 
 @Composable
-fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
+fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, onFollowingClick: () -> Unit, authViewModel: AuthViewModel)
 {
     var showImageFullscreen by remember { mutableStateOf(false) }
     var userXP by remember { mutableDoubleStateOf(0.0) }
@@ -514,7 +521,7 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: In
                 InfoFriendStatItem(
                     title = stringResource(R.string.following),
                     count = followingNumber,
-                    onClick = onFollowerClick
+                    onClick = onFollowingClick
                 )
             }
         }

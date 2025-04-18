@@ -78,7 +78,7 @@ fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifie
                 FriendProfileScreen(friendId = userID, navController = navController, authViewModel = authViewModel)
             }
             else {
-                Log.e("Navigation", "leagueID is null")
+                Log.e("Navigation", "profilID is null")
             }
         }
     }
