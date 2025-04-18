@@ -197,7 +197,7 @@ fun AddProfilePictureDialog(
                         file
                     )
                     photoUri = uri
-                    launcher.launch(uri) // ✅ ici, plus d'erreur
+                    launcher.launch(uri)
                 }) {
                     Text("Prendre une photo")
                 }
@@ -211,6 +211,3 @@ fun AddProfilePictureDialog(
         }
     }
 }
-
-
-
