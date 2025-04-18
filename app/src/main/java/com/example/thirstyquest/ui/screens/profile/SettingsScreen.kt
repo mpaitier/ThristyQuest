@@ -26,8 +26,8 @@ import com.example.thirstyquest.ui.viewmodel.SettingsViewModel
 @Composable
 fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel,settingsViewModel: SettingsViewModel) {
 
-    // States for Switches
-    var isDarkMode by remember { mutableStateOf(false) }
+    val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
+
     var areNotificationsEnabled by remember { mutableStateOf(true) }
 
     val authState = authViewModel.authState.observeAsState()

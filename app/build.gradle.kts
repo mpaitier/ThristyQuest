@@ -67,6 +67,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.8")
     implementation("com.google.firebase:firebase-storage:20.2.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
 
     // For charts
     implementation("co.yml:ycharts:2.1.0")
