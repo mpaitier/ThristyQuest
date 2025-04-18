@@ -102,7 +102,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
