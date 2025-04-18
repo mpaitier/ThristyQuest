@@ -179,7 +179,7 @@ fun DrinkDetailDialog (
 
 
 @Composable
-fun DrinkItem(userId : String, drink: Category, icon: Painter) {
+fun DrinkItem(userId : String, drink: Category) {
     var showDialog by remember { mutableStateOf(false) }
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
     var primaryColor = MaterialTheme.colorScheme.primary
@@ -204,7 +204,7 @@ fun DrinkItem(userId : String, drink: Category, icon: Painter) {
             colors = CardDefaults.cardColors(Color(0xFFFFFFFF))
         ) {
             Image(
-                painter = icon,
+                painter = painterResource(id = getDrinkIcon(drink.name)),
                 contentDescription = drink.name,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
@@ -223,7 +223,7 @@ fun DrinkItem(userId : String, drink: Category, icon: Painter) {
     }
 
     if (showDialog) {
-        DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = icon)
+        DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = painterResource(id = getDrinkIcon(drink.name)))
     }
 }
 

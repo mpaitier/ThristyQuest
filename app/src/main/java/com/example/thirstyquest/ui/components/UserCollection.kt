@@ -103,14 +103,7 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
             ) {
 
                 items(fullList) { drink ->
-                    val icon = when (drink.name) {
-                        "Bière" -> painterResource(id = R.drawable.biere)
-                        "Vin" -> painterResource(id = R.drawable.vin)
-                        "Cocktail" -> painterResource(id = R.drawable.cocktail)
-                        "Shot" -> painterResource(id = R.drawable.shot)
-                        else -> painterResource(id = R.drawable.other)
-                    }
-                    DrinkItem(userId = userId, drink = drink, icon = icon)
+                    DrinkItem(userId = userId, drink = drink)
                 }
             }
         }

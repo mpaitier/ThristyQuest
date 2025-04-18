@@ -47,9 +47,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.input.ImeAction
 import com.example.thirstyquest.db.updateUserProfilePhotoUrl
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.ui.dialog.AddProfilePictureDialog
@@ -112,6 +115,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
             label = {
                 Text(stringResource(R.string.pseudo))
             },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(8.dp))
         // Email section

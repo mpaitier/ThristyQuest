@@ -66,8 +66,9 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
 
     var totalVolume by remember { mutableDoubleStateOf(0.0) }
     var totalMoneySpent by remember { mutableDoubleStateOf(0.0) }
-    var totaldrink1 by remember { mutableStateOf<Category?>(null) }
-    var totaldrink2 by remember { mutableStateOf<Category?>(null) }
+
+    var totalDrink1 by remember { mutableStateOf<Category?>(null) }
+    var totalDrink2 by remember { mutableStateOf<Category?>(null) }
     var averageDayConsumption by remember { mutableDoubleStateOf(0.0) }
     var averageMonthConsumption by remember { mutableDoubleStateOf(0.0) }
     var averageYearConsumption by remember { mutableDoubleStateOf(0.0) }
@@ -78,21 +79,23 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
 
 
     LaunchedEffect(userId) {
-        totalVolume = getTotalDrinkVolume(userId)
-        totalMoneySpent = getTotalMoneySpent(userId)
-        val topCategories = getTop2CategoriesByTotal(userId)
-        totaldrink1 = topCategories.getOrNull(0)
-        totaldrink2 = topCategories.getOrNull(1)
-        averageDayConsumption = getAverageDrinkConsumption("DAY",userId)
-        averageMonthConsumption = getAverageDrinkConsumption("MONTH",userId)
-        averageYearConsumption = getAverageDrinkConsumption("YEAR",userId)
-
         getUserXPById(userId) { xp ->
             userXP = xp ?: 0.0
             val (lvl, reqXP) = calculateLevelAndRequiredXP(xp?: 0.0)
             userLevel = lvl
             requiredXP = reqXP
         }
+
+        totalVolume = getTotalDrinkVolume(userId)
+        totalMoneySpent = getTotalMoneySpent(userId)
+
+        val topCategories = getTop2CategoriesByTotal(userId)
+        totalDrink1 = topCategories.getOrNull(0)
+        totalDrink2 = topCategories.getOrNull(1)
+
+        averageDayConsumption = getAverageDrinkConsumption("DAY",userId)
+        averageMonthConsumption = getAverageDrinkConsumption("MONTH",userId)
+        averageYearConsumption = getAverageDrinkConsumption("YEAR",userId)
 
         weeklyConsumptionList = getWeekConsumptionPoints(userId, "users")
         monthlyConsumptionList = getMonthConsumptionPoints(userId, "users")
@@ -262,11 +265,11 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            totaldrink1?.let {
+            totalDrink1?.let {
                 StatItemColumn(it.name, it.total.toString())
             }
 
-            totaldrink2?.let {
+            totalDrink2?.let {
                 StatItemColumn(it.name, it.total.toString())
             }
 
@@ -308,7 +311,7 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             StatItemColumn(stringResource(R.string.consumed_drink), String.format("%.2f", totalVolume))
-            StatItemColumn(stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
+            StatItemColumn("€ "+stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
 
         }
     }

@@ -1,6 +1,7 @@
 package com.example.thirstyquest.ui.screens.social
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +24,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +37,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import co.yml.charts.common.model.Point
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Category
@@ -52,14 +60,25 @@ import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getCollectionUser
 import com.example.thirstyquest.db.getFollowerCount
 import com.example.thirstyquest.db.getFollowingCount
+import com.example.thirstyquest.db.getMonthConsumptionPoints
+import com.example.thirstyquest.db.getMonthVolumeConsumptionPoints
+import com.example.thirstyquest.db.getTop2CategoriesByTotal
+import com.example.thirstyquest.db.getTotalDrinkVolume
+import com.example.thirstyquest.db.getTotalMoneySpent
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.getUserXPById
+import com.example.thirstyquest.db.getWeekConsumptionPoints
+import com.example.thirstyquest.db.getWeekVolumeConsumptionPoints
+import com.example.thirstyquest.db.getYearConsumptionPoints
+import com.example.thirstyquest.db.getYearVolumeConsumptionPoints
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
+import com.example.thirstyquest.ui.components.ConsumptionChart
 import com.example.thirstyquest.ui.components.FriendPublications
+import com.example.thirstyquest.ui.components.LoadingSection
 import com.example.thirstyquest.ui.components.ProgressBar
-import com.example.thirstyquest.ui.components.UserStatsContent
+import com.example.thirstyquest.ui.components.StatItemColumn
 import com.example.thirstyquest.ui.dialog.DrinkItem
 import com.example.thirstyquest.ui.dialog.FollowDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
@@ -75,17 +94,32 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 
     var friendName by remember { mutableStateOf<String?>(null) }
 
-    var publiNumber by remember { mutableStateOf(0) }
-    var followerNumber by remember { mutableStateOf(0) }
-    var followingNumber by remember { mutableStateOf(0) }
-    var photoUrl by remember { mutableStateOf<String?>(null) }
+    var publicationNumber by remember { mutableIntStateOf(0) }
+    var followerNumber by remember { mutableIntStateOf(0) }
+    var followingNumber by remember { mutableIntStateOf(0) }
+    var photoUrl by remember { mutableStateOf<String?>("") }
     var fullList by remember { mutableStateOf<List<Category>>(emptyList()) }
     val visibleItems = if (showMoreCollection) fullList else fullList.take(3)
 
+    // Statistics
+    var totalVolume by remember { mutableDoubleStateOf(0.0) }
+    var totalMoneySpent by remember { mutableDoubleStateOf(0.0) }
+
+    var totalDrink1 by remember { mutableStateOf<Category?>(null) }
+    var totalDrink2 by remember { mutableStateOf<Category?>(null) }
+
+    var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var monthlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var yearlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+
+    var weeklyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var monthlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var yearlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var showedList by remember { mutableStateOf<List<Point>>(listOf(Point(0f, 0f))) }
 
     LaunchedEffect(friendId) {
         getUserLastPublications(friendId) { newList ->
-            publiNumber = newList.size
+            publicationNumber = newList.size
         }
         followerNumber = getFollowerCount(friendId)
         followingNumber = getFollowingCount(friendId)
@@ -101,116 +135,314 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             .await()
         photoUrl = snapshot.getString("photoUrl")
 
-
         fullList = getCollectionUser(friendId)
 
+        totalVolume = getTotalDrinkVolume(friendId)
+        totalMoneySpent = getTotalMoneySpent(friendId)
+
+        val topCategories = getTop2CategoriesByTotal(friendId)
+        totalDrink1 = topCategories.getOrNull(0)
+        totalDrink2 = topCategories.getOrNull(1)
+
+        weeklyConsumptionList = getWeekConsumptionPoints(friendId, "users")
+        monthlyConsumptionList = getMonthConsumptionPoints(friendId, "users")
+        yearlyConsumptionList = getYearConsumptionPoints(friendId, "users")
+
+        weeklyVolumeList = getWeekVolumeConsumptionPoints(friendId, "users")
+        monthlyVolumeList = getMonthVolumeConsumptionPoints(friendId, "users")
+        yearlyVolumeList = getYearVolumeConsumptionPoints(friendId, "users")
+        showedList = weeklyConsumptionList
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 60.dp)
-    ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
-                }
-                Text(
-                    text = friendName ?: "Nom non trouvé",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 8.dp)
+    Column {
+        // ========================= TOP BAR =========================
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Retour"
                 )
             }
-
-            FriendProfileHeader(
-                friendId,
-                photoUrl.toString(),
-                publiNumber,
-                followerNumber,
-                followingNumber,
-                onPublicationClick = { showPublicationsDialog = true },
-                onFollowerClick = { showFriendsListDialog = true },
-                authViewModel
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             Text(
-                text = "Publications récentes",
-                fontSize = 25.sp,
+                text = friendName ?: "Nom non trouvé",
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
+        // ========================= CONTENT =========================
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 60.dp)
+        ) {
 
-        item {
-            FriendPublications(friendId)
-
-            Text(
-                text = "Collection",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        item {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 0.dp, max = 500.dp),
-                contentPadding = PaddingValues(horizontal = 20.dp)
-            ) {
-                items(visibleItems) { drink ->
-                    val icon = when (drink.name) {
-                        "Bière" -> painterResource(id = R.drawable.biere)
-                        "Vin" -> painterResource(id = R.drawable.vin)
-                        "Cocktail" -> painterResource(id = R.drawable.cocktail)
-                        "Shot" -> painterResource(id = R.drawable.shot)
-                        else -> painterResource(id = R.drawable.other)
-                    }
-                    DrinkItem(userId = friendId,drink = drink, icon = icon)
-                }
-            }
-            if (fullList.size > 3) {
-                Row(
+            item {
+                // ------------------------- HEADER -------------------------
+                FriendProfileHeader(
+                    friendId,
+                    photoUrl.toString(),
+                    publicationNumber,
+                    followerNumber,
+                    followingNumber,
+                    onPublicationClick = { showPublicationsDialog = true },
+                    onFollowerClick = { showFriendsListDialog = true },
+                    authViewModel
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                // ------------------------- PUBLICATIONS -------------------------
+                Text(
+                    text = "Publications récentes",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                FriendPublications(friendId)
+                // ------------------------- COLLECTION -------------------------
+                Text(
+                    text = "Collection",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.Center
+                        .heightIn(min = 0.dp, max = 500.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp)
                 ) {
-                    Button(onClick = { showMoreCollection = !showMoreCollection }) {
-                        Text(if (showMoreCollection) "-" else "+")
+                    items(visibleItems) { drink ->
+                        DrinkItem(userId = friendId, drink = drink)
+                    }
+                }
+                if (fullList.size > 3) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(onClick = { showMoreCollection = !showMoreCollection },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        ) {
+                            Text(if (showMoreCollection) "-" else "+")
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                // ------------------------- STATS -------------------------
+                Text(
+                    text = "Statistiques",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.padding(horizontal = 10.dp))
+                {
+                    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                    // Total part
+                    Text(
+                        text = stringResource(R.string.total),
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 20.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        StatItemColumn(stringResource(R.string.consumed_drink), String.format("%.2f", totalVolume))
+                        StatItemColumn("€ "+stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
+
+                    }
+                    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                    // Preferences part
+                    Text(
+                        text = stringResource(R.string.pref),
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 20.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        totalDrink1?.let {
+                            StatItemColumn(it.name, it.total.toString())
+                        }
+
+                        totalDrink2?.let {
+                            StatItemColumn(it.name, it.total.toString())
+                        }
+
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                    // Consummation part
+                    Text(
+                        text = stringResource(R.string.conso),
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 20.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Duration & volume selection
+                    var selectedDuration by remember { mutableStateOf("Dans la semaine") }
+                    var durationExpanded by remember { mutableStateOf(false) }
+                    val durationSelection =
+                        listOf("Dans la semaine", "Dans le mois", "Dans l'année")
+
+                    var selectedVolume by remember { mutableStateOf("Verres consommés") }
+                    var volumeExpanded by remember { mutableStateOf(false) }
+                    val volumeSelection = listOf("Verres consommés", "Litres consommés")
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box {
+                            TextButton(onClick = { volumeExpanded = true }) {
+                                Text(selectedVolume, color = MaterialTheme.colorScheme.tertiary)
+                                Icon(
+                                    imageVector = if (volumeExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
+                                    contentDescription = "Dropdown",
+                                    tint = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = volumeExpanded,
+                                onDismissRequest = { volumeExpanded = false }
+                            ) {
+                                volumeSelection.forEach { unit ->
+                                    DropdownMenuItem(
+                                        text = { Text(unit) },
+                                        onClick = {
+                                            selectedVolume = unit
+                                            when (unit) {
+                                                "Verres consommés" ->
+                                                    when (selectedDuration) {
+                                                        "Dans la semaine" -> showedList =
+                                                            weeklyConsumptionList
+
+                                                        "Dans le mois" -> showedList =
+                                                            monthlyConsumptionList
+
+                                                        "Dans l'année" -> showedList =
+                                                            yearlyConsumptionList
+                                                    }
+
+                                                "Litres consommés" ->
+                                                    when (selectedDuration) {
+                                                        "Dans la semaine" -> showedList =
+                                                            weeklyVolumeList
+
+                                                        "Dans le mois" -> showedList =
+                                                            monthlyVolumeList
+
+                                                        "Dans l'année" -> showedList =
+                                                            yearlyVolumeList
+                                                    }
+                                            }
+                                            volumeExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1F))
+                        Box {
+                            TextButton(onClick = { durationExpanded = true }) {
+                                Text(selectedDuration, color = MaterialTheme.colorScheme.tertiary)
+                                Icon(
+                                    imageVector = if (durationExpanded) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.ArrowDownward,
+                                    contentDescription = "Dropdown",
+                                    tint = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = durationExpanded,
+                                onDismissRequest = { durationExpanded = false }
+                            ) {
+                                durationSelection.forEach { unit ->
+                                    DropdownMenuItem(
+                                        text = { Text(unit) },
+                                        onClick = {
+                                            selectedDuration = unit
+                                            when (unit) {
+                                                "Dans la semaine" -> when (selectedVolume) {
+                                                    "Verres consommés" -> showedList =
+                                                        weeklyConsumptionList
+
+                                                    "Litres consommés" -> showedList =
+                                                        weeklyVolumeList
+                                                }
+
+                                                "Dans le mois" -> when (selectedVolume) {
+                                                    "Verres consommés" -> showedList =
+                                                        monthlyConsumptionList
+
+                                                    "Litres consommés" -> showedList =
+                                                        monthlyVolumeList
+                                                }
+
+                                                "Dans l'année" -> when (selectedVolume) {
+                                                    "Verres consommés" -> showedList =
+                                                        yearlyConsumptionList
+
+                                                    "Litres consommés" -> showedList =
+                                                        yearlyVolumeList
+                                                }
+                                            }
+                                            durationExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (
+                        weeklyConsumptionList == listOf(Point(-1f, -1f)) ||
+                        monthlyConsumptionList == listOf(Point(-1f, -1f)) ||
+                        yearlyConsumptionList == listOf(Point(-1f, -1f)) ||
+                        weeklyVolumeList == listOf(Point(-1f, -1f)) ||
+                        monthlyVolumeList == listOf(Point(-1f, -1f)) ||
+                        yearlyVolumeList == listOf(Point(-1f, -1f))
+                    ) {
+                        LoadingSection()
+                    } else {
+                        ConsumptionChart(showedList, selectedDuration)
                     }
                 }
             }
         }
 
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Statistiques",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(16.dp)
+        if (showFriendsListDialog) {
+            FollowDialog(
+                uid = friendId,
+                onDismiss = { showFriendsListDialog = false },
+                navController = navController,
+                authViewModel = authViewModel
             )
         }
-        item {
-            UserStatsContent(userId = friendId, isFriend = true)
-        }
-    }
-
-
-
-    if (showFriendsListDialog) {
-        FollowDialog(uid = friendId, onDismiss = { showFriendsListDialog = false }, navController = navController, authViewModel = authViewModel)
     }
 }
 
@@ -218,12 +450,12 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
 //    Composable
 
 @Composable
-fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
+fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: Int, followerNumber : Int, followingNumber: Int, onPublicationClick: () -> Unit , onFollowerClick: () -> Unit, authViewModel: AuthViewModel)
 {
     var showImageFullscreen by remember { mutableStateOf(false) }
-    var userXP by remember { mutableStateOf(0.0) }
-    var currentLevel by remember { mutableStateOf(1) }
-    var requiredXP by remember { mutableStateOf(0) }
+    var userXP by remember { mutableDoubleStateOf(0.0) }
+    var currentLevel by remember { mutableIntStateOf(1) }
+    var requiredXP by remember { mutableIntStateOf(2000) }
 
     LaunchedEffect(friendId) {
         getUserXPById(friendId) { xp ->
@@ -233,6 +465,7 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
             requiredXP = reqXP
         }
     }
+
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -270,7 +503,7 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
             ) {
                 InfoFriendStatItem(
                     title = stringResource(R.string.publi),
-                    count = publiNumber,
+                    count = publicationNumber,
                     onClick = onPublicationClick
                 )
                 InfoFriendStatItem(
@@ -292,18 +525,17 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publiNumber: Int, fol
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             ProgressBar(
                 currentLevel = currentLevel,
                 currentXP = (userXP % requiredXP).toInt(),
-                requiredXP = requiredXP
+                requiredXP = requiredXP,
+                modifier = Modifier.weight(0.5F).height(20.dp)
             )
 
-
             Spacer(modifier = Modifier.width(8.dp))
-
             AddFriendButton(friendId = friendId, authViewModel = authViewModel)
         }
-
     }
 }
 
@@ -319,31 +551,6 @@ fun InfoFriendStatItem(title: String, count: Int, onClick: () -> Unit)
         Text(text = title, style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-    }
-}
-
-@Composable
-fun FriendProfileCategoryHeader(sectionTitle: String, onClick: () -> Unit)
-{
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = sectionTitle,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        TextButton(onClick = onClick) {
-            Text(
-                text = stringResource(R.string.see_more),
-                color = MaterialTheme.colorScheme.tertiary
-            )
-        }
     }
 }
 

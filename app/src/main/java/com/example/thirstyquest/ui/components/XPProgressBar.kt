@@ -65,45 +65,41 @@ fun ProgressBar(
     val backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
 
-    Column(modifier = modifier.padding(horizontal = 16.dp)) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Text(
+            text = "Niv. $currentLevel",
+            style = MaterialTheme.typography.bodyMedium
+        )
 
-        // Ligne avec niveaux et barre avec texte centré
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(20.dp)
+                .padding(horizontal = 8.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Niv. $currentLevel",
-                style = MaterialTheme.typography.bodyMedium
+            LinearProgressIndicator(
+                progress = progress.coerceIn(0f, 1f),
+                modifier = Modifier
+                    .fillMaxSize(),
+                color = tertiaryColor,
+                trackColor = backgroundColor
             )
 
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(20.dp)
-                    .padding(horizontal = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                LinearProgressIndicator(
-                    progress = progress.coerceIn(0f, 1f),
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    color = tertiaryColor,
-                    trackColor = backgroundColor
-                )
-
-                Text(
-                    text = "$currentXP / $requiredXP XP",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-
             Text(
-                text = "Niv. ${currentLevel + 1}",
-                style = MaterialTheme.typography.bodyMedium
+                text = "$currentXP / $requiredXP XP",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
         }
+
+        Text(
+            text = "Niv. ${currentLevel + 1}",
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }

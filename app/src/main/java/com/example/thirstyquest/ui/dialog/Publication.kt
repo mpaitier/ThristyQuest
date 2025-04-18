@@ -1,10 +1,9 @@
 package com.example.thirstyquest.ui.dialog
 
-import android.graphics.Bitmap
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -31,15 +32,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,12 +49,21 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -217,10 +224,11 @@ fun AddPublicationDialog(
         "Pichet (1L)" to 100
     )
 
-    var expanded by remember { mutableStateOf(false) }
     var showNameError by remember { mutableStateOf(false) }
     var showCategoryError by remember { mutableStateOf(false) }
     var showVolumeError by remember { mutableStateOf(false) }
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -280,7 +288,11 @@ fun AddPublicationDialog(
             }
         },
         text = {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .height(screenHeight*0.45f)
+            ) {
                 imageUri?.let {
                     AsyncImage(
                         model = it,
@@ -291,276 +303,321 @@ fun AddPublicationDialog(
                             .clip(CircleShape)
                             .align(Alignment.CenterHorizontally)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
 
-
-                OutlinedTextField(
-                    value = drinkName,
-                    onValueChange = {
-                        drinkName = it
-                        showNameError = false
-                    },
-                    label = { Text("Nom de la boisson") },
-                    isError = showNameError,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (showNameError) {
-                    Text("Le nom est requis", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = drinkPrice,
-                    onValueChange = { drinkPrice = it },
-                    label = { Text("Prix (€)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                CategoryDropdown(
+                CategoryAutoComplete(
                     selectedCategory = drinkCategory,
                     onCategorySelected = {
                         drinkCategory = it
                         showCategoryError = false
-                    }
+                    },
+                    showError = showCategoryError
                 )
-                if (showCategoryError) {
-                    Text("La catégorie est requise", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Card(
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expanded = true }
-                            .padding(4.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = volumeOptions.find { it.second == drinkVolume }?.first
-                                    ?: "Choisir un volume",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Ouvrir le menu",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
+                NameInput(
+                    name = drinkName,
+                    onNameChange = {
+                        drinkName = it
+                        showNameError = false
+                    },
+                    showError = showNameError
+                )
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        volumeOptions.forEach { (label, volume) ->
-                            DropdownMenuItem(
-                                text = { Text(label) },
-                                onClick = {
-                                    drinkVolume = volume
-                                    showVolumeError = false
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.height(16.dp))
 
-                if (showVolumeError) {
-                    Text("Le volume est requis", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                }
+                PriceInput(
+                    price = drinkPrice,
+                    onPriceChange = { drinkPrice = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                DropdownSelector(
+                    selectedLabel = volumeOptions.find { it.second == drinkVolume }?.first,
+                    options = volumeOptions,
+                    onOptionSelected = {
+                        drinkVolume = it
+                        showVolumeError = false
+                    },
+                    showError = showVolumeError,
+                    placeholder = "Choisir un volume"
+                )
+
             }
         }
     )
 }
 
-
-
-
-/*
 @Composable
-fun addInfoLeagues(userID: String){
-    val db = FirebaseFirestore.getInstance()
-    try {
-        val result = db.collection("users").document(userID).collection("leagues")
-
-    }
-}
-*/
-
-@Composable
-fun PublicationListDialog(boisson: Publication, onDismiss: () -> Unit)
-{
-
-    val dateTimeString = "${boisson.date} ${boisson.hour}"
-    val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRENCH)
-    val parsedDate = inputFormat.parse(dateTimeString) ?: ""
-
-    val outputFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.FRENCH)
-    val formattedDate = outputFormat.format(parsedDate)
-
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = boisson.description,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-        },
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Image circulaire
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (boisson.photo.startsWith("http")) {
-                            AsyncImage(
-                                model = boisson.photo,
-                                contentDescription = "Image de la boisson",
-                                modifier = Modifier.size(110.dp)
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.ricard),
-                                contentDescription = "Image par défaut",
-                                modifier = Modifier.size(110.dp)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Points
-                Text(
-                    text = "Points: ${boisson.points}",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Date formatée avec l'heure
-                Text(
-                    text = "Date: $formattedDate", // Affichage de la date et de l'heure formatées
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Prix
-                Text(
-                    text = "Prix: ${boisson.price} €",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Fermer", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-        },
-        modifier = Modifier.padding(16.dp)
-    )
-}
-
-@Composable
-fun CategoryDropdown(
+fun CategoryAutoComplete(
     selectedCategory: String,
-    onCategorySelected: (String) -> Unit
+    onCategorySelected: (String) -> Unit,
+    showError: Boolean
 ) {
     val allCategories = DrinkCategories.basePoints.keys.toList()
-    var expanded by remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(selectedCategory)) }
+    var filteredSuggestions by remember { mutableStateOf(allCategories) }
+    var showSuggestions by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        // Bouton stylisé
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Input field
         Card(
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
-                .padding(4.dp)
+                .shadow(4.dp, RoundedCornerShape(8.dp)),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            BasicTextField(
+                value = textFieldValue,
+                onValueChange = { newValue ->
+                    textFieldValue = newValue
+                    showSuggestions = newValue.text.isNotEmpty()
+                    filteredSuggestions = allCategories.filter {
+                        it.contains(newValue.text, ignoreCase = true)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .focusRequester(focusRequester),
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                decorationBox = { innerTextField ->
+                    if (textFieldValue.text.isEmpty()) {
+                        Text(
+                            text = "Choisir une catégorie...",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    innerTextField()
+                },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            )
+        }
+
+        // Suggestions list (no dropdown)
+        if (showSuggestions && filteredSuggestions.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) {
+                items(filteredSuggestions.size) { index ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onCategorySelected(filteredSuggestions[index])
+                                textFieldValue = TextFieldValue(
+                                    filteredSuggestions[index],
+                                    TextRange(filteredSuggestions[index].length)
+                                )
+                                showSuggestions = false
+                            }
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = filteredSuggestions[index],
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+        } else if (showSuggestions && filteredSuggestions.isEmpty()) {
+            Text(
+                text = "Aucune suggestion trouvée",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(start = 12.dp, top = 8.dp)
+            )
+        }
+
+        // Error message
+        if (showError) {
+            Text(
+                "La catégorie est requise",
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+}
+
+@Composable
+fun NameInput(
+    name: String,
+    onNameChange: (String) -> Unit,
+    showError: Boolean
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(8.dp)),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                if (name.isEmpty()) {
+                    Text(
+                        text = "Nom de la boisson",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 16.sp
+                    )
+                }
+                BasicTextField(
+                    value = name,
+                    onValueChange = {
+                        onNameChange(it)
+                    },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+                )
+            }
+        }
+        if (showError) {
+            Text(
+                text = "Le nom est requis",
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun PriceInput(
+    price: String,
+    onPriceChange: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+        ) {
+            if (price.isEmpty()) {
+                Text(
+                    text = "Prix (€)",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 16.sp
+                )
+            }
+            BasicTextField(
+                value = price,
+                onValueChange = onPriceChange,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                singleLine = true,
+                textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+fun DropdownSelector(
+    selectedLabel: String?,
+    options: List<Pair<String, Int>>,
+    onOptionSelected: (Int) -> Unit,
+    showError: Boolean,
+    placeholder: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(8.dp))
+                .clickable { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = selectedCategory.ifEmpty { "Choisir une catégorie" },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = selectedLabel ?: placeholder,
+                    color = if (selectedLabel == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp
                 )
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Ouvrir menu",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
 
-        // Menu déroulant
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            allCategories.forEach { category ->
+            options.forEach { (label, value) ->
                 DropdownMenuItem(
-                    text = { Text(category) },
+                    text = { Text(label) },
                     onClick = {
-                        onCategorySelected(category)
+                        onOptionSelected(value)
                         expanded = false
                     }
                 )
             }
         }
+
+        if (showError) {
+            Text(
+                text = "Le volume est requis",
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+            )
+        }
     }
 }
-
-

@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,9 +63,9 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
     var showPublicationDialog by remember { mutableStateOf(false) }
 
     val drawableMap = mapOf( // TODO : SUPPRIMER QUAND ON UTILISERA PLUS LES PUBLI EN DUR CODES POUR LE TEST
-        "drawable_biere" to com.example.thirstyquest.R.drawable.biere,
-        "drawable_ricard" to com.example.thirstyquest.R.drawable.ricard,
-        "drawable_vodka" to com.example.thirstyquest.R.drawable.vodka
+        "drawable_biere" to R.drawable.biere,
+        "drawable_ricard" to R.drawable.ricard,
+        "drawable_vodka" to R.drawable.vodka
     )
 
     Row(
@@ -85,7 +84,7 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
                 contentScale = ContentScale.Crop
             )
         } else {
-            val drawableRes = drawableMap[publication.photo] ?: com.example.thirstyquest.R.drawable.ricard
+            val drawableRes = drawableMap[publication.photo] ?: R.drawable.ricard
             Image(
                 painter = painterResource(id = drawableRes),
                 contentDescription = "Publication picture",
@@ -173,7 +172,7 @@ fun PublicationItem(publication: Publication) {
             .background(Color.LightGray)
             .clickable { showDialog = true }
     ) {
-        if (!publication.photo.isNullOrEmpty() && publication.photo.startsWith("http")) {
+        if (publication.photo.isNotEmpty() && publication.photo.startsWith("http")) {
             AsyncImage(
                 model = publication.photo,
                 contentDescription = null,
@@ -211,28 +210,39 @@ fun FriendPublications(friendId: String) {
         }
     }
 
+    if (
+        publications.isEmpty()
+    ) {
+        LoadingSection()
+    }
+    else {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+            FriendPublicationItem(
+                items = displayedPublications,
+                columns = 3,
+                onItemClick = { publication -> selectedPublication = publication }
+            )
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        FriendPublicationItem(
-            items = displayedPublications,
-            columns = 3,
-            onItemClick = { publication -> selectedPublication = publication }
-        )
+            if (publications.size > 3) {
+                Button(
+                    onClick = { showMorePublications = !showMorePublications },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    )
+                ) {
+                    Text(if (showMorePublications) "-" else "+")
+                }
 
-        if (publications.size > 3) {
-            Button(
-                onClick = { showMorePublications = !showMorePublications },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 8.dp)
-            ) {
-                Text(if (showMorePublications) "-" else "+")
             }
-        }
 
-        selectedPublication?.let {
-            PublicationDetailDialog(publication = it) {
-                selectedPublication = null
+            selectedPublication?.let {
+                PublicationDetailDialog(publication = it) {
+                    selectedPublication = null
+                }
             }
         }
     }
@@ -259,7 +269,7 @@ fun FriendPublicationItem(
                             .background(Color.LightGray)
                             .clickable { onItemClick(item) }
                     ) {
-                        if (!item.photo.isNullOrEmpty() && item.photo.startsWith("http")) {
+                        if (item.photo.isNotEmpty() && item.photo.startsWith("http")) {
                             AsyncImage(
                                 model = item.photo,
                                 contentDescription = null,

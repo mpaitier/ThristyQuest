@@ -224,8 +224,8 @@ fun ConsumptionChart(
         .axisLineColor(MaterialTheme.colorScheme.onBackground)
         .steps(pointsData.size - 1)
         .labelData { i -> xLabels.getOrNull(i) ?: "" }
-        .labelAndAxisLinePadding(0.dp)
-        .startDrawPadding(60.dp)
+        .labelAndAxisLinePadding(20.dp)
+        .startDrawPadding(0.dp)
         .build()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
