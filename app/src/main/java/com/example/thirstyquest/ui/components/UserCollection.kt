@@ -49,7 +49,6 @@ import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.data.Drink
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.dialog.DrinkDetailDialog
-import com.example.thirstyquest.data.PublicationHist
 import com.example.thirstyquest.db.getCollectionUser
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.dialog.DrinkItem
