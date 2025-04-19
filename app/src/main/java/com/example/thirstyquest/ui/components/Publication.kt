@@ -212,12 +212,12 @@ fun FriendPublications(friendId: String) {
         }
     }
 
-    if (
-        publications == listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 ))
-    ) {
+    if ( publications == listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 )) )
+    {
         LoadingSection()
     }
-    else {
+    else
+    {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
             if(publications.isEmpty()) {
                 Text(

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,7 +17,6 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +43,7 @@ import com.example.thirstyquest.db.getLeaguePublications
 @Composable
 fun LeagueHistScreenContent(leagueID: String, navController: NavController)
 {
-    var publicationList by remember { mutableStateOf<List<Publication>>(emptyList()) }
+    var publicationList by remember { mutableStateOf<List<Publication>>( listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 )) ) }
     var isDescending by remember { mutableStateOf(true) }
 
     var publicationsToShowCount by remember { mutableIntStateOf(10) } // Limit users to show
@@ -61,10 +61,10 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
     var publicationNum = 0
 
     Column (modifier = Modifier.fillMaxSize()) {
-        // Title & sort button
+        // ======================= Title & sort button =======================
         Row (verticalAlignment = Alignment.CenterVertically)
         {
-            // Title
+            // -------- Title--------
             Text(
                 text = stringResource(id = R.string.league_history),
                 style = MaterialTheme.typography.titleLarge,
@@ -72,7 +72,7 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.weight(1F))
-            // Sort button
+            // -------- Sort button --------
             IconButton(
                 onClick = { isDescending = !isDescending }
             ) {
@@ -92,46 +92,58 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
                 }
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
-        if(publicationList == emptyList<Publication>())  {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            }
+        // ======================= Content =======================
+        if ( publicationList == listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 )) )
+        {
+            LoadingSection()
         }
-        else {
-            // List of publication in the hist
+        else
+        {
+            // -------- List of publication in the hist --------
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
                 Column {
-                    val histToDisplay = sortedHist.take(publicationsToShowCount)
-                    histToDisplay.forEach { publication ->
-                        PublicationItemLeague(publication, publicationNum, navController)
-                        publicationNum++
+
+                    if(publicationList.isEmpty()) {
+                        Text(
+                            text = "Aucune publication trouvée",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
                     }
 
-                    if (publicationsToShowCount < sortedHist.size) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = { publicationsToShowCount *= 2 },
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            ),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
-                        ) {
-                            Text(
-                                stringResource(R.string.show_more),
-                                color = MaterialTheme.colorScheme.onSurface)
+                    else {
+                        val histToDisplay = sortedHist.take(publicationsToShowCount)
+                        histToDisplay.forEach { publication ->
+                            PublicationItemLeague(publication, publicationNum, navController)
+                            publicationNum++
+                        }
+
+                        if (publicationsToShowCount < sortedHist.size) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedButton(
+                                onClick = { publicationsToShowCount *= 2 },
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.tertiary
+                                ),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+                            ) {
+                                Text(
+                                    stringResource(R.string.show_more),
+                                    color = MaterialTheme.colorScheme.onSurface)
+                            }
                         }
                     }
+
                 }
             }
         }

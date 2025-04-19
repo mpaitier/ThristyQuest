@@ -3,8 +3,8 @@ package com.example.thirstyquest.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -135,7 +135,7 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
         EditProfileDialog(
             authViewModel = authViewModel,
             onDismiss = { showDialog = false },
-            onPhotoUpdated = { refreshKey++ } // Rafraîchit l’image quand elle est modifiée
+            onPhotoUpdated = { refreshKey++ }
         )
     }
 }
@@ -203,47 +203,6 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
             )
         }
 
-        if (showImageFullscreen) {
-            Dialog(onDismissRequest = { showImageFullscreen = false }) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black)
-                ) {
-                    AsyncImage(
-                        model = leaguePhotoUrl,
-                        contentDescription = "League image fullscreen",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp)
-                            .align(Alignment.Center)
-                    )
-                    IconButton(
-                        onClick = { showImageFullscreen = false },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(16.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Fermer",
-                            tint = Color.White
-                        )
-                    }
-                }
-            }
-        }
-        /*
-        else {
-            Icon(
-                imageVector = Icons.Filled.Menu,
-                contentDescription = "Default league icon",
-                modifier = Modifier.size(60.dp)
-            )
-        }
-        */
-
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
@@ -259,6 +218,24 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
             }
         }
+
+        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        if (showImageFullscreen) {
+            Dialog(onDismissRequest = { showImageFullscreen = false }) {
+                Box(
+                    modifier = Modifier.height(screenHeight/2)
+                ) {
+                    AsyncImage(
+                        model = leaguePhotoUrl,
+                        contentDescription = "League image fullscreen",
+                        modifier = Modifier
+                            .padding(32.dp)
+                            .height((screenHeight/2)-20.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+        }
     }
 
     if (showDialog) {
@@ -270,7 +247,8 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 leagueName = newLeagueName
                 // TODO : modify league's picture
             },
-            leagueID = leagueID
+            leagueID = leagueID,
+            leaguePhotoUrl = leaguePhotoUrl.toString()
         )
     }
 }

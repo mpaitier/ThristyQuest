@@ -1,6 +1,6 @@
 package com.example.thirstyquest.ui.dialog
 
-import android.content.Context
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -45,37 +45,36 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getLeagueName
-import android.graphics.Bitmap
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.db.updateLeaguePhotoUrl
 import com.example.thirstyquest.db.uploadLeagueImageToFirebase
 import kotlinx.coroutines.launch
-import java.io.File
-
 
 @Composable
 fun LeagueEditDialog(
     onDismiss: () -> Unit,
     onValidate: (String) -> Unit,
-    leagueID: String
+    leagueID: String,
+    leaguePhotoUrl: String
 ) {
     // TODO : get league picture with leagueID
     var leagueName by remember { mutableStateOf("") }
     var newLeagueName by remember { mutableStateOf("") }
     val context = LocalContext.current
-    val photoUri = remember { mutableStateOf<Uri?>(null) }
+    val newPhotoUri = remember { mutableStateOf<Uri?>(null) }
     val imageFile = remember { createImageFile(context) }
     val imageUri = FileProvider.getUriForFile(
         context,
@@ -85,10 +84,9 @@ fun LeagueEditDialog(
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (it) {
-            photoUri.value = imageUri
+            newPhotoUri.value = imageUri
         }
     }
-
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(leagueID) {
@@ -111,21 +109,34 @@ fun LeagueEditDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.size(140.dp)) {
-                    if (photoUri.value != null) {
+                    if (newPhotoUri.value != null) {
                         Image(
-                            painter = rememberAsyncImagePainter(photoUri.value),
+                            painter = rememberAsyncImagePainter(newPhotoUri.value),
                             contentDescription = "League image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(140.dp)
                                 .clip(CircleShape)
                         )
-                    } else {
-                        Box(
+                    }
+                    else if (leaguePhotoUrl != "null") {
+                        AsyncImage(
+                            model = leaguePhotoUrl,
+                            contentDescription = "League image",
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    else {
+                        Image(
+                            painter = painterResource(R.drawable.league_logo),
+                            contentDescription = "League image",
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(140.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                         )
                     }
 
@@ -183,8 +194,8 @@ fun LeagueEditDialog(
                                     onValidate(leagueName)
                                 }
 
-                                if (photoUri.value != null) {
-                                    uploadLeagueImageToFirebase(leagueID, photoUri.value!!, context) { url ->
+                                if (newPhotoUri.value != null) {
+                                    uploadLeagueImageToFirebase(leagueID, newPhotoUri.value!!, context) { url ->
                                         if (url != null) {
                                             updateLeaguePhotoUrl(leagueID, url)
                                         }
@@ -329,11 +340,13 @@ fun CreateLeagueDialog(
                                 .clip(CircleShape)
                         )
                     } else {
-                        Box(
+                        Image(
+                            painter = painterResource(R.drawable.league_logo),
+                            contentDescription = "League image",
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(140.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                         )
                     }
 

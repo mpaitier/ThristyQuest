@@ -7,6 +7,7 @@ import androidx.compose.ui.res.painterResource
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -151,24 +152,35 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!photoUrl.isNullOrEmpty()) {
-            AsyncImage(
-                model = photoUrl,
-                contentDescription = "Photo de profil",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
-        } else {
-            Image(
-                painter = painterResource(id = R.drawable.pdp),
-                contentDescription = "Profil",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
+        Box(contentAlignment = Alignment.BottomEnd) {
+            if (!photoUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = "Photo de profil",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.pdp),
+                    contentDescription = "Profil",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                )
+            }
+            if (uid == ownerId) {
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Owner",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+            }
         }
+
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {
@@ -186,20 +198,16 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (uid == ownerId) {
-            Icon(
-                imageVector = Icons.Filled.Star,
-                contentDescription = "Profil",
-                modifier = Modifier.size(25.dp),
-                tint = MaterialTheme.colorScheme.tertiary
-            )
+        val color = when (position) {
+            1 -> MaterialTheme.colorScheme.tertiary
+            2, 3 -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.secondary
         }
-
         Text(
             "#${position}",
             modifier = Modifier.padding(2.dp),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary,
+            color = color,
             fontSize = 20.sp
         )
     }

@@ -9,11 +9,8 @@ import com.example.thirstyquest.db.addUserToFirestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.UserProfileChangeRequest
-import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
 import com.example.thirstyquest.db.doesUsernameExist
 import com.example.thirstyquest.db.uploadImageToFirebase

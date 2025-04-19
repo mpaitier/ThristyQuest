@@ -153,46 +153,19 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
         }
     }
 
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     if (showImageFullscreen) {
         Dialog(onDismissRequest = { showImageFullscreen = false }) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black)
+                modifier = Modifier.height(screenHeight/2)
             ) {
-                // Image centrée
-                if (publication.photo.startsWith("http")) {
-                    AsyncImage(
-                        model = publication.photo,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp)
-                            .align(Alignment.Center)
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ricard),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-
-                // Bouton croix en haut à droite
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Fermer",
-                    tint = Color.White,
+                AsyncImage(
+                    model = publication.photo,
+                    contentDescription = "League image fullscreen",
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                        .size(30.dp)
-                        .clickable { showImageFullscreen = false }
+                        .padding(24.dp)
+                        .height((screenHeight/2)-20.dp)
+                        .align(Alignment.Center)
                 )
             }
         }
