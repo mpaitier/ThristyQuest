@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -95,13 +96,15 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
         followersList = followersDeferred.awaitAll()
     }
 
-
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.contacts), fontWeight = FontWeight.Bold) },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(screenHeight/2)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

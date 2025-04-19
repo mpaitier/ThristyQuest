@@ -12,10 +12,14 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
+import com.example.thirstyquest.db.doesUsernameExist
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 // from : https://www.youtube.com/watch?v=KOnLpNZ4AFc&ab_channel=EasyTuto
@@ -78,36 +82,45 @@ class AuthViewModel : ViewModel() {
             return
         }
 
-        when (isValidPassword(password)) {
-            PasswordValidationResult.Valid -> {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val user = auth.currentUser
-                            user?.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(pseudo).build())
-                                ?.addOnCompleteListener {
-                                    if (it.isSuccessful) {
-                                        addUserToFirestore(user.uid, pseudo, profileImageUrl)
-                                        _uid.value = user.uid
-                                        _authState.value = AuthState.Authenticated
-                                    } else {
-                                        _authState.value = AuthState.Error("Erreur mise à jour du profil")
-                                    }
-                                }
-                        } else {
-                            if (task.exception is FirebaseAuthUserCollisionException) {
-                                _authState.value = AuthState.Error("Cette adresse email est déjà utilisée")
-                            } else {
-                                _authState.value = AuthState.Error(task.exception?.message ?: "Erreur inconnue")
-                            }
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+
+            try {
+                if (doesUsernameExist(pseudo)) {
+                    _authState.value = AuthState.Error("Pseudo déjà utilisé")
+                    return@launch
+                }
+
+                when (isValidPassword(password)) {
+                    PasswordValidationResult.Valid -> {
+                        try {
+                            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+                            val user = authResult.user
+
+                            user?.updateProfile(
+                                UserProfileChangeRequest.Builder()
+                                    .setDisplayName(pseudo)
+                                    .build()
+                            )?.await()
+
+                            addUserToFirestore(user!!.uid, pseudo, profileImageUrl)
+                            _uid.value = user.uid
+                            _authState.value = AuthState.Authenticated
+                        } catch (e: FirebaseAuthUserCollisionException) {
+                            _authState.value = AuthState.Error("Cette adresse email est déjà utilisée")
+                        } catch (e: Exception) {
+                            _authState.value = AuthState.Error(e.message ?: "Erreur inconnue")
                         }
                     }
+                    PasswordValidationResult.TooShort -> _authState.value = AuthState.Error("Mot de passe trop court")
+                    PasswordValidationResult.MissingDigit -> _authState.value = AuthState.Error("Il manque un chiffre")
+                    PasswordValidationResult.MissingUpperCase -> _authState.value = AuthState.Error("Il manque une majuscule")
+                    PasswordValidationResult.MissingLowerCase -> _authState.value = AuthState.Error("Il manque une minuscule")
+                    PasswordValidationResult.MissingSymbol -> _authState.value = AuthState.Error("Il manque un symbole")
+                }
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error("Erreur de vérification du pseudo : ${e.message}")
             }
-            PasswordValidationResult.TooShort -> _authState.value = AuthState.Error("Mot de passe trop court")
-            PasswordValidationResult.MissingDigit -> _authState.value = AuthState.Error("Il manque un chiffre")
-            PasswordValidationResult.MissingUpperCase -> _authState.value = AuthState.Error("Il manque une majuscule")
-            PasswordValidationResult.MissingLowerCase -> _authState.value = AuthState.Error("Il manque une minuscule")
-            PasswordValidationResult.MissingSymbol -> _authState.value = AuthState.Error("Il manque un symbole")
         }
     }
 

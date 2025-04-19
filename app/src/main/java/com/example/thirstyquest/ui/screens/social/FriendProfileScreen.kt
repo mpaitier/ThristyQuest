@@ -1,7 +1,6 @@
 package com.example.thirstyquest.ui.screens.social
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -92,7 +91,6 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var showPublicationsDialog by remember { mutableStateOf(false) }
     var showMoreCollection by remember { mutableStateOf(false) }
     var defaultTabFollowers by remember { mutableStateOf(true) }
-
 
     var friendName by remember { mutableStateOf<String?>(null) }
 
@@ -216,31 +214,43 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 500.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp)
-                ) {
-                    items(visibleItems) { drink ->
-                        DrinkItem(userId = friendId, drink = drink)
-                    }
-                }
-                if (fullList.size > 3) {
-                    Row(
+                if (fullList.isEmpty()) {
+                    Text(
+                        text = "Aucune collection trouvée",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.Center
+                            .padding(horizontal = 30.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 0.dp, max = 500.dp),
+                        contentPadding = PaddingValues(horizontal = 20.dp)
                     ) {
-                        Button(onClick = { showMoreCollection = !showMoreCollection },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                contentColor = MaterialTheme.colorScheme.onBackground
-                            )
+                        items(visibleItems) { drink ->
+                            DrinkItem(userId = friendId, drink = drink)
+                        }
+                    }
+                    if (fullList.size > 3) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Text(if (showMoreCollection) "-" else "+")
+                            Button(onClick = { showMoreCollection = !showMoreCollection },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary,
+                                    contentColor = MaterialTheme.colorScheme.onBackground
+                                )
+                            ) {
+                                Text(if (showMoreCollection) "-" else "+")
+                            }
                         }
                     }
                 }
@@ -284,19 +294,31 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                         modifier = Modifier.padding(start = 20.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        totalDrink1?.let {
-                            StatItemColumn(it.name, it.total.toString())
-                        }
+                    if(totalDrink1 == null && totalDrink2 == null) {
+                        Text(
+                            text = "Aucune publication trouvée",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            totalDrink1?.let {
+                                StatItemColumn(it.name, it.total.toString())
+                            }
 
-                        totalDrink2?.let {
-                            StatItemColumn(it.name, it.total.toString())
+                            totalDrink2?.let {
+                                StatItemColumn(it.name, it.total.toString())
+                            }
                         }
-
                     }
+
                     Spacer(modifier = Modifier.height(24.dp))
                     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                     // Consummation part
@@ -484,7 +506,7 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: In
                     .size(80.dp)
                     .clip(CircleShape)
             ) {
-                if (photoUrl.isNotEmpty()) {
+                if (photoUrl != "null") {
                     AsyncImage(
                         model = photoUrl,
                         contentDescription = "Photo de profil",
@@ -537,7 +559,9 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: In
                 currentLevel = currentLevel,
                 currentXP = (userXP % requiredXP).toInt(),
                 requiredXP = requiredXP,
-                modifier = Modifier.weight(0.5F).height(20.dp)
+                modifier = Modifier
+                    .weight(0.5F)
+                    .height(20.dp)
             )
 
             Spacer(modifier = Modifier.width(8.dp))

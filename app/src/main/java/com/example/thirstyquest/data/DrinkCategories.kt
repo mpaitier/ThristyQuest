@@ -31,7 +31,7 @@ object DrinkCategories {
         "Tequila" to 650,
         "Gin" to 600,
         "Cognac" to 700,
-        "Pastis" to 500,
+        "Ricard / Pastis" to 500,
         "Saké" to 500,
         "Aguardiente" to 600,
         "Cavlavdos" to 600,

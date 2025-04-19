@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
+import com.example.thirstyquest.db.doesUsernameExist
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.updateUserName
 import com.example.thirstyquest.db.updateUserProfilePhotoUrl
@@ -66,6 +67,7 @@ fun EditProfileDialog(
     var showImageDialog by remember { mutableStateOf(false) }
     var profileImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }  // Pour afficher les erreurs
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -92,6 +94,12 @@ fun EditProfileDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                // Affichage du message d'erreur si le pseudo est déjà pris
+                errorMessage?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 profileImageBitmap?.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     Image(
@@ -115,7 +123,14 @@ fun EditProfileDialog(
         confirmButton = {
             TextButton(onClick = {
                 scope.launch {
+                    // Vérifier si le pseudo existe déjà
+                    if (doesUsernameExist(newUserName)) {
+                        errorMessage = "Ce pseudo est déjà utilisé"
+                        return@launch
+                    }
+
                     currentUserUid?.let { uid ->
+                        // Mettre à jour le pseudo si le pseudo est unique
                         updateUserName(uid, newUserName)
                         profileImageUri?.let { uri ->
                             val url = uploadImageToFirebase(uid, uri, context)
@@ -150,6 +165,7 @@ fun EditProfileDialog(
         )
     }
 }
+
 
 fun createImageFile(context: Context): File {
     val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())

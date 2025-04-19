@@ -4,10 +4,12 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.WeekFields
+import java.util.concurrent.CountDownLatch
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Setters
@@ -72,6 +74,25 @@ fun updateUserProfilePhotoUrl(userId: String, photoUrl: String) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //      Getters
+
+suspend fun doesUsernameExist(name: String): Boolean {
+    val db = FirebaseFirestore.getInstance()
+    val trimmedName = name.trim()
+
+    return try {
+        val querySnapshot = db.collection("users")
+            .whereEqualTo("name", trimmedName)
+            .get()
+            .await()
+
+        !querySnapshot.isEmpty
+    } catch (e: Exception) {
+        Log.e("Firestore", "Erreur lors de la vérification du pseudo", e)
+        false
+    }
+}
+
+
 
 fun getUserNameById(uid: String, onResult: (String?) -> Unit) {
     val db = FirebaseFirestore.getInstance()

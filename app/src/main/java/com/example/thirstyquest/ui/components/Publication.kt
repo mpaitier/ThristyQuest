@@ -49,6 +49,7 @@ import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import kotlin.String
 
 @Composable
 fun PublicationItemLeague(publication: Publication, publicationNum: Int, navController: NavController)
@@ -199,7 +200,8 @@ fun PublicationItem(publication: Publication) {
 
 @Composable
 fun FriendPublications(friendId: String) {
-    var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
+
+    var publications by remember { mutableStateOf<List<Publication>>( listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 )) ) }
     var showMorePublications by remember { mutableStateOf(false) }
     var selectedPublication by remember { mutableStateOf<Publication?>(null) }
     val displayedPublications = if (showMorePublications) publications else publications.take(3)
@@ -211,37 +213,50 @@ fun FriendPublications(friendId: String) {
     }
 
     if (
-        publications.isEmpty()
+        publications == listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 ))
     ) {
         LoadingSection()
     }
     else {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
-            FriendPublicationItem(
-                items = displayedPublications,
-                columns = 3,
-                onItemClick = { publication -> selectedPublication = publication }
-            )
-
-            if (publications.size > 3) {
-                Button(
-                    onClick = { showMorePublications = !showMorePublications },
+            if(publications.isEmpty()) {
+                Text(
+                    text = "Aucune publication trouvée",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                         .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    )
-                ) {
-                    Text(if (showMorePublications) "-" else "+")
+                )
+            }
+            else {
+                FriendPublicationItem(
+                    items = displayedPublications,
+                    columns = 3,
+                    onItemClick = { publication -> selectedPublication = publication }
+                )
+
+                if (publications.size > 3) {
+                    Button(
+                        onClick = { showMorePublications = !showMorePublications },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(vertical = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    ) {
+                        Text(if (showMorePublications) "-" else "+")
+                    }
+
                 }
 
-            }
-
-            selectedPublication?.let {
-                PublicationDetailDialog(publication = it) {
-                    selectedPublication = null
+                selectedPublication?.let {
+                    PublicationDetailDialog(publication = it) {
+                        selectedPublication = null
+                    }
                 }
             }
         }
