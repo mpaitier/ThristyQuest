@@ -24,7 +24,6 @@ import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.ui.dialog.AddPublicationDialog
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
@@ -39,21 +38,16 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.thirstyquest.db.DrinkPointManager.getAllDrinksFromFirestore
 import com.example.thirstyquest.db.DrinkPointManager.getTopDrinksFromFirestore
-import com.example.thirstyquest.db.DrinkPointManager.updateDrinkPoints
-import com.example.thirstyquest.db.doesUsernameExist
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.dialog.AllDrinksDialog
 import com.example.thirstyquest.ui.dialog.TopDrinkItem
-import com.example.thirstyquest.ui.viewmodel.AuthState
+import com.example.thirstyquest.ui.dialog.WarningDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 
 @Composable
 fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
@@ -69,8 +63,14 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
     var topDrinks by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
     var allDrinks by remember { mutableStateOf<List<Pair<String, Int>>>(emptyList()) }
 
-    // Charger les points des boissons
+    var showAlcoholWarningDialog by remember { mutableStateOf(false) }
+
+
     LaunchedEffect(Unit) {
+        if (!authViewModel.hasShownAlcoholWarning.value) {
+            showAlcoholWarningDialog = true
+        }
+        // Charger les points des boissons
         topDrinks = getTopDrinksFromFirestore()
         allDrinks = getAllDrinksFromFirestore()
     }
@@ -237,7 +237,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
         )
     }
 
-    //Dialog pour ajout de publication
+    // Dialog to add a publication
     if (showDialog && userId != null) {
         AddPublicationDialog(
             userId = userId!!,
@@ -253,18 +253,26 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
         )
     }
 
-    // Dialog publication détail
+    // Dialog publication detail
     selectedPublication?.let {
          PublicationDetailDialog(publication = it, onDismiss = { selectedPublication = null })
     }
 
-    // Dialog avec toutes les boissons
+    // Dialog with all drinks
     if (showAllDrinksDialog) {
         AllDrinksDialog(
             drinks = allDrinks,
             onDismiss = { showAllDrinksDialog = false }
         )
     }
+
+    // Preventive dialog
+    if (showAlcoholWarningDialog && !authViewModel.hasShownAlcoholWarning.value) {
+        WarningDialog(
+            onDismiss = {
+                showAlcoholWarningDialog = false
+                authViewModel.hasShownAlcoholWarning.value = true
+            }
+        )
+    }
 }
-
-

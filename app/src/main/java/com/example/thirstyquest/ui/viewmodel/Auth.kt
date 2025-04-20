@@ -1,7 +1,7 @@
 package com.example.thirstyquest.ui.viewmodel
 
-import android.content.Context
 import android.util.Patterns
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,18 +9,16 @@ import com.example.thirstyquest.db.addUserToFirestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.UserProfileChangeRequest
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.thirstyquest.db.doesUsernameExist
-import com.example.thirstyquest.db.uploadImageToFirebase
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
 // from : https://www.youtube.com/watch?v=KOnLpNZ4AFc&ab_channel=EasyTuto
 class AuthViewModel : ViewModel() {
+
+    var hasShownAlcoholWarning = mutableStateOf(false)
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
