@@ -47,9 +47,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
+import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getAllLeagueMembers
 import com.example.thirstyquest.db.getLeagueOwnerId
-import com.example.thirstyquest.db.getLevelFromXp
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.getUserXPById
 import com.example.thirstyquest.navigation.Screen
@@ -114,7 +114,7 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
 
     var memberName by remember { mutableStateOf("") }
     var memberXP by remember { mutableDoubleStateOf(0.0) }
-    var memberLevel by remember { mutableIntStateOf(0) }
+    var memberLevel by remember { mutableIntStateOf(1) }
     var photoUrl by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
@@ -124,7 +124,7 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
 
         getUserXPById(uid) { xp ->
             memberXP = xp ?: 0.0
-            memberLevel = getLevelFromXp(memberXP)
+            memberLevel = calculateLevelAndRequiredXP(xp?: 0.0).first
         }
 
         // Get profile picture
@@ -167,7 +167,7 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
                     painter = painterResource(id = R.drawable.pdp),
                     contentDescription = "Profil",
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
                 )
             }

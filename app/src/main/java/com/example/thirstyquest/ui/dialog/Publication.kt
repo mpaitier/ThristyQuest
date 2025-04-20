@@ -23,7 +23,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -156,9 +155,7 @@ fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     if (showImageFullscreen) {
         Dialog(onDismissRequest = { showImageFullscreen = false }) {
-            Box(
-                modifier = Modifier.height(screenHeight/2)
-            ) {
+            Box{
                 AsyncImage(
                     model = publication.photo,
                     contentDescription = "League image fullscreen",

@@ -6,7 +6,7 @@ object DrinkCategories {
         "Bière blonde" to 400,
         "Bière brune" to 500,
         "Bière rousse" to 450,
-        "Bière IPA (& NEIPA, Double IPA, ...) " to 550,
+        "Bière IPA" to 550,
         "Stout (Guinness)" to 600,
         "Bière pils" to 400,
         "Bière blanche" to 400,
@@ -41,6 +41,6 @@ object DrinkCategories {
 
         // Autre
         "Autre alcool" to 500,
-        "Sans alcool" to 100
+        "Sans alcool" to 10
     )
 }

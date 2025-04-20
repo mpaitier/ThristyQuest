@@ -35,7 +35,7 @@ object DrinkPointManager {
         }
     }
 
-    private fun updateDrinkPoints() {
+    fun updateDrinkPoints() {
         val newPoints = generateRandomDrinkPoints()
         drinkDocRef.set(newPoints)
             .addOnSuccessListener {
@@ -50,8 +50,9 @@ object DrinkPointManager {
         val range = 50..500
 
         val drinkPoints = DrinkCategories.basePoints.mapValues { (drink, _) ->
-            if (drink == "Sans alcool") 10 else range.random()
-            if (drink == "Autre alcool") 50 else range.random()
+            if (drink == "Sans alcool") 10
+            else if (drink == "Autre alcool") 50
+            else range.random()
         }
         return drinkPoints + mapOf("last_time" to Timestamp.now())
     }
