@@ -4,12 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,7 +30,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.thirstyquest.R
 import coil.compose.AsyncImage
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.db.getLeagueName
@@ -51,7 +48,10 @@ import kotlinx.coroutines.tasks.await
 fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val backgroundColor = MaterialTheme.colorScheme.background
+
     var showDialog by remember { mutableStateOf(false) }
+    var showImageFullscreen by remember { mutableStateOf(false) }
+
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
     var photoUrl by remember { mutableStateOf<String?>(null) }
@@ -84,8 +84,14 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = {
-                    navController.navigate(Screen.Login.name)
+            IconButton(onClick =
+                {
+                    if (currentBackStackEntry.value?.destination?.route != Screen.Profile.name) {
+                        navController.navigate(Screen.Login.name)
+                    }
+                    else {
+                        showImageFullscreen = true
+                    }
                 }
             )
             {
@@ -129,6 +135,25 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
             containerColor = backgroundColor,
         )
     )
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    if (showImageFullscreen) {
+        Dialog(onDismissRequest = { showImageFullscreen = false }) {
+            Box(
+                modifier = Modifier.height(screenHeight/2)
+                    .clip(CircleShape)
+            ) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = "League image fullscreen",
+                    modifier = Modifier
+                        .padding(32.dp)
+                        .height((screenHeight/2)-20.dp)
+                        .align(Alignment.Center)
+                )
+            }
+        }
+    }
 
     // Ouvre le Dialog d’édition de profil
     if (showDialog) {

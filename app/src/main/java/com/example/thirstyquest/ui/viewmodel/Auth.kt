@@ -121,31 +121,6 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun uploadProfileImageAndSignup(email: String, password: String, pseudo: String, uri: Uri, context: Context) {
-        viewModelScope.launch {
-            _authState.value = AuthState.Loading
-            try {
-                val imageUrl = uploadImageToFirebase(pseudo, uri, context)
-                signup(email = email, password = password, pseudo = pseudo, profileImageUrl = imageUrl)
-            } catch (e: Exception) {
-                _authState.value = AuthState.Error("Erreur lors de l'upload de la photo : ${e.message}")
-            }
-        }
-    }
-
-    fun uploadProfileImage(uri: Uri, context: Context) {
-        viewModelScope.launch {
-            val currentUid = auth.currentUser?.uid ?: return@launch
-            val url = uploadImageToFirebase(currentUid, uri, context)
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(currentUid)
-                .update("photoUrl", url ?: "")
-                .addOnSuccessListener { Log.d("PROFILE", "Photo ajoutée") }
-                .addOnFailureListener { Log.e("PROFILE", "Erreur d'ajout photo", it) }
-        }
-    }
-
-
     fun signout() {
         auth.signOut()
         _uid.value = null

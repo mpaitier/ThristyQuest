@@ -55,7 +55,7 @@ fun SignInScreen(navController: NavController, authViewModel: AuthViewModel)
     {
         when(authState.value)
         {
-            is AuthState.Authenticated -> navController.navigate(Screen.Profile.name)
+            is AuthState.Authenticated -> navController.navigate(Screen.MainMenu.name)
             is AuthState.Unauthenticated -> {}
             is AuthState.Error -> Toast.makeText(context,
                 (authState.value as AuthState.Error).message,Toast.LENGTH_SHORT).show()
@@ -135,87 +135,3 @@ fun SignInScreen(navController: NavController, authViewModel: AuthViewModel)
         }
     }
 }
-/*
-@Composable
-fun SignInScreen(navController: NavController, authViewModel: AuthViewModel)
-{
-    var emailOrUsername by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-    val focusRequester = remember { FocusRequester() } // for auto focus
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val isFormValid = emailOrUsername.isNotBlank() && password.isNotBlank()
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Title section
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Return")
-            }
-            Text(
-                text = stringResource(R.string.sign_in),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        // login info
-        OutlinedTextField(
-            value = emailOrUsername,
-            onValueChange = { emailOrUsername = it },
-            label = { Text(stringResource(R.string.sign_in_id)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        // Password
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(stringResource(R.string.password)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { keyboardController?.hide() }
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(onClick = { /* TODO: Implement password reset */ }) {
-            Text(stringResource(R.string.forgot_pwd))
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { if (isFormValid) navController.navigate(Screen.Profile.name) },
-            enabled = isFormValid,
-        ) {
-            Text(stringResource(R.string.login))
-        }
-    }
-}
-*/

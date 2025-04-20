@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,21 +30,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.thirstyquest.R
-import com.example.thirstyquest.db.checkIfFriend
 import com.example.thirstyquest.db.getAllFollowingIdCoroutine
-import com.example.thirstyquest.db.getUserName
 import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 // --------------------------------- Friends List ---------------------------------

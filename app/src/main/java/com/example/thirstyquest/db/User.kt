@@ -91,8 +91,6 @@ suspend fun doesUsernameExist(name: String): Boolean {
     }
 }
 
-
-
 fun getUserNameById(uid: String, onResult: (String?) -> Unit) {
     val db = FirebaseFirestore.getInstance()
 
@@ -129,19 +127,6 @@ fun getUserXPById(uid: String, onResult: (Double?) -> Unit) {
         }
         .addOnFailureListener { e ->
             Log.e("FIRESTORE", "Erreur lors de la récupération de l'utilisateur", e)
-            onResult(null)
-        }
-}
-
-fun getUserProfileImageUrl(uid: String, onResult: (String?) -> Unit) {
-    val db = FirebaseFirestore.getInstance()
-    db.collection("users").document(uid)
-        .get()
-        .addOnSuccessListener { document ->
-            val url = document.getString("profileImageUrl")
-            onResult(url)
-        }
-        .addOnFailureListener {
             onResult(null)
         }
 }

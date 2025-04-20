@@ -46,7 +46,6 @@ import androidx.compose.ui.window.Dialog
 import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getLeagueName
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -70,7 +69,6 @@ fun LeagueEditDialog(
     leagueID: String,
     leaguePhotoUrl: String
 ) {
-    // TODO : get league picture with leagueID
     var leagueName by remember { mutableStateOf("") }
     var newLeagueName by remember { mutableStateOf("") }
     val context = LocalContext.current

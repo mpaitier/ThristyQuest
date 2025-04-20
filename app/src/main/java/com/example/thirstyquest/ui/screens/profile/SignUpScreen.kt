@@ -150,7 +150,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
                 }
             },
             singleLine = true
-        ) //TODO : coder directement les textes dans le bon fichier
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
@@ -176,7 +176,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
         AddProfilePictureDialog(
             onDismiss = {
                 showPhotoDialog = false
-                navController.navigate(Screen.Profile.name)
+                navController.navigate(Screen.MainMenu.name)
             },
             onImageCaptured = { uri ->
                 scope.launch {
@@ -185,7 +185,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
                     if (url != null) {
                         updateUserProfilePhotoUrl(userId, url)
                     }
-                    navController.navigate(Screen.Profile.name)
+                    navController.navigate(Screen.MainMenu.name)
                 }
             }
 

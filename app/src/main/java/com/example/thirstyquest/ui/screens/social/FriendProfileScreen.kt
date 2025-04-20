@@ -45,11 +45,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import co.yml.charts.common.model.Point
 import coil.compose.AsyncImage
@@ -566,6 +568,26 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: In
 
             Spacer(modifier = Modifier.width(8.dp))
             AddFriendButton(friendId = friendId, authViewModel = authViewModel)
+        }
+    }
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    if (showImageFullscreen) {
+        Dialog(onDismissRequest = { showImageFullscreen = false }) {
+            Box(
+                modifier = Modifier
+                    .height(screenHeight/2)
+                    .clip(CircleShape)
+            ) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = "League image fullscreen",
+                    modifier = Modifier
+                        .padding(32.dp)
+                        .height((screenHeight/2)-20.dp)
+                        .align(Alignment.Center)
+                )
+            }
         }
     }
 }

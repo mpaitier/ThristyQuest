@@ -43,13 +43,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
 import com.example.thirstyquest.db.doesUsernameExist
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.updateUserName
 import com.example.thirstyquest.db.updateUserProfilePhotoUrl
 import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,9 +70,10 @@ fun EditProfileDialog(
     var showImageDialog by remember { mutableStateOf(false) }
     var profileImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }  // Pour afficher les erreurs
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var photoUrl by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
@@ -77,6 +81,13 @@ fun EditProfileDialog(
                 userName = name ?: ""
                 newUserName = name ?: ""
             }
+
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .await()
+            photoUrl = snapshot.getString("photoUrl")
         }
     }
 
@@ -99,12 +110,21 @@ fun EditProfileDialog(
                     Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-
-                profileImageBitmap?.let {
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                if (profileImageBitmap != null) {
                     Image(
-                        bitmap = it.asImageBitmap(),
+                        bitmap = profileImageBitmap!!.asImageBitmap(),
                         contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondary)
+                    )
+                } else if (!photoUrl.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = photoUrl,
+                        contentDescription = "Photo de profil",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(140.dp)
@@ -124,7 +144,7 @@ fun EditProfileDialog(
             TextButton(onClick = {
                 scope.launch {
                     // Vérifier si le pseudo existe déjà
-                    if (doesUsernameExist(newUserName)) {
+                    if (doesUsernameExist(newUserName) && newUserName != userName) {
                         errorMessage = "Ce pseudo est déjà utilisé"
                         return@launch
                     }
