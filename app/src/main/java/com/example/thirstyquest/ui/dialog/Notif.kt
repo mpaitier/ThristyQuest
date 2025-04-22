@@ -1,18 +1,14 @@
 package com.example.thirstyquest.ui.dialog
 
-import android.Manifest
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
-import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -56,8 +52,7 @@ fun trySendNotification(context: Context, title: String, message: String) {
 
 @Composable
 fun getActivity(): Activity? {
-    val context = LocalContext.current
-    return when (context) {
+    return when (val context = LocalContext.current) {
         is Activity -> context
         is ContextWrapper -> {
             var ctx = context

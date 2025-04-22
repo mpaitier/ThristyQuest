@@ -56,6 +56,8 @@ import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.components.ProgressBar
 
+
+
 @Composable
 fun TopDrinkItem(name: String, points: String) {
     Row(
@@ -129,11 +131,6 @@ fun DrinkDetailDialog (
                     fontSize = 18.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                // Drink's description
-                /*Text(
-                    text = stringResource(R.string.description) + ": ${drink.description}",
-                    textAlign = TextAlign.Justify
-                )*/
                 Spacer(modifier = Modifier.height(8.dp))
                 ProgressBar(
                     currentLevel = currentLevel,
@@ -176,12 +173,10 @@ fun DrinkDetailDialog (
 fun DrinkItem(userId : String, drink: Category) {
     var showDialog by remember { mutableStateOf(false) }
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
-    var primaryColor = MaterialTheme.colorScheme.primary
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     LaunchedEffect(userId) {
-        userId?.let { uid ->
-            getUserLastPublications(uid) { newList -> publications = newList }
-        }
+        getUserLastPublications(userId) { newList -> publications = newList }
     }
     Column(
         modifier = Modifier
@@ -227,8 +222,7 @@ fun DrinkItem(userId : String, drink: Category) {
 @Composable
 fun DrinkHistItem(publication: Publication, publicationNum: Int)
 {
-    // TODO : Make user's name clickable and navigate to user's profile
-    var showDialog = remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
     val price = "${publication.price} €"
     Row(
         modifier = Modifier
@@ -281,40 +275,6 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
     }
     if (showDialog.value) {
         PublicationDetailDialog(onDismiss = { showDialog.value = false }, publication = publication)
-    }
-}
-
-@Composable
-fun PublicationHistItem(publication: Publication)
-{
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (publication.photo.startsWith("http")) {
-            AsyncImage(
-                model = publication.photo,
-                contentDescription = "Image de la boisson",
-                modifier = Modifier.size(40.dp)
-            )
-        } else {
-
-            Image(
-                painter = painterResource(id = getDrinkIcon(publication.category)),
-                contentDescription = "Image par défaut",
-                modifier = Modifier.size(40.dp)
-            )
-        }
-
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column {
-            Text(publication.description, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
-            Text("Points: ${publication.points}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.secondary)
-        }
     }
 }
 
