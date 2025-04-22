@@ -1,17 +1,11 @@
 package com.example.thirstyquest.db
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.temporal.WeekFields
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//      Setters
+//      POST
 
 fun addUserToFirestore(uid: String, name: String, profileImageUrl: String? = null) {
     val db = FirebaseFirestore.getInstance()
@@ -72,7 +66,7 @@ fun updateUserProfilePhotoUrl(userId: String, photoUrl: String) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//      Getters
+//      GET
 
 suspend fun doesUsernameExist(name: String): Boolean {
     val db = FirebaseFirestore.getInstance()
@@ -88,6 +82,18 @@ suspend fun doesUsernameExist(name: String): Boolean {
     } catch (e: Exception) {
         Log.e("Firestore", "Erreur lors de la vérification du pseudo", e)
         false
+    }
+}
+
+suspend fun getUserNameCoroutine(uid: String): String {
+    val db = FirebaseFirestore.getInstance()
+    return try {
+        val document = db.collection("users").document(uid).get().await()
+        document.getString("name") ?: ""
+    }
+    catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur lors de la récupération du nom d'utilisateur", e)
+        ""
     }
 }
 

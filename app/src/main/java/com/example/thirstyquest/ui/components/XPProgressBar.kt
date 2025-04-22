@@ -53,7 +53,7 @@ fun LeagueProgressBar(currentLevel: Int, currentXP: Double, requiredXP: Int) {
     }
 }
 
-// - - - - - - - - - - - - - - - Drink  - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - Drink & User  - - - - - - - - - - - - - - -
 @Composable
 fun ProgressBar(
     currentLevel: Int,

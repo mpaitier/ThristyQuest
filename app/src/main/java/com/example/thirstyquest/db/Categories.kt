@@ -5,7 +5,10 @@ import com.example.thirstyquest.data.Category
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-suspend fun getCollectionUser(userID: String): List<Category> {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//      GET
+
+suspend fun getUserCollection(userID: String): List<Category> {
     val db = FirebaseFirestore.getInstance()
     val categories = mutableListOf<Category>()
 

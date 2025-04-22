@@ -48,7 +48,6 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-/** In Social Screen */
 @Composable
 fun LeagueList(
     navController: NavController,
@@ -174,7 +173,7 @@ fun LeagueItem(
         )
 
         Text(
-            text = "$rank",
+            text = rank,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

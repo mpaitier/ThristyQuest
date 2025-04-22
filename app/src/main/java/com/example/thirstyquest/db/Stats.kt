@@ -9,6 +9,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//      GET
+
 suspend fun getWeekConsumptionPoints(id: String, type: String): List<Point>
 {
     if(type == "users" || type == "leagues") {
@@ -65,6 +68,7 @@ suspend fun getWeekConsumptionPoints(id: String, type: String): List<Point>
     }
 
 }
+
 suspend fun getMonthConsumptionPoints(id: String, type: String): List<Point> {
     if(type == "users" || type == "leagues") {
         val db = FirebaseFirestore.getInstance()
@@ -119,6 +123,7 @@ suspend fun getMonthConsumptionPoints(id: String, type: String): List<Point> {
         return emptyList()
     }
 }
+
 suspend fun getYearConsumptionPoints(id: String, type: String): List<Point>
 {
     if(type == "users" || type == "leagues") {
@@ -226,6 +231,7 @@ suspend fun getWeekVolumeConsumptionPoints(id: String, type: String): List<Point
         return emptyList()
     }
 }
+
 suspend fun getMonthVolumeConsumptionPoints(id: String, type: String): List<Point>
 {
     if(type == "users" || type == "leagues") {
@@ -282,6 +288,7 @@ suspend fun getMonthVolumeConsumptionPoints(id: String, type: String): List<Poin
         return emptyList()
     }
 }
+
 suspend fun getYearVolumeConsumptionPoints(id: String, type: String): List<Point> {
     if(type == "users" || type == "leagues") {
         val db = FirebaseFirestore.getInstance()

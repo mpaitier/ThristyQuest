@@ -42,10 +42,8 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-// --------------------------------- Friends List ---------------------------------
-
 @Composable
-fun FriendsList(
+fun FollowList(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
@@ -64,7 +62,7 @@ fun FriendsList(
         modifier = Modifier.fillMaxHeight()
     ) {
         items(friendsList) { friendID ->
-            FriendItem(
+            FollowItem(
                 navController = navController,
                 friendID = friendID
             )
@@ -72,20 +70,17 @@ fun FriendsList(
     }
 }
 
-// --------------------------------- Friends Item ---------------------------------
-
 @Composable
-fun FriendItem(
+fun FollowItem(
     navController: NavController,
     friendID: String,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    var friendName by remember { mutableStateOf("") }
+    var followName by remember { mutableStateOf("") }
     var photoUrl by remember { mutableStateOf<String?>(null) }
 
-    // Récupération du nom dans un `LaunchedEffect`
     LaunchedEffect(friendID) {
-        friendName = getUserNameCoroutine(friendID)
+        followName = getUserNameCoroutine(friendID)
 
         // Get profile picture
         val snapshot = FirebaseFirestore.getInstance()
@@ -130,7 +125,7 @@ fun FriendItem(
             }
 
             Text(
-                text = friendName,
+                text = followName,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -141,13 +136,3 @@ fun FriendItem(
         }
     }
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//                               Previews
-
-/*@Preview
-@Composable
-fun FriendItemPreview() {
-    FriendItem(navController = rememberNavController(),)
-}*/

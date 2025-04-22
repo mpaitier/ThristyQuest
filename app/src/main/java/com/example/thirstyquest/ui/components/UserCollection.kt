@@ -27,10 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.data.Category
-import com.example.thirstyquest.db.getCollectionUser
+import com.example.thirstyquest.db.getUserCollection
 import com.example.thirstyquest.ui.dialog.DrinkItem
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-
 
 @Composable
 fun UserCollectionContent(authViewModel: AuthViewModel) {
@@ -41,7 +40,7 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
     var selectedSort by remember { mutableStateOf("Niveau") }
 
     LaunchedEffect(userId) {
-        fullList = getCollectionUser(userId)
+        fullList = getUserCollection(userId)
     }
 
     fun sortDrinks(type: String) {
@@ -58,7 +57,6 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
             else -> fullList
         }
     }
-
 
     if( fullList.isEmpty() ) {
         LoadingSection()
@@ -85,7 +83,6 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
         }
     }
 }
-
 
 @Composable
 fun SortButton(selectedSort: String, isAscending: Boolean, onSortSelected: (String) -> Unit) {

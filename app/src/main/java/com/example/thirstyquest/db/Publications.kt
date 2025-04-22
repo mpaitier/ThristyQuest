@@ -170,16 +170,11 @@ suspend fun uploadImageToFirebase(userId: String, uri: Uri, context: Context): S
         val storageRef = FirebaseStorage.getInstance().reference
         val imageRef = storageRef.child("images/${userId}_${UUID.randomUUID()}.jpg")
 
-        val originalBitmap = try {
-            MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-        } catch (e: Exception) {
-            Log.e("UPLOAD", "Erreur lors de la récupération du bitmap", e)
-            return null
-        }
+        val originalBitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
         val fixedBitmap = rotateBitmapIfRequired(context, uri, originalBitmap)
 
         val baos = ByteArrayOutputStream()
-        fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos)
+        fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos) //choix qualité image ici
         val imageData = baos.toByteArray()
 
         imageRef.putBytes(imageData).await()
