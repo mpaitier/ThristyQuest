@@ -26,9 +26,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,7 +74,6 @@ import com.example.thirstyquest.db.getWeekConsumptionPoints
 import com.example.thirstyquest.db.getWeekVolumeConsumptionPoints
 import com.example.thirstyquest.db.getYearConsumptionPoints
 import com.example.thirstyquest.db.getYearVolumeConsumptionPoints
-import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.components.ConsumptionChart
 import com.example.thirstyquest.ui.components.FriendPublications
@@ -111,14 +110,14 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var totalDrink1 by remember { mutableStateOf<Category?>(null) }
     var totalDrink2 by remember { mutableStateOf<Category?>(null) }
 
-    var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
-    var monthlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
-    var yearlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
+    var weeklyConsumptionList by remember { mutableStateOf( listOf(Point(-1f, -1f)) ) }
+    var monthlyConsumptionList by remember { mutableStateOf( listOf(Point(-1f, -1f)) ) }
+    var yearlyConsumptionList by remember { mutableStateOf( listOf(Point(-1f, -1f)) ) }
 
-    var weeklyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
-    var monthlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
-    var yearlyVolumeList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
-    var showedList by remember { mutableStateOf<List<Point>>(listOf(Point(0f, 0f))) }
+    var weeklyVolumeList by remember { mutableStateOf( listOf(Point(-1f, -1f)) ) }
+    var monthlyVolumeList by remember { mutableStateOf( listOf(Point(-1f, -1f)) ) }
+    var yearlyVolumeList by remember { mutableStateOf( listOf(Point(-1f, -1f)) ) }
+    var showedList by remember { mutableStateOf(listOf(Point(0f, 0f))) }
 
     LaunchedEffect(friendId) {
         getUserLastPublications(friendId) { newList ->
@@ -215,10 +214,10 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.width(200.dp),
-                        color = MaterialTheme.colorScheme.outline,
-                        thickness = 1.dp
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
 
@@ -275,10 +274,10 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.width(200.dp),
-                        color = MaterialTheme.colorScheme.outline,
-                        thickness = 1.dp
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
                 // ------------------------- STATS -------------------------
@@ -630,54 +629,3 @@ fun InfoFriendStatItem(title: String, count: Int, onClick: () -> Unit)
         Text(text = "$count", fontWeight = FontWeight.Bold, fontSize = 18.sp)
     }
 }
-
-@Composable
-fun FollowItem(uid:String, navController: NavController, authViewModel: AuthViewModel)
-{
-    var userName by remember { mutableStateOf<String?>(null) }
-
-    // Fetch the user name based on the uid
-    LaunchedEffect(uid) {
-        getUserNameById(uid) { name ->
-            userName = name
-        }
-    }
-
-    fun navigateToProfile() {
-        val destination = if (uid == authViewModel.uid.toString()) {
-            Screen.Profile.name
-        } else {
-            Screen.FriendProfile.name + "/${uid}"
-        }
-        navController.navigate(destination)
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        // Profile picture
-        Image(
-            painter = painterResource(id = R.drawable.pdp),
-            contentDescription = "Profile",
-            modifier = Modifier
-                .size(50.dp)
-                .clickable { navigateToProfile() }
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        // Username
-        Text(
-            text = userName?:"",
-            fontSize = 18.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.clickable { navigateToProfile() }
-        )
-        Spacer(modifier = Modifier.weight(1F))
-        // Friend button
-        AddFriendButton(uid, authViewModel)
-    }
-}
-
-
