@@ -37,16 +37,11 @@ import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import com.example.thirstyquest.db.getAllfollowingIdSnap
-import com.example.thirstyquest.ui.dialog.createImageFile
 import com.example.thirstyquest.ui.dialog.getActivity
 import com.example.thirstyquest.ui.dialog.trySendNotification
 
@@ -63,20 +58,8 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
 
     val activity = getActivity()
-    val imageFile = remember { createImageFile(context) }
-    val imageUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", imageFile)
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            photoUri = imageUri
-            showCreateLeagueDialog = true
-        }
-    }
 
     val currentUserUid by authViewModel.uid.observeAsState()
 

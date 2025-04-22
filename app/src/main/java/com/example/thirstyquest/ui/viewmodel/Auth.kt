@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
-// from : https://www.youtube.com/watch?v=KOnLpNZ4AFc&ab_channel=EasyTuto
+// tuto from : https://www.youtube.com/watch?v=KOnLpNZ4AFc&ab_channel=EasyTuto
 class AuthViewModel : ViewModel() {
 
     var hasShownAlcoholWarning = mutableStateOf(false)
@@ -181,19 +181,19 @@ class AuthViewModel : ViewModel() {
     }
 
     sealed class PasswordValidationResult {
-        object Valid : PasswordValidationResult()
-        object TooShort : PasswordValidationResult()
-        object MissingDigit : PasswordValidationResult()
-        object MissingUpperCase : PasswordValidationResult()
-        object MissingLowerCase : PasswordValidationResult()
-        object MissingSymbol : PasswordValidationResult()
+        data object Valid : PasswordValidationResult()
+        data object TooShort : PasswordValidationResult()
+        data object MissingDigit : PasswordValidationResult()
+        data object MissingUpperCase : PasswordValidationResult()
+        data object MissingLowerCase : PasswordValidationResult()
+        data object MissingSymbol : PasswordValidationResult()
     }
 }
 
 sealed class AuthState {
-    object Authenticated : AuthState()
-    object Unauthenticated : AuthState()
-    object Loading : AuthState()
+    data object Authenticated : AuthState()
+    data object Unauthenticated : AuthState()
+    data object Loading : AuthState()
     data class Error(val message: String) : AuthState()
 }
 

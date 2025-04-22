@@ -141,7 +141,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Bouton Ajouter une conso
+            // Bouton Ajouter une consommation
             Button(
                 onClick = {
                     if (userId != null) {

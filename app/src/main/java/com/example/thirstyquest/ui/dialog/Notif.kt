@@ -52,8 +52,7 @@ fun trySendNotification(context: Context, title: String, message: String) {
 
 @Composable
 fun getActivity(): Activity? {
-    val context = LocalContext.current
-    return when (context) {
+    return when (val context = LocalContext.current) {
         is Activity -> context
         is ContextWrapper -> {
             var ctx = context

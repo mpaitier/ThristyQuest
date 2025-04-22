@@ -1,6 +1,10 @@
 package com.example.thirstyquest.ui.dialog
 
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,28 +39,24 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.thirstyquest.R
-import com.example.thirstyquest.db.getLeagueName
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.example.thirstyquest.R
+import com.example.thirstyquest.db.getLeagueName
 import com.example.thirstyquest.db.updateLeagueName
 import com.example.thirstyquest.db.updateLeaguePhotoUrl
 import com.example.thirstyquest.db.uploadLeagueImageToFirebase
@@ -248,7 +248,7 @@ fun AddLeagueDialog(
                     Text(text = stringResource(id = R.string.league_create))
                 }
 
-                Divider(color = MaterialTheme.colorScheme.onBackground)
+                HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
 
                 // Enter league's code
                 OutlinedTextField(
