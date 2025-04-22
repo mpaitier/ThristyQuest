@@ -38,7 +38,6 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.thirstyquest.db.DrinkPointManager.getAllDrinksFromFirestore
 import com.example.thirstyquest.db.DrinkPointManager.getTopDrinksFromFirestore
-import com.example.thirstyquest.db.DrinkPointManager.updateDrinkPoints
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.dialog.AllDrinksDialog
 import com.example.thirstyquest.ui.dialog.TopDrinkItem
@@ -53,8 +52,6 @@ import java.util.Locale
 @Composable
 fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
 {
-    updateDrinkPoints()
-
     val context = LocalContext.current
     val userId by authViewModel.uid.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
