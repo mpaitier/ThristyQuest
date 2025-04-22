@@ -59,7 +59,7 @@ import coil.compose.AsyncImage
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.db.calculateLevelAndRequiredXP
-import com.example.thirstyquest.db.getCollectionUser
+import com.example.thirstyquest.db.getUserCollection
 import com.example.thirstyquest.db.getFollowerCount
 import com.example.thirstyquest.db.getFollowingCount
 import com.example.thirstyquest.db.getMonthConsumptionPoints
@@ -138,7 +138,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             .await()
         photoUrl = snapshot.getString("photoUrl")
 
-        fullList = getCollectionUser(friendId)
+        fullList = getUserCollection(friendId)
 
         totalVolume = getTotalDrinkVolume(friendId)
         totalMoneySpent = getTotalMoneySpent(friendId)

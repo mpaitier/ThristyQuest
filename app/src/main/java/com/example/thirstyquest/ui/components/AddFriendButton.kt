@@ -20,9 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getDrawable
 import com.example.thirstyquest.R
-import com.example.thirstyquest.db.checkIfFriend
+import com.example.thirstyquest.db.checkIfFollowing
 import com.example.thirstyquest.db.getUserNameById
-import com.example.thirstyquest.db.toggleFriend
+import com.example.thirstyquest.db.toggleFollow
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.delay
@@ -40,7 +40,7 @@ fun AddFriendButton(friendId: String, authViewModel: AuthViewModel) {
     // Check if the friend is already followed by the user
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
-            checkIfFriend(uid, friendId) { isFriend = it }
+            checkIfFollowing(uid, friendId) { isFriend = it }
         }
     }
 
@@ -57,7 +57,7 @@ fun AddFriendButton(friendId: String, authViewModel: AuthViewModel) {
             if (!isAnimating) {
                 isAnimating = true
                 currentUserUid?.let { uid ->
-                    toggleFriend(uid, friendId, isFriend) {
+                    toggleFollow(uid, friendId, isFriend) {
 
                     }
                 }

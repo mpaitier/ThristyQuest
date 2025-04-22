@@ -1,4 +1,5 @@
 package com.example.thirstyquest.db
+
 import android.util.Log
 import com.example.thirstyquest.data.DrinkCategories
 import com.google.firebase.Timestamp
@@ -72,7 +73,7 @@ object DrinkPointManager {
                 }
             }
 
-            // Trie les boissons par points décroissants et retourne les 3 meilleures
+            // Sort drink by points in descending order & take the top 3
             result.sortedByDescending { it.second }.take(3)
         } catch (e: Exception) {
             Log.e("FIRESTORE", "Erreur récupération top boissons", e)
@@ -92,7 +93,7 @@ object DrinkPointManager {
                     result.add(key to value.toInt())
                 }
             }
-            result.sortedByDescending { it.second } // trie, mais ne coupe pas
+            result.sortedByDescending { it.second }
         } catch (e: Exception) {
             Log.e("FIRESTORE", "Erreur récupération boissons", e)
             emptyList()

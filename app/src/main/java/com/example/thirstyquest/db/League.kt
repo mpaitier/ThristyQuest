@@ -3,29 +3,16 @@ package com.example.thirstyquest.db
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.navigation.NavController
-import co.yml.charts.common.model.Point
 import com.example.thirstyquest.navigation.Screen
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.temporal.WeekFields
-import java.util.Locale
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    POST
@@ -85,7 +72,6 @@ fun addLeagueToFirestore(
                 if (document.exists()) {
                     tryCreateLeague()
                 } else {
-                    // 👇 Upload photo si dispo
                     if (imageUri != null) {
                         uploadLeagueImageToFirebase(lid, imageUri, context) { imageUrl ->
                             createLeagueWithPhotoUrl(lid, imageUrl)
@@ -156,17 +142,16 @@ fun joinLeagueIfExists(
                             Toast.makeText(context, "Vous êtes déjà membre de cette ligue", Toast.LENGTH_SHORT).show()
                         }
                         else {
-                            // Ajouter l'utilisateur comme membre
+                            // Add user as member
                             db.collection("leagues").document(leagueCode)
                                 .collection("members").document(uid)
                                 .set(hashMapOf(uid to uid))
-
-                            // Lier la ligue à l'utilisateur
+                            // Link league to user
                             val leagueName = document.getString("name") ?: "Ligue"
                             db.collection("users").document(uid)
                                 .collection("leagues").document(leagueCode)
                                 .set(hashMapOf("League name" to leagueName))
-
+                            // Increment league count
                             db.collection("leagues").document(leagueCode)
                                 .update("count", FieldValue.increment(1))
                         }
@@ -184,7 +169,6 @@ fun joinLeagueIfExists(
         }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    GET
 
@@ -195,9 +179,7 @@ suspend fun getAllUserLeaguesIdCoroutine(uid: String): List<String> {
         val result = db.collection("users").document(uid).collection("leagues")
             .get()
             .await()
-        // Parcours tous les documents récupérés
         for (document in result) {
-            // Récupère l'ID du document (c'est l'ID de l'ami)
             val id = document.id
             leagueList.add(id)
         }
@@ -247,26 +229,22 @@ suspend fun getUserRank(uid: String, leagueID: String): Int {
     val db = FirebaseFirestore.getInstance()
 
     return try {
-        // Récupérer tous les UID des membres de la ligue
+        // Get all members id
         val membersSnapshot = db.collection("leagues")
             .document(leagueID)
             .collection("members")
             .get()
             .await()
-
         val memberIds = membersSnapshot.documents.map { it.id }
-
-        // Récupérer l'XP de chaque utilisateur
+        // Get all xp for each member
         val xpList = memberIds.mapNotNull { memberId ->
             val userSnapshot = db.collection("users").document(memberId).get().await()
             val xp = userSnapshot.getLong("xp") ?: return@mapNotNull null
             memberId to xp
         }
-
-        // Trier par XP décroissant
+        // Sort by xp in descending order
         val rankedList = xpList.sortedByDescending { it.second }
-
-        // Trouver la position de l'utilisateur
+        // Find the rank of the user
         val rank = rankedList.indexOfFirst { it.first == uid } + 1
 
         if (rank > 0) rank else 0

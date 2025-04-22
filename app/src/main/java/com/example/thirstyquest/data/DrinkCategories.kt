@@ -2,7 +2,6 @@ package com.example.thirstyquest.data
 
 object DrinkCategories {
     val basePoints = mapOf(
-        // Bières
         "Bière blonde" to 400,
         "Bière brune" to 500,
         "Bière rousse" to 450,
@@ -12,17 +11,14 @@ object DrinkCategories {
         "Bière blanche" to 400,
         "Bière fruitée" to 450,
 
-        // Cidres
         "Cidre" to 400,
         "Poiré" to 300,
 
-        // Vins
         "Vin rouge" to 500,
         "Vin blanc" to 450,
         "Vin rosé" to 450,
         "Vin pétillant" to 500,
 
-        // Shots / Alcools forts
         "Vodka" to 600,
         "Jägermeister" to 600,
         "Rhum blanc" to 600,
@@ -38,9 +34,8 @@ object DrinkCategories {
         "Martini" to 600,
         "Eau de vie" to 700,
         "Absinthe" to 750,
-        "Liqueur" to 550, // Ex: Cointreau, Amaretto
+        "Liqueur" to 550,
 
-        // Autre
         "Autre alcool" to 500,
         "Sans alcool" to 10
     )
