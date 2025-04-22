@@ -135,7 +135,7 @@ Lorsqu’un utilisateur crée une publication :
 - **UID** : l'AuthViewModel permet de récupérer l'identifiant de l'utilisateur
 - **Coroutines** : pour accéder à des données sur *Firebase*, toujours créer une valeur par défaut et l'initialiser dans un LaunchEffect.
   Exemple pour le graphique de consommation :
-```
+```kotlin
 fun UserStatsContent(userId: String, isFriend: Boolean) {
 // on déclare les variables avec des valeurs par défaut (différentes de null car nos fonctions pour récupérer les valeurs peuvent renvoyer null)
     var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
