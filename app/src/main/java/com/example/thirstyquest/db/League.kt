@@ -148,23 +148,33 @@ fun joinLeagueIfExists(
     db.collection("leagues").document(leagueCode).get()
         .addOnSuccessListener { document ->
             if (document.exists()) {
-                // Ajouter l'utilisateur comme membre
                 db.collection("leagues").document(leagueCode)
                     .collection("members").document(uid)
-                    .set(hashMapOf(uid to uid))
+                    .get()
+                    .addOnSuccessListener { member ->
+                        if (member.exists()) {
+                            Toast.makeText(context, "Vous êtes déjà membre de cette ligue", Toast.LENGTH_SHORT).show()
+                        }
+                        else {
+                            // Ajouter l'utilisateur comme membre
+                            db.collection("leagues").document(leagueCode)
+                                .collection("members").document(uid)
+                                .set(hashMapOf(uid to uid))
 
-                // Lier la ligue à l'utilisateur
-                val leagueName = document.getString("name") ?: "Ligue"
-                db.collection("users").document(uid)
-                    .collection("leagues").document(leagueCode)
-                    .set(hashMapOf("League name" to leagueName))
+                            // Lier la ligue à l'utilisateur
+                            val leagueName = document.getString("name") ?: "Ligue"
+                            db.collection("users").document(uid)
+                                .collection("leagues").document(leagueCode)
+                                .set(hashMapOf("League name" to leagueName))
 
-                db.collection("leagues").document(leagueCode)
-                    .update("count", FieldValue.increment(1))
-
-                // Redirection
-                navController.navigate(Screen.LeagueContent.name + "/$leagueCode")
-            } else {
+                            db.collection("leagues").document(leagueCode)
+                                .update("count", FieldValue.increment(1))
+                        }
+                        // Redirection
+                        navController.navigate(Screen.LeagueContent.name + "/$leagueCode")
+                    }
+            }
+            else {
                 Toast.makeText(context, "Code de ligue inconnu", Toast.LENGTH_SHORT).show()
             }
         }

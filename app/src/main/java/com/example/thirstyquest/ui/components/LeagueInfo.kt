@@ -1,5 +1,6 @@
 package com.example.thirstyquest.ui.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +43,10 @@ import com.example.thirstyquest.db.getLeagueXp
 import com.example.thirstyquest.db.getUserXPById
 
 @Composable
-fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
+fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
+{
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
     var currentXP by remember { mutableDoubleStateOf(0.0) }
     var currentLevel by remember { mutableIntStateOf(0) }
@@ -83,7 +91,14 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge
             )
-            Spacer(modifier = Modifier.width(40.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            // Copy button
+            IconButton(onClick = {
+                clipboardManager.setText(AnnotatedString(leagueID))
+                Toast.makeText(context, "Code copié !", Toast.LENGTH_SHORT).show()
+            }) {
+                Icon(Icons.Default.ContentCopy, contentDescription = "Copier")
+            }
             // Share button
             IconButton(
                 onClick = {
@@ -91,8 +106,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit) {
                         "Viens rejoindre la ligue $leagueName sur Thirsty Quest et partageons nos aventures de consommation ! \uD83C\uDF7B\n" +
                                 "Voici mon code de ligue : $leagueID\n"
                     onShareClick(shareMessage)
-                },
-                modifier = Modifier.size(16.dp)
+                }
             ) {
                 Icon(imageVector = Icons.Filled.Share, contentDescription = "Share")
             }

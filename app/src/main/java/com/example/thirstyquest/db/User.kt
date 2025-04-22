@@ -177,5 +177,5 @@ fun calculateLevelAndRequiredXP(xp: Double, baseXp: Int = 1000  , growthRate: Do
         totalXpForNextLevel += (baseXp * growthRate).toInt()
     }
 
-    return level to (baseXp * growthRate).toInt()
+    return level to totalXpForNextLevel.toInt()
 }
