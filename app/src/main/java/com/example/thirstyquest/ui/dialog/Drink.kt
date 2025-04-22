@@ -56,12 +56,6 @@ import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.components.ProgressBar
 
-val drawableMap = mapOf(
-    "drawable_biere" to R.drawable.biere,
-    "drawable_ricard" to R.drawable.ricard,
-    "drawable_vodka" to R.drawable.vodka
-)
-
 @Composable
 fun TopDrinkItem(name: String, points: String) {
     Row(
@@ -306,9 +300,9 @@ fun PublicationHistItem(publication: Publication)
                 modifier = Modifier.size(40.dp)
             )
         } else {
-            val drawableRes = drawableMap[publication.photo] ?: R.drawable.ricard
+
             Image(
-                painter = painterResource(id = drawableRes),
+                painter = painterResource(id = getDrinkIcon(publication.category)),
                 contentDescription = "Image par défaut",
                 modifier = Modifier.size(40.dp)
             )
@@ -327,19 +321,42 @@ fun PublicationHistItem(publication: Publication)
 // Fonction pour mapper chaque boisson à son icône
 @Composable
 fun getDrinkIcon(name: String): Int {
-
     return when (name) {
-        "Bière blonde" -> R.drawable.biere
-        "Bière brune" -> R.drawable.biere
-        "Bière rousse" -> R.drawable.biere
-        "Bière IPA (& NEIPA, Double IPA, ...)" -> R.drawable.biere
-        "Stout (Guinness)" -> R.drawable.biere
-        "Bière pils" -> R.drawable.biere
-        "Bière blanche" -> R.drawable.biere
-        "Bière fruitée" -> R.drawable.biere
-        "Vin rouge" -> R.drawable.vin
-        "Cocktail" -> R.drawable.cocktail
-        "Shot" -> R.drawable.shot
+        "Bière blonde" -> R.drawable.biere_blonde
+        "Bière brune" -> R.drawable.biere_brune
+        "Bière rousse" -> R.drawable.biere_rousse
+        "Bière IPA" -> R.drawable.biere_ipa
+        "Stout (Guinness)" -> R.drawable.stout
+        "Bière pils" -> R.drawable.biere_pils
+        "Bière blanche" -> R.drawable.biere_blanche
+        "Bière fruitée" -> R.drawable.biere_fruitee
+
+        "Cidre" -> R.drawable.cidre
+        "Poiré" -> R.drawable.poire
+
+        "Vin rouge" -> R.drawable.vin_rouge
+        "Vin blanc" -> R.drawable.vin_blanc
+        "Vin rosé" -> R.drawable.vin_rose
+        "Vin pétillant" -> R.drawable.vin_petillant
+
+        "Vodka" -> R.drawable.vodka
+        "Jägermeister" -> R.drawable.jagermeister
+        "Rhum blanc" -> R.drawable.rhum_blanc
+        "Rhum ambré" -> R.drawable.rhum_ambre
+        "Whisky" -> R.drawable.whisky
+        "Tequila" -> R.drawable.tequila
+        "Gin" -> R.drawable.gin
+        "Cognac" -> R.drawable.cognac
+        "Ricard / Pastis" -> R.drawable.ricard
+        "Saké" -> R.drawable.sake
+        "Aguardiente" -> R.drawable.aguardiente
+        "Cavlados" -> R.drawable.calvados
+        "Martini" -> R.drawable.martini
+        "Eau de vie" -> R.drawable.eau_de_vie
+        "Absinthe" -> R.drawable.absinthe
+        "Liqueur" -> R.drawable.liqueur
+
+        // Par défaut
         else -> R.drawable.other
     }
 }

@@ -48,6 +48,7 @@ import com.example.thirstyquest.R
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.db.getUserNameCoroutine
 import com.example.thirstyquest.ui.dialog.PublicationDetailDialog
+import com.example.thirstyquest.ui.dialog.getDrinkIcon
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import kotlin.String
 
@@ -62,12 +63,6 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
 
     val interactionSource = remember { MutableInteractionSource() }
     var showPublicationDialog by remember { mutableStateOf(false) }
-
-    val drawableMap = mapOf( // TODO : SUPPRIMER QUAND ON UTILISERA PLUS LES PUBLI EN DUR CODES POUR LE TEST
-        "drawable_biere" to R.drawable.biere,
-        "drawable_ricard" to R.drawable.ricard,
-        "drawable_vodka" to R.drawable.vodka
-    )
 
     Row(
         modifier = Modifier
@@ -85,9 +80,8 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
                 contentScale = ContentScale.Crop
             )
         } else {
-            val drawableRes = drawableMap[publication.photo] ?: R.drawable.ricard
             Image(
-                painter = painterResource(id = drawableRes),
+                painter = painterResource(id = getDrinkIcon(publication.category)),
                 contentDescription = "Publication picture",
                 modifier = Modifier
                     .size(80.dp)
@@ -182,7 +176,7 @@ fun PublicationItem(publication: Publication) {
             )
         } else {
             Image(
-                painter = painterResource(id = R.drawable.biere),
+                painter = painterResource(id = R.drawable.other),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -293,7 +287,7 @@ fun FriendPublicationItem(
                             )
                         } else {
                             Image(
-                                painter = painterResource(id = R.drawable.biere),
+                                painter = painterResource(id = R.drawable.other),
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
