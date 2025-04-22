@@ -61,8 +61,7 @@ import java.util.Locale
 @Composable
 fun EditProfileDialog(
     authViewModel: AuthViewModel,
-    onDismiss: () -> Unit,
-    onPhotoUpdated: () -> Unit = {}
+    onDismiss: () -> Unit
 ) {
     val currentUserUid by authViewModel.uid.observeAsState()
     var userName by remember { mutableStateOf("") }
@@ -156,7 +155,7 @@ fun EditProfileDialog(
                             val url = uploadImageToFirebase(uid, uri, context)
                             if (url != null) {
                                 updateUserProfilePhotoUrl(uid, url)
-                                onPhotoUpdated()
+                                authViewModel.refreshPhotoUrl()
                             }
                         }
                     }

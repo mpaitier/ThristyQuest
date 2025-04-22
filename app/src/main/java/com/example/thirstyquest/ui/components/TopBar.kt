@@ -54,22 +54,7 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
 
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
 
-    var photoUrl by remember { mutableStateOf<String?>(null) }
-    var refreshKey by remember { mutableIntStateOf(0) } // Ajouté pour forcer le rafraîchissement
-    val uid by authViewModel.uid.observeAsState()
-
-    // Recharge la photo à chaque changement de refreshKey
-    LaunchedEffect(uid, refreshKey) {
-        uid?.let { userId ->
-            val snapshot = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .get()
-                .await()
-
-            photoUrl = snapshot.getString("photoUrl")
-        }
-    }
+    val photoUrl by authViewModel.photoUrl.observeAsState()
 
     CenterAlignedTopAppBar(
         title = {
@@ -159,9 +144,9 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     if (showDialog) {
         EditProfileDialog(
             authViewModel = authViewModel,
-            onDismiss = { showDialog = false },
-            onPhotoUpdated = { refreshKey++ }
+            onDismiss = { showDialog = false }
         )
+
     }
 }
 
