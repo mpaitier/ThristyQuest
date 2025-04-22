@@ -119,14 +119,14 @@ users
     - L'ID de A est ajouté aux `followers/` de B :  `users/{userId_B}/followers/{userId_A}`
  
 ### Stockage des photos utilisateurs
-L’application Thirst Quest utilise Firebase Cloud Storage pour héberger les images liées aux utilisateurs. Cela concerne :
-- les photos de profil (upload lors de l’inscription ou dans les paramètres),
-- les photos des publications (prises ou sélectionnées via la caméra/galerie).
-Les photos prises par les utilisateurs (ex. : photos de boissons) sont compressées localement au format JPEG avec une qualité de 60% avant d’être uploadées sur Firebase Storage.
+L’application Thirst Quest utilise Firebase Cloud Storage pour héberger les images liées aux utilisateurs. Les photos prises par les utilisateurs sont compressées localement au format JPEG avec une qualité de 60% avant d’être uploadées sur Firebase Storage. Cela concerne :
+- les photos de profil (upload lors de l’inscription ou dans les paramètres)
+- les photos des publications (prises ou sélectionnées via la caméra/galerie)
 ```
 └──Images/ (Stockage des photos de profiles et des publications)
 └──LeagueImage/ (Stockage des photos de league)
 ```
+
 
 ### Publications
 

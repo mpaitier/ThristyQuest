@@ -3,6 +3,7 @@ package com.example.thirstyquest.db
 import android.content.Context
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.util.Locale
@@ -14,10 +15,12 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.provider.MediaStore
 import com.example.thirstyquest.data.Publication
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.util.*
+import com.example.thirstyquest.data.DrinkCategories
 import com.example.thirstyquest.data.DrinkVolumes
 import com.google.firebase.firestore.SetOptions
 import kotlin.math.max
@@ -27,7 +30,7 @@ import kotlin.math.max
 
 suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPrice: String, drinkCategory: String, drinkVolume: Int, photoUrl: String): Pair<String,Int> {
     val db = FirebaseFirestore.getInstance()
-    val id = UUID.randomUUID().toString() // Create unique ID for the publication
+    val id = UUID.randomUUID().toString() // Génère un ID unique
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     val currentDate = dateFormat.format(Date())
@@ -83,7 +86,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         .addOnFailureListener { e ->
             Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e)
         }
-
+    // TODO : faire systeme de level de boisson en fonction des points
     val categoryRef = db.collection("users").document(userId).collection("category").document(drinkCategory)
     val data2 = mapOf(
         "total" to FieldValue.increment(1),
@@ -110,7 +113,7 @@ fun addPublicationToLeague(pid : String, lid: String, price : Double, volume: Do
         .addOnSuccessListener { Log.d("Firebase", "Publication ajoutée à la ligue avec succès") }
         .addOnFailureListener { e -> Log.w("Firebase", "Erreur lors de l'ajout", e) }
 
-    // Increment values in league
+    // Incrementer les valeurs "total liters", "total price" et "category" de la ligue
     db.collection("leagues").document(lid)
         .update("total liters", FieldValue.increment(volume/100))
         .addOnSuccessListener { Log.d("Firebase", "Volume total mis à jour avec succès") }
@@ -154,12 +157,14 @@ fun rotateBitmapIfRequired(context: Context, uri: Uri, bitmap: Bitmap): Bitmap {
         ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
         ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
         ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-        else -> return bitmap
+        else -> return bitmap // Pas besoin de tourner
     }
 
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 }
 
+
+//Pour les publis et le profil (ON CHOISI LA QUALITE ICI)
 suspend fun uploadImageToFirebase(userId: String, uri: Uri, context: Context): String? {
     return try {
         val storageRef = FirebaseStorage.getInstance().reference
@@ -169,17 +174,20 @@ suspend fun uploadImageToFirebase(userId: String, uri: Uri, context: Context): S
         val fixedBitmap = rotateBitmapIfRequired(context, uri, originalBitmap)
 
         val baos = ByteArrayOutputStream()
-        fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos) // picture quality
+        fixedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos) //choix qualité image ici
         val imageData = baos.toByteArray()
 
         imageRef.putBytes(imageData).await()
 
+
+        // Récupérer l'URL
         imageRef.downloadUrl.await().toString()
     } catch (e: Exception) {
         Log.e("UPLOAD", "Erreur lors de l'upload compressé", e)
         null
     }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //    GET
@@ -200,6 +208,7 @@ suspend fun getTotalDrinkVolume(userID: String): Double {
     }
 }
 
+
 suspend fun getTotalMoneySpent(userID: String): Double {
     val db = FirebaseFirestore.getInstance()
     var totalSpent = 0.0
@@ -219,6 +228,26 @@ suspend fun getTotalMoneySpent(userID: String): Double {
     } catch (e: Exception) {
         Log.e("FIRESTORE", "Erreur de récupération du total dépensé : ", e)
         0.0
+    }
+}
+
+suspend fun getPublicationCountByCategory(category: String, userID: String): Int {
+    val db = FirebaseFirestore.getInstance()
+    var count = 0
+
+    return try {
+        val result = db.collection("publications")
+            .whereEqualTo("user_ID", userID)
+            .whereEqualTo("category", category)
+            .get()
+            .await()
+
+        count = result.size()
+
+        count
+    } catch (e: Exception) {
+        Log.e("FIRESTORE", "Erreur de récupération du nombre de publications : ", e)
+        0
     }
 }
 
@@ -244,7 +273,7 @@ suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
 
         if (publicationDates.isEmpty()) return 0.0
 
-        // Get the first and last publication
+        // Trouver la première et la dernière publication
         val firstDate = publicationDates.minByOrNull { it.time } ?: return 0.0
         val lastDate = publicationDates.maxByOrNull { it.time } ?: return 0.0
 
@@ -264,7 +293,7 @@ suspend fun getAverageDrinkConsumption(period: String,userID:String): Double {
             "DAY" -> max((endYear - startYear) * 365 + (endDay - startDay) + 1, 1)
             "MONTH" -> max((endYear - startYear) * 12 + (endMonth - startMonth) + 1, 1)
             "YEAR" -> max((endYear - startYear) + 1, 1)
-            else -> return 0.0
+            else -> return 0.0 // Paramètre invalide
         }
 
         return result.size().toDouble() / totalPeriods
@@ -331,6 +360,7 @@ fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Uni
                 return@addSnapshotListener
             }
 
+            // Vide les anciennes publications
             publications.clear()
 
             val pubRefs = userPubSnapshots.documents
@@ -357,8 +387,9 @@ fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Uni
                         publications.add(publication)
                         fetched++
 
-                        // return list when all publications are fetched
+                        // Une fois qu'on a tout récupéré, on retourne la liste
                         if (fetched == pubRefs.size) {
+                            // Tu peux aussi trier ici par date/heure si besoin
                             onResult(publications.sortedByDescending { it.date + it.hour })
                         }
                     }
@@ -371,4 +402,29 @@ fun getUserLastPublications(userID: String, onResult: (List<Publication>) -> Uni
                     }
             }
         }
+}
+suspend fun getFriendPublications(friendId: String): List<Pair<String, String>> {
+    val db = FirebaseFirestore.getInstance()
+    val publications = mutableListOf<Pair<String, String>>()
+
+    try {
+        val result = db.collection("publications")
+            .whereEqualTo("user_ID", friendId)
+            .orderBy("date", Query.Direction.DESCENDING)
+            .orderBy("hour", Query.Direction.DESCENDING)
+            .limit(10)
+            .get()
+            .await()
+
+        // Récupérer les publications sous forme de Paires (description, points)
+        for (document in result) {
+            val description = document.getString("description") ?: ""
+            val points = document.getLong("points")?.toString() ?: "0"
+            publications.add(Pair(description, points))
+        }
+    } catch (e: Exception) {
+        Log.e("Firestore", "Erreur de récupération des publications", e)
+    }
+
+    return publications
 }

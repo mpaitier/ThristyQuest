@@ -1,5 +1,7 @@
 package com.example.thirstyquest.ui.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import android.util.Patterns
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -11,6 +13,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.UserProfileChangeRequest
 import androidx.lifecycle.viewModelScope
 import com.example.thirstyquest.db.doesUsernameExist
+import com.example.thirstyquest.db.updateUserProfilePhotoUrl
+import com.example.thirstyquest.db.uploadImageToFirebase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -28,6 +33,8 @@ class AuthViewModel : ViewModel() {
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+    private val _photoUrl = MutableLiveData<String?>()
+    val photoUrl: LiveData<String?> = _photoUrl
 
     init {
         auth.addAuthStateListener { firebaseAuth ->
@@ -35,6 +42,7 @@ class AuthViewModel : ViewModel() {
             if (user != null) {
                 _uid.value = user.uid
                 _authState.value = AuthState.Authenticated
+                refreshPhotoUrl()
             } else {
                 _uid.value = null
                 _authState.value = AuthState.Unauthenticated
@@ -123,7 +131,33 @@ class AuthViewModel : ViewModel() {
         auth.signOut()
         _uid.value = null
         _authState.value = AuthState.Unauthenticated
+        _photoUrl.value = null
     }
+
+    fun refreshPhotoUrl() {
+        viewModelScope.launch {
+            val userId = uid.value ?: return@launch
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            _photoUrl.value = snapshot.getString("photoUrl")
+        }
+    }
+    fun uploadProfilePicture(uri: Uri, context: Context, onFinish: () -> Unit) {
+        viewModelScope.launch {
+            val userId = uid.value ?: return@launch
+            val url = uploadImageToFirebase(userId, uri, context)
+            if (url != null) {
+                updateUserProfilePhotoUrl(userId, url)
+                _photoUrl.value = url
+            }
+            onFinish()
+        }
+    }
+
 
     private fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()

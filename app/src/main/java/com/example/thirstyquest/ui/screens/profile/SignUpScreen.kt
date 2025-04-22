@@ -60,15 +60,9 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
     val scope = rememberCoroutineScope()
     var showPhotoDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(authState.value) {
-        when(authState.value) {
-            is AuthState.Authenticated -> {
-                showPhotoDialog = true
-            }
-            is AuthState.Error -> {
-                Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_LONG).show()
-            }
-            else -> Unit
+    LaunchedEffect(authState.value, authViewModel.uid.value) {
+        if (authState.value is AuthState.Authenticated && authViewModel.uid.value != null) {
+            showPhotoDialog = true
         }
     }
 
@@ -168,12 +162,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
                 navController.navigate(Screen.MainMenu.name)
             },
             onImageCaptured = { uri ->
-                scope.launch {
-                    val userId = authViewModel.uid.value ?: return@launch
-                    val url = uploadImageToFirebase(userId, uri, context)
-                    if (url != null) {
-                        updateUserProfilePhotoUrl(userId, url)
-                    }
+                authViewModel.uploadProfilePicture(uri, context) {
                     navController.navigate(Screen.MainMenu.name)
                 }
             }
