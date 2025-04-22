@@ -125,24 +125,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 )
 
                 IconButton(
-                    onClick = {showDialog = true
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                android.Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            activity?.let {
-                                ActivityCompat.requestPermissions(
-                                    it,
-                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                    1001
-                                )
-                            }
-                        } else {
-                            trySendNotification(context, "Titre", "tu viens de rentrer dans une league")
-                        }
-                    },
+                    onClick = {showDialog = true },
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(

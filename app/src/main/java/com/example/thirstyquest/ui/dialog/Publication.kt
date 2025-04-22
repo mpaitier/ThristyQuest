@@ -67,6 +67,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.thirstyquest.R
 import com.example.thirstyquest.data.DrinkCategories
 import com.example.thirstyquest.data.Publication
@@ -77,7 +79,7 @@ import com.example.thirstyquest.db.addPublicationToLeague
 import com.example.thirstyquest.db.getAllUserLeague
 import com.example.thirstyquest.db.uploadImageToFirebase
 import kotlinx.coroutines.launch
-
+import java.util.concurrent.TimeUnit
 
 
 @Composable
@@ -251,6 +253,12 @@ fun AddPublicationDialog(
                     Text("Ajouter")
                 }
             }
+            val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+                .setInitialDelay(30, TimeUnit.MINUTES)
+                .build()
+
+            WorkManager.getInstance(context).enqueue(workRequest)
+
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
