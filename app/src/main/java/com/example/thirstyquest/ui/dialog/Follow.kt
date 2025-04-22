@@ -189,22 +189,3 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
     )
 }
 
-
-@Composable
-fun FollowersPage(followersList: List<String>, navController: NavController, authViewModel: AuthViewModel) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(followersList.size) { index ->
-            FollowItem(followersList[index], navController, authViewModel = authViewModel)
-        }
-    }
-}
-
-@Composable
-fun FollowingPage(followingList: List<String>, navController: NavController,authViewModel: AuthViewModel) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(followingList.size) { index ->
-            FollowItem(followingList[index], navController,authViewModel = authViewModel)
-        }
-    }
-}
-

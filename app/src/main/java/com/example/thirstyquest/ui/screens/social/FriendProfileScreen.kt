@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -208,6 +209,19 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     color = MaterialTheme.colorScheme.primary
                 )
                 FriendPublications(friendId)
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Divider(
+                        modifier = Modifier.width(200.dp),
+                        color = MaterialTheme.colorScheme.outline,
+                        thickness = 1.dp
+                    )
+                }
+
                 // ------------------------- COLLECTION -------------------------
                 Text(
                     text = "Collection",
@@ -257,6 +271,16 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Divider(
+                        modifier = Modifier.width(200.dp),
+                        color = MaterialTheme.colorScheme.outline,
+                        thickness = 1.dp
+                    )
+                }
                 // ------------------------- STATS -------------------------
                 Text(
                     text = "Statistiques",

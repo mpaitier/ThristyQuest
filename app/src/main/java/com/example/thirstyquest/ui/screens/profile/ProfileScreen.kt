@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.example.thirstyquest.R
@@ -33,6 +34,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     val uid = authViewModel.uid.observeAsState()
     val userId = uid.value ?: ""
     val authState = authViewModel.authState.observeAsState()
+    
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Unauthenticated -> navController.navigate(Screen.Login.name)
@@ -47,7 +49,7 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
             selectedTabIndex = pagerState.currentPage,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         ) {
             tabTitles.forEachIndexed { index, title ->
                 Tab(
@@ -55,13 +57,15 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                     onClick = {
                         coroutineScope.launch { pagerState.animateScrollToPage(index) }
                     },
+                    modifier = Modifier.weight(1f),
                     text = { Text(stringResource(id = title)) }
                 )
             }
         }
+
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) { page ->
             when (page) {
                 0 -> UserStatsContent(userId = userId, isFriend = false)

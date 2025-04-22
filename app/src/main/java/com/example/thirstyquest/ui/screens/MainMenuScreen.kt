@@ -110,7 +110,6 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-            // Section TOP DRINKS
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
