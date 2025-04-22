@@ -42,7 +42,6 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
@@ -165,8 +164,6 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
     }
 }
 
-
-// ------------------------------ League Top Bar ------------------------------
 @Composable
 fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, leagueID: String) {
     var showDialog by remember { mutableStateOf(false) }

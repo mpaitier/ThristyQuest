@@ -1,7 +1,5 @@
 package com.example.thirstyquest.ui.screens.social
 
-import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,23 +30,19 @@ import com.example.thirstyquest.db.addLeagueToFirestore
 import com.example.thirstyquest.db.getAllUserLeaguesIdCoroutine
 import com.example.thirstyquest.db.joinLeagueIfExists
 import com.example.thirstyquest.navigation.Screen
-import com.example.thirstyquest.ui.components.FriendsList
+import com.example.thirstyquest.ui.components.FollowList
 import com.example.thirstyquest.ui.components.LeagueList
 import com.example.thirstyquest.ui.components.SearchBar
 import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.thirstyquest.db.getAllfollowingIdSnap
@@ -168,7 +162,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 color = primaryColor
             )
             Spacer(modifier = Modifier.height(6.dp))
-            FriendsList(navController, authViewModel)
+            FollowList(navController, authViewModel)
         }
         else {
             SearchResultsList(searchQuery, navController, authViewModel)

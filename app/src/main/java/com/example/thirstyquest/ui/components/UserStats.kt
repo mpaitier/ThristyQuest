@@ -51,7 +51,6 @@ import com.example.thirstyquest.db.getWeekVolumeConsumptionPoints
 import com.example.thirstyquest.db.getYearConsumptionPoints
 import com.example.thirstyquest.db.getYearVolumeConsumptionPoints
 
-
 @Composable
 fun UserStatsContent(userId: String, isFriend: Boolean) {
 

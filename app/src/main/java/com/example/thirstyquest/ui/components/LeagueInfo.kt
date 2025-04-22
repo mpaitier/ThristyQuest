@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
@@ -34,13 +33,10 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
-import com.example.thirstyquest.db.getAllLeagueMembers
 import com.example.thirstyquest.db.getLeagueName
 import com.example.thirstyquest.db.getLeagueXp
-import com.example.thirstyquest.db.getUserXPById
 
 @Composable
 fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)

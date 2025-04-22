@@ -44,9 +44,6 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.thirstyquest.R
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//     Composable
-
 @Composable
 fun StatItemColumn(label: String, value: String)
 {

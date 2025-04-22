@@ -31,7 +31,6 @@ import com.example.thirstyquest.db.getUserCollection
 import com.example.thirstyquest.ui.dialog.DrinkItem
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 
-
 @Composable
 fun UserCollectionContent(authViewModel: AuthViewModel) {
     var fullList by remember { mutableStateOf<List<Category>>(emptyList()) }
@@ -59,7 +58,6 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
         }
     }
 
-
     if( fullList.isEmpty() ) {
         LoadingSection()
     }
@@ -85,7 +83,6 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
         }
     }
 }
-
 
 @Composable
 fun SortButton(selectedSort: String, isAscending: Boolean, onSortSelected: (String) -> Unit) {
