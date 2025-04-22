@@ -1,5 +1,8 @@
 package com.example.thirstyquest.ui.screens.social
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -37,13 +40,21 @@ import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.thirstyquest.db.getAllfollowingIdSnap
 import com.example.thirstyquest.ui.dialog.createImageFile
+import com.example.thirstyquest.ui.dialog.getActivity
+import com.example.thirstyquest.ui.dialog.trySendNotification
 
 
 @Composable
@@ -60,7 +71,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
 
-
+    val activity = getActivity()
     val imageFile = remember { createImageFile(context) }
     val imageUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", imageFile)
 
@@ -120,7 +131,24 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 )
 
                 IconButton(
-                    onClick = { showDialog = true },
+                    onClick = {showDialog = true
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                android.Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            activity?.let {
+                                ActivityCompat.requestPermissions(
+                                    it,
+                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                                    1001
+                                )
+                            }
+                        } else {
+                            trySendNotification(context, "Titre", "tu viens de rentrer dans une league")
+                        }
+                    },
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
