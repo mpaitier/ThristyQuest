@@ -37,33 +37,6 @@ fun createNotificationChannel(context: Context) {
     notificationManager.createNotificationChannel(channel)
 }
 
-
-/*
-fun trySendNotification(context: Context, title: String, message: String) {
-    val notificationsEnabled = runBlocking {
-        getNotificationsEnabled(context)
-    }
-    if (!notificationsEnabled) {
-        Log.w("Notif", "Notifications désactivées : switch off ou permission refusée")
-    }
-    else{
-        val notification = NotificationCompat.Builder(context, "default_channel")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .build()
-        try {
-            NotificationManagerCompat.from(context).notify(1, notification)
-        } catch (e: SecurityException) {
-            Log.e("Notif", "Permission POST_NOTIFICATIONS manquante au moment de l'envoi", e)
-        }
-    }
-}*/
-
-
-
 class NotificationWorker(context: Context, params: WorkerParameters) :
     Worker(context, params) {
 
@@ -94,44 +67,3 @@ class NotificationWorker(context: Context, params: WorkerParameters) :
         return Result.success()
     }
 }
-
-
-
-
-@Composable
-fun getActivity(): Activity? {
-    return when (val context = LocalContext.current) {
-        is Activity -> context
-        is ContextWrapper -> {
-            var ctx = context
-            while (ctx is ContextWrapper) {
-                if (ctx is Activity) return ctx
-                ctx = ctx.baseContext
-            }
-            null
-        }
-        else -> null
-    }
-}
-
-//truc à foutre pour appeler une notif
-
-/*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                android.Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            activity?.let {
-                                ActivityCompat.requestPermissions(
-                                    it,
-                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                    1001
-                                )
-                            }
-                        } else {
-                            trySendNotification(context, "Titre", "tu viens de rentrer dans une league")
-                        }
-                        */
-
-
