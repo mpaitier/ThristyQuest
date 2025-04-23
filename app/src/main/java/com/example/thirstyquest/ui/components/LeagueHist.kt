@@ -1,7 +1,6 @@
 package com.example.thirstyquest.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,13 +45,13 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
     var publicationList by remember { mutableStateOf<List<Publication>>( listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 )) ) }
     var isDescending by remember { mutableStateOf(true) }
 
-    var publicationsToShowCount by remember { mutableIntStateOf(10) } // Limit users to show
+    var publicationsToShowCount by remember { mutableIntStateOf(10) } // Limit users to show, doesn't affect the loading of the data
     LaunchedEffect(Unit)
     {
         publicationsToShowCount = 10
         publicationList = getLeaguePublications(leagueID = leagueID)
     }
-    // sort by date then time
+    // sort by date then hour
     var sortedHist = if (isDescending) {
         publicationList.sortedWith(compareBy({ it.date }, { it.hour })).reversed()
     } else {
@@ -60,7 +59,9 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
     }
     var publicationNum = 0
 
-    Column (modifier = Modifier.fillMaxSize()) {
+    Column (modifier = Modifier
+        .fillMaxSize()
+    ) {
         // ======================= Title & sort button =======================
         Row (verticalAlignment = Alignment.CenterVertically)
         {
@@ -74,7 +75,7 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
             Spacer(modifier = Modifier.weight(1F))
             // -------- Sort button --------
             IconButton(
-                onClick = { isDescending = !isDescending }
+                onClick = { isDescending = !isDescending}
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -101,49 +102,41 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
         else
         {
             // -------- List of publication in the hist --------
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Column {
-
-                    if(publicationList.isEmpty()) {
-                        Text(
-                            text = "Aucune publication trouvée",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .align(Alignment.CenterHorizontally)
-                        )
+            Column (modifier = Modifier.verticalScroll(rememberScrollState())){
+                if(publicationList.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.no_publication_found),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .verticalScroll(rememberScrollState())
+                    )
+                }
+                else {
+                    val histToDisplay = sortedHist.take(publicationsToShowCount)
+                    histToDisplay.forEach { publication ->
+                        PublicationItemLeague(publication, publicationNum, navController)
+                        publicationNum++
                     }
 
-                    else {
-                        val histToDisplay = sortedHist.take(publicationsToShowCount)
-                        histToDisplay.forEach { publication ->
-                            PublicationItemLeague(publication, publicationNum, navController)
-                            publicationNum++
-                        }
-
-                        if (publicationsToShowCount < sortedHist.size) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedButton(
-                                onClick = { publicationsToShowCount *= 2 },
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.tertiary
-                                ),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
-                            ) {
-                                Text(
-                                    stringResource(R.string.show_more),
-                                    color = MaterialTheme.colorScheme.onSurface)
-                            }
+                    if (publicationsToShowCount < sortedHist.size) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { publicationsToShowCount *= 2 },
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.tertiary
+                            ),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
+                        ) {
+                            Text(
+                                stringResource(R.string.show_more),
+                                color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
-
                 }
             }
         }

@@ -90,7 +90,6 @@ fun LeagueMembersScreenContent(leagueID: String, navController: NavController, a
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         // List of the league's members
         Column (
             modifier = Modifier
@@ -105,7 +104,6 @@ fun LeagueMembersScreenContent(leagueID: String, navController: NavController, a
     }
 }
 
-// ------------------------------ League Member Item ------------------------------
 @Composable
 fun MemberItem(navController: NavController, currentUid: String, ownerId: String, uid: String, position: Int)
 {
@@ -152,11 +150,12 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // ------------ Profile picture ------------
         Box(contentAlignment = Alignment.BottomEnd) {
             if (!photoUrl.isNullOrEmpty()) {
                 AsyncImage(
                     model = photoUrl,
-                    contentDescription = "Photo de profil",
+                    contentDescription = stringResource(R.string.profile_picture),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(50.dp)
@@ -171,6 +170,7 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
                         .clip(CircleShape)
                 )
             }
+            // if owner, show it with the star
             if (uid == ownerId) {
                 Icon(
                     imageVector = Icons.Filled.Star,
@@ -180,9 +180,8 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
                 )
             }
         }
-
         Spacer(modifier = Modifier.width(8.dp))
-
+        // ------------ Name ------------
         Column {
             Text(
                 memberName,
@@ -195,9 +194,9 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-
         Spacer(modifier = Modifier.weight(1f))
-
+        // ------------ Position ------------
+        // Adapt color based on position
         val color = when (position) {
             1 -> MaterialTheme.colorScheme.tertiary
             2, 3 -> MaterialTheme.colorScheme.primary

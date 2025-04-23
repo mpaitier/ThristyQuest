@@ -9,6 +9,10 @@
     <string name="add_drink">Ajouter une boisson</string>
     <string name="top_drinks">Boissons en tendance</string>
     <string name="add">Ajouter</string>
+    <string name="more_infos">Plus d\'infos +</string>
+    <string name="publication_added">Publication ajoutée avec succès</string>
+
+
     <!-- ======== Login ======== -->
     <string name="login">Se connecter</string>
     <string name="sign_in">Connexion</string>
@@ -49,12 +53,29 @@
     <string name="following">Abonnements</string>
     <string name="contacts">Abonnés et abonnements</string>
     <string name="show_more">Afficher plus</string>
+    <string name="user_not_found">Aucun utilisateur trouvé.</string>
+    <string name="name_not_found">Nom non trouvé</string>
     <!-- ======== Drink ======== -->
     <string name="hist">Historique</string>
     <string name="hist_not_found">Aucun historique trouvé</string>
     <string name="name">Nom</string>
     <string name="level">Niveau</string>
     <string name="description">Description</string>
+    <string name="drink_points">Points des boissons</string>
+    <string name="points_description">Tu peux ici consulter les points attribués à chaque boisson. Ces points changent toutes les 3 heures, sont attribués aléatoirement et déterminent le score que tu gagnes à chaque consommation.</string>
+    <string name="live_distribution">Distribution actuelle :</string>
+    <string name="choose_category">Choisir une catégorie...</string>
+    <string name="choose_volume">Choisir un volume</string>
+    <string name="no_suggestion_found">Aucune suggestion trouvée</string>
+    <string name="category_required">La catégorie est requise</string>
+    <string name="drink_name">Nom de la boisson</string>
+    <string name="name_required">Le nom est requis</string>
+    <string name="cost">Prix (€)</string>
+    <string name="volume_required">Le volume est requis</string>
+    <string name="last_publications">Publications récentes</string>
+    <string name="collection_not_found">Aucune collection trouvée</string>
+    <string name="statistics">Statistiques</string>
+    <string name="xp_acc">XP accumulé</string>
     <!--- ======== League ======== -->
     <string name="research">Rechercher un utilisateur ...</string>
     <string name="leagues">Mes ligues</string>
@@ -86,6 +107,19 @@
     <string name="per_month">/mois</string>
     <string name="per_year">/an</string>
     <string name="spent_money">dépensés</string>
+    <string name="no_publication_found">Aucune publication trouvée</string>
+    <string name="league_image">Image de ligue</string>
+    <string name="copied_code">Code copié !</string>
+    <string name="copy">Copier</string>
+    <string name="share">Partager</string>
+    <string name="league_code_prefix">Code de ligue :</string>
+    <string name="profile_picture">Photo de profil</string>
+    <string name="add_profile_picture">Ajouter une photo de profil</string>
+    <string name="take_picture">Prendre une photo</string>
+    <string name="captured_picture">Image capturée</string>
+    <string name="add_league">Ajouter une ligue</string>
+    <string name="league_created">Ligue crée avec succès !</string>
+    <string name="league_joined">Ligue rejoins avec succès !</string>
     <!-- ======== Settings  ========-->
     <string name="dark_mode">Mode sombre</string>
     <string name="dark_mode_detail">Activer ou désactiver le mode sombre de l\'application</string>
@@ -101,4 +135,10 @@
     <string name="drinks">Verres</string>
     <string name="emoji_beer"> 🍻</string>
     <string name="emoji_cross"> ❌</string>
+    <string name="search">Rechercher</string>
+    <string name="delete_search">Effacer la recherche</string>
+    <string name="tri">Trier par</string>
+    <string name="alcohol_warning">L\'abus d\'alcool est dangereux pour la santé. À consommer avec modération.</string>
+    <string name="understood">J\'ai compris</string>
+    <string name="returnn">Retour</string>
 </resources>

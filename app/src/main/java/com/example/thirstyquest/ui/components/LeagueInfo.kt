@@ -57,19 +57,17 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
     Column(
         modifier = Modifier.height(110.dp)
     ) {
-        // League XP progress
+        // ----------------- League XP progress -----------------
         Text(
             text = stringResource(id = R.string.league_level),
             modifier = Modifier.align(Alignment.CenterHorizontally),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
-
         Spacer(modifier = Modifier.height(8.dp))
         LeagueProgressBar(currentLevel, currentXP, requiredXP)
         Spacer(modifier = Modifier.height(18.dp))
-
-        // League code & share button
+        // ----------------- League code, copy & share button -----------------
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,6 +75,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // League code
             Text(
                 text = buildAnnotatedString {
                     append("Code de ligue : ")
@@ -91,9 +90,9 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
             // Copy button
             IconButton(onClick = {
                 clipboardManager.setText(AnnotatedString(leagueID))
-                Toast.makeText(context, "Code copié !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.copied_code), Toast.LENGTH_SHORT).show()
             }) {
-                Icon(Icons.Default.ContentCopy, contentDescription = "Copier")
+                Icon(Icons.Default.ContentCopy, contentDescription = context.getString(R.string.copy))
             }
             // Share button
             IconButton(
@@ -104,7 +103,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
                     onShareClick(shareMessage)
                 }
             ) {
-                Icon(imageVector = Icons.Filled.Share, contentDescription = "Share")
+                Icon(imageVector = Icons.Filled.Share, contentDescription = context.getString(R.string.share))
             }
         }
     }

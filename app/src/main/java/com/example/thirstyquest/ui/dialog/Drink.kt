@@ -55,7 +55,7 @@ import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.components.ProgressBar
-
+import com.example.thirstyquest.ui.components.StatsItemRowValueFirst
 
 
 @Composable
@@ -85,7 +85,6 @@ fun DrinkDetailDialog (
     icon: Painter
 )
 {
-
     val (currentLevel, requiredXP) = calculateLevelAndRequiredXP(drink.points)
 
     AlertDialog(
@@ -126,24 +125,30 @@ fun DrinkDetailDialog (
                 Spacer(modifier = Modifier.height(8.dp))
                 // Drink's name
                 Text(
-                    text = stringResource(R.string.name) + ": ${drink.name}",
+                    text = drink.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                // Drink's XP
                 ProgressBar(
                     currentLevel = currentLevel,
                     currentXP = drink.points.toInt(),
                     requiredXP = requiredXP,
                     modifier = Modifier.padding(8.dp)
                 )
-
                 Spacer(modifier = Modifier.height(12.dp))
+                Row {
+                    Spacer(Modifier.weight(0.5F))
+                    StatsItemRowValueFirst(" XP accumulé", drink.points.toString())
+                    Spacer(Modifier.weight(0.5F))
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                // Drink's history
                 val filteredHist = hist.filter { it.category == drink.name }
                 if (filteredHist.isNotEmpty()) {
                     Text(
-                        text = stringResource(R.string.hist) + ":",
+                        text = stringResource(R.string.hist) +"(" + "${filteredHist.size}" + ") :",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -151,7 +156,6 @@ fun DrinkDetailDialog (
                     LazyColumn(
                         modifier = Modifier.height(300.dp)
                     ) {
-                        // Utilisation de itemsIndexed pour afficher les éléments
                         itemsIndexed(filteredHist) { index, publication ->
                             DrinkHistItem(publication, index)
                         }
@@ -164,10 +168,9 @@ fun DrinkDetailDialog (
             }
         },
         confirmButton = {},
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     )
 }
-
 
 @Composable
 fun DrinkItem(userId : String, drink: Category) {
@@ -215,9 +218,6 @@ fun DrinkItem(userId : String, drink: Category) {
         DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = painterResource(id = getDrinkIcon(drink.name)))
     }
 }
-
-
-
 
 @Composable
 fun DrinkHistItem(publication: Publication, publicationNum: Int)
@@ -278,7 +278,6 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
     }
 }
 
-// Fonction pour mapper chaque boisson à son icône
 @Composable
 fun getDrinkIcon(name: String): Int {
     return when (name) {
@@ -316,7 +315,6 @@ fun getDrinkIcon(name: String): Int {
         "Absinthe" -> R.drawable.absinthe
         "Liqueur" -> R.drawable.liqueur
 
-        // Par défaut
         else -> R.drawable.other
     }
 }
@@ -330,7 +328,7 @@ fun AllDrinksDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Points des boissons",
+                text = stringResource(R.string.drink_points),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -341,7 +339,7 @@ fun AllDrinksDialog(
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
             Column ( modifier = Modifier.height(screenHeight/2) ){
                 Text(
-                    text = "Tu peux ici consulter les points attribués à chaque boisson. Ces points changent toutes les 3 heures, sont attribués aléatoirement et déterminent le score que tu gagnes à chaque consommation.",
+                    text = stringResource(R.string.points_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Justify,
@@ -351,7 +349,7 @@ fun AllDrinksDialog(
                 )
 
                 Text(
-                    text = "Distribution actuelle :",
+                    text = stringResource(R.string.live_distribution),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -391,11 +389,9 @@ fun AllDrinksDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Fermer")
+                Text(stringResource(R.string.close))
             }
         },
         containerColor = MaterialTheme.colorScheme.background
     )
 }
-
-

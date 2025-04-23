@@ -36,21 +36,18 @@ fun AddFriendButton(friendId: String, authViewModel: AuthViewModel) {
     val focusManager = LocalFocusManager.current
 
     var friendName by remember { mutableStateOf<String?>(null) }
-
     // Check if the friend is already followed by the user
     LaunchedEffect(currentUserUid) {
         currentUserUid?.let { uid ->
             checkIfFollowing(uid, friendId) { isFriend = it }
         }
     }
-
     // Fetch the friend name based on their friendId
     LaunchedEffect(friendId) {
         getUserNameById(friendId) { name ->
             friendName = name
         }
     }
-
     IconButton(
         onClick = {
             focusManager.clearFocus()
@@ -66,7 +63,7 @@ fun AddFriendButton(friendId: String, authViewModel: AuthViewModel) {
         modifier = Modifier.size(45.dp)
     ) {
         when {
-            isAnimating -> {  // FILLING animation
+            isAnimating -> {  // Animation on click
                 Image(
                     painter = rememberDrawablePainter(
                         drawable = getDrawable(
@@ -91,8 +88,7 @@ fun AddFriendButton(friendId: String, authViewModel: AuthViewModel) {
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             }
-
-            else -> {  // Full / empty glass icon
+            else -> {  // After animation, icon
                 Image(
                     painter = painterResource(id = if (isFriend) R.drawable.icon_beer_full else R.drawable.icon_beer_empty),
                     contentDescription = "Beer empty",

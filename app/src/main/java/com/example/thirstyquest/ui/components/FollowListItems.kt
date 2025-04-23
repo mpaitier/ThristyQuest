@@ -55,7 +55,7 @@ fun FollowList(
             friendsList = getAllFollowingIdCoroutine(uid)
         }
     }
-
+    // Grid 3 columns
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         contentPadding = PaddingValues(start = 20.dp, top = 15.dp),
@@ -90,17 +90,18 @@ fun FollowItem(
             .await()
         photoUrl = snapshot.getString("photoUrl")
     }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .width(100.dp)
             .padding(8.dp)
     ) {
+        // Item clickable -> navigate to friend profile
         Column(
-            modifier = Modifier.clickable(interactionSource = interactionSource, indication = null) {
-                navController.navigate(Screen.FriendProfile.name + "/$friendID")
-            }
+            modifier = Modifier
+                .clickable(interactionSource = interactionSource, indication = null) {
+                    navController.navigate(Screen.FriendProfile.name + "/$friendID")
+                }
         ) {
             // Profile picture
             if (!photoUrl.isNullOrEmpty()) {
@@ -123,7 +124,7 @@ fun FollowItem(
                         .clip(CircleShape)
                 )
             }
-
+            // Username
             Text(
                 text = followName,
                 fontSize = 14.sp,

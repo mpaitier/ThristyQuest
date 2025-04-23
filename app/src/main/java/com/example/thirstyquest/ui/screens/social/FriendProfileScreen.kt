@@ -76,7 +76,7 @@ import com.example.thirstyquest.db.getYearConsumptionPoints
 import com.example.thirstyquest.db.getYearVolumeConsumptionPoints
 import com.example.thirstyquest.ui.components.AddFriendButton
 import com.example.thirstyquest.ui.components.ConsumptionChart
-import com.example.thirstyquest.ui.components.FriendPublications
+import com.example.thirstyquest.ui.components.FriendPublicationsList
 import com.example.thirstyquest.ui.components.LoadingSection
 import com.example.thirstyquest.ui.components.ProgressBar
 import com.example.thirstyquest.ui.components.StatItemColumn
@@ -106,6 +106,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     // Statistics
     var totalVolume by remember { mutableDoubleStateOf(0.0) }
     var totalMoneySpent by remember { mutableDoubleStateOf(0.0) }
+    var userXP by remember { mutableDoubleStateOf(0.0) }
 
     var totalDrink1 by remember { mutableStateOf<Category?>(null) }
     var totalDrink2 by remember { mutableStateOf<Category?>(null) }
@@ -120,6 +121,9 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
     var showedList by remember { mutableStateOf(listOf(Point(0f, 0f))) }
 
     LaunchedEffect(friendId) {
+        getUserXPById(friendId) { xp ->
+            userXP = xp ?: 0.0
+        }
         getUserLastPublications(friendId) { newList ->
             publicationNumber = newList.size
         }
@@ -167,11 +171,11 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Retour"
+                    contentDescription = stringResource(R.string.returnn)
                 )
             }
             Text(
-                text = friendName ?: "Nom non trouvé",
+                text = friendName ?: stringResource(R.string.name_not_found),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 8.dp)
@@ -201,13 +205,13 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                 Spacer(modifier = Modifier.height(16.dp))
                 // ------------------------- PUBLICATIONS -------------------------
                 Text(
-                    text = "Publications récentes",
+                    text = stringResource(R.string.last_publications),
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
-                FriendPublications(friendId)
+                FriendPublicationsList(friendId)
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Box(
@@ -231,7 +235,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                 )
                 if (fullList.isEmpty()) {
                     Text(
-                        text = "Aucune collection trouvée",
+                        text = stringResource(R.string.collection_not_found),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
@@ -282,7 +286,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                 }
                 // ------------------------- STATS -------------------------
                 Text(
-                    text = "Statistiques",
+                    text = stringResource(R.string.statistics),
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(16.dp),
@@ -306,7 +310,26 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     ) {
                         StatItemColumn(stringResource(R.string.consumed_drink), String.format("%.2f", totalVolume))
                         StatItemColumn("€ "+stringResource(R.string.spent_money), String.format("%.2f", totalMoneySpent))
-
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row {
+                        Spacer(Modifier.weight(0.5F))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = userXP.toString(),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = stringResource(R.string.xp_acc),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        Spacer(Modifier.weight(0.5F))
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -321,7 +344,7 @@ fun FriendProfileScreen(friendId: String, navController: NavController, authView
                     Spacer(modifier = Modifier.height(12.dp))
                     if(totalDrink1 == null && totalDrink2 == null) {
                         Text(
-                            text = "Aucune publication trouvée",
+                            text = stringResource(R.string.no_publication_found),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier
@@ -534,7 +557,7 @@ fun FriendProfileHeader(friendId: String, photoUrl:String, publicationNumber: In
                 if (photoUrl != "null") {
                     AsyncImage(
                         model = photoUrl,
-                        contentDescription = "Photo de profil",
+                        contentDescription = stringResource(R.string.profile_picture),
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable { showImageFullscreen = true },

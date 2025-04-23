@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -61,7 +62,6 @@ fun LeagueList(
             leagueList = getAllUserLeaguesIdCoroutine(uid)
         }
     }
-
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,8 +87,6 @@ fun LeagueItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val tertiaryColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
-
     var peopleCount by remember { mutableStateOf("") }
     var leagueName by remember { mutableStateOf("") }
     var leaguePhotoUrl by remember { mutableStateOf<String?>(null) }
@@ -100,7 +98,6 @@ fun LeagueItem(
         peopleCount = getLeagueMemberCount(leagueID)
         leagueName = getLeagueName(leagueID)
 
-        // 🔽 On récupère aussi la photo
         val snapshot = FirebaseFirestore.getInstance()
             .collection("leagues")
             .document(leagueID)
@@ -121,7 +118,7 @@ fun LeagueItem(
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(if (isPressed) tertiaryColor else Color.Transparent)
+            .background(if (isPressed) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f) else Color.Transparent)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
@@ -131,35 +128,33 @@ fun LeagueItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!leaguePhotoUrl.isNullOrEmpty()) {
-            //Si une photo existe, on l'affiche
+            // if photoUrl is not null or empty, load the image
             AsyncImage(
                 model = leaguePhotoUrl,
-                contentDescription = "Image de ligue",
+                contentDescription = stringResource(R.string.league_image),
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
         } else {
-            // ❗️Fallback si pas de photo
+            // Default picture
             Image(
                 painter = painterResource(id = R.drawable.league_logo),
-                contentDescription = "Image de ligue",
+                contentDescription = stringResource(R.string.league_image),
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
         }
-
         Spacer(modifier = Modifier.width(16.dp))
-
+        // League name, people count & rank
         Text(
             text = leagueName,
             modifier = Modifier.weight(1f),
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface
         )
-
         Text(
             text = peopleCount,
             fontSize = 14.sp,
@@ -171,7 +166,6 @@ fun LeagueItem(
             modifier = Modifier.size(30.dp),
             tint = MaterialTheme.colorScheme.secondary
         )
-
         Text(
             text = rank,
             fontSize = 14.sp,

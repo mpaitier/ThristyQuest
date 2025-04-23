@@ -1,6 +1,5 @@
 package com.example.thirstyquest.ui.screens.profile
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,13 +39,9 @@ import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
 import com.example.thirstyquest.ui.viewmodel.AuthState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.input.ImeAction
-import com.example.thirstyquest.db.updateUserProfilePhotoUrl
-import com.example.thirstyquest.db.uploadImageToFirebase
 import com.example.thirstyquest.ui.dialog.AddProfilePictureDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
@@ -57,7 +52,6 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
 
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var showPhotoDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(authState.value, authViewModel.uid.value) {
@@ -66,9 +60,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
         }
     }
 
-
     Column (
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 66.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     )
@@ -98,6 +91,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
             label = {
                 Text(stringResource(R.string.pseudo))
             },
+            singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -110,6 +104,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
             label = {
                 Text(stringResource(R.string.email))
             },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         // Password section
@@ -132,7 +128,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel)
                     )
                 }
             },
-            singleLine = true
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
 

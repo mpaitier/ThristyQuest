@@ -59,7 +59,6 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-// ------------------------------ Research section ------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit)
@@ -75,7 +74,7 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit)
             Icon(
                 tint = MaterialTheme.colorScheme.tertiary,
                 imageVector = Icons.Filled.Search,
-                contentDescription = "Rechercher"
+                contentDescription = stringResource(R.string.search)
             )
         },
         trailingIcon = {
@@ -83,7 +82,7 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit)
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Effacer la recherche"
+                        contentDescription = stringResource(R.string.delete_search)
                     )
                 }
             }
@@ -101,7 +100,6 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit)
     )
 }
 
-// --------------------------------- Search results ---------------------------------
 @Composable
 fun SearchResultsList(query: String, navController: NavController, authViewModel: AuthViewModel)
 {
@@ -133,7 +131,7 @@ fun SearchResultsList(query: String, navController: NavController, authViewModel
         val filteredUsers = users.value.filter { it.second.contains(query, ignoreCase = true) }
 
         if (filteredUsers.isEmpty()) {
-            Text(text = "Aucun utilisateur trouvé.")
+            Text(text = stringResource(R.string.user_not_found))
         } else {
             val usersToDisplay = filteredUsers.take(usersToShowCount)
 

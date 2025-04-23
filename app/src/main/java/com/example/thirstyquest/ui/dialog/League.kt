@@ -148,7 +148,7 @@ fun LeagueEditDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AddCircleOutline,
-                            contentDescription = "Prendre une photo",
+                            contentDescription = stringResource(R.string.take_picture),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -294,8 +294,6 @@ fun AddLeagueDialog(
     )
 }
 
-// --------------------------------- Add League Dialog ---------------------------------
-
 @Composable
 fun CreateLeagueDialog(
     onDismiss: () -> Unit,
@@ -328,6 +326,7 @@ fun CreateLeagueDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.size(140.dp)) {
+                    // --------------------- League picture ---------------------
                     if (photoUri.value != null) {
                         Image(
                             painter = rememberAsyncImagePainter(photoUri.value),
@@ -358,7 +357,7 @@ fun CreateLeagueDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AddCircleOutline,
-                            contentDescription = "Prendre une photo",
+                            contentDescription = stringResource(R.string.take_picture),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -403,6 +402,3 @@ fun CreateLeagueDialog(
         }
     }
 }
-
-
-

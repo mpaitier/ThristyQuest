@@ -38,11 +38,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
+import com.example.thirstyquest.R
 import com.example.thirstyquest.db.doesUsernameExist
 import com.example.thirstyquest.db.getUserNameById
 import com.example.thirstyquest.db.updateUserName
@@ -100,10 +102,11 @@ fun EditProfileDialog(
                     value = newUserName,
                     onValueChange = { newUserName = it },
                     label = { Text("Nom", color = MaterialTheme.colorScheme.primary) },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Affichage du message d'erreur si le pseudo est déjà pris
+                // Error message if username taken or invalid
                 errorMessage?.let {
                     Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -130,9 +133,7 @@ fun EditProfileDialog(
                             .background(MaterialTheme.colorScheme.secondary)
                     )
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
                 Button(onClick = { showImageDialog = true }) {
                     Text("Modifier la photo de profil")
                 }
@@ -141,14 +142,20 @@ fun EditProfileDialog(
         confirmButton = {
             TextButton(onClick = {
                 scope.launch {
-                    // Vérifier si le pseudo existe déjà
+                    // Name length check
+                    if (newUserName.length !in 2..20) {
+                        errorMessage = "Le pseudo doit contenir entre 2 et 20 caractères"
+                        return@launch
+                    }
+
+                    // Unique name check
                     if (doesUsernameExist(newUserName) && newUserName != userName) {
                         errorMessage = "Ce pseudo est déjà utilisé"
                         return@launch
                     }
 
                     currentUserUid?.let { uid ->
-                        // Mettre à jour le pseudo si le pseudo est unique
+                        // Update user name and photo URL
                         updateUserName(uid, newUserName)
                         profileImageUri?.let { uri ->
                             val url = uploadImageToFirebase(uid, uri, context)
@@ -219,7 +226,7 @@ fun AddProfilePictureDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Ajouter une photo de profil")
+                Text(stringResource(R.string.add_profile_picture))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
@@ -232,13 +239,13 @@ fun AddProfilePictureDialog(
                     photoUri = uri
                     launcher.launch(uri)
                 }) {
-                    Text("Prendre une photo")
+                    Text(stringResource(R.string.take_picture))
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 TextButton(onClick = onDismiss) {
-                    Text("Annuler")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         }

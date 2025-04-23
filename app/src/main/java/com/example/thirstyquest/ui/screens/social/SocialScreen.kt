@@ -1,6 +1,7 @@
 package com.example.thirstyquest.ui.screens.social
 
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -40,8 +41,6 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import androidx.compose.runtime.DisposableEffect
 
 import com.example.thirstyquest.db.getAllfollowingIdSnap
-import com.example.thirstyquest.ui.dialog.getActivity
-
 
 
 @Composable
@@ -52,10 +51,12 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
-    // State pour stocker dynamiquement le nombre d'amis
+    // State to dynamically save info
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
+
+
 
     val currentUserUid by authViewModel.uid.observeAsState()
 
@@ -104,12 +105,12 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 )
 
                 IconButton(
-                    onClick = {showDialog = true },
+                    onClick = {showDialog = true},
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AddCircleOutline,
-                        contentDescription = "Ajouter une ligue",
+                        contentDescription = stringResource(R.string.add_league),
                         tint = MaterialTheme.colorScheme.tertiary
                     )
                 }
@@ -138,6 +139,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             onCreateLeague = {
                 showDialog = false
                 showCreateLeagueDialog = true
+                Toast.makeText(context, context.getString(R.string.league_created), Toast.LENGTH_SHORT).show()
             },
             onJoinLeague = { leagueCode ->
                 showDialog = false
@@ -150,6 +152,8 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                         navController = navController
                     )
                 }
+
+                Toast.makeText(context, context.getString(R.string.league_joined), Toast.LENGTH_SHORT).show()
             }
         )
     }

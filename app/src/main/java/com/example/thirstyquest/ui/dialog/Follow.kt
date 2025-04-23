@@ -155,17 +155,29 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
                                     .padding(12.dp)
                                     .fillMaxWidth()
                             ) {
-                                AsyncImage(
-                                    model = user.photoUrl,
-                                    contentDescription = "Photo de profil",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                )
-
+                                // --------------------- Profile picture ---------------------
+                                if(user.photoUrl == null) {
+                                    AsyncImage(
+                                        model = R.drawable.pdp,
+                                        contentDescription = stringResource(R.string.profile_picture),
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                    )
+                                }
+                                else {
+                                    AsyncImage(
+                                        model = user.photoUrl,
+                                        contentDescription = stringResource(R.string.profile_picture),
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                    )
+                                }
                                 Spacer(modifier = Modifier.width(12.dp))
-
+                                // --------------------- Username ---------------------
                                 Text(
                                     text = user.name,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -186,4 +198,3 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
         }
     )
 }
-

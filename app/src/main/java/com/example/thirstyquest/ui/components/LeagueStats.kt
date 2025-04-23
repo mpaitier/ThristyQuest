@@ -117,7 +117,6 @@ fun LeagueStatsList(leagueID: String) {
         showedList = weeklyConsumptionList
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -127,6 +126,7 @@ fun LeagueStatsList(leagueID: String) {
     ) {
         // =========================================================================================
         StatsCategory(stringResource(R.string.league_members))
+        // ------------------------- Members stats -------------------------
         Spacer(modifier = Modifier.height(12.dp))
         if (
             userStats == listOf(Pair("", 0.0),Pair("", 0.0),Pair("", 0.0),Pair("", 0.0))
@@ -182,13 +182,11 @@ fun LeagueStatsList(leagueID: String) {
                 )
             }
         }
-
         // =========================================================================================
         Spacer(modifier = Modifier.height(12.dp))
         StatsCategory(stringResource(R.string.league_conso))
         Spacer(modifier = Modifier.height(12.dp))
-
-        // Duration & volume selection
+        // ------------------------- Duration & volume selection -------------------------
         var selectedDuration by remember { mutableStateOf("Dans la semaine") }
         var durationExpanded by remember { mutableStateOf(false) }
         val durationSelection = listOf("Dans la semaine", "Dans le mois", "Dans l'année")
@@ -289,7 +287,7 @@ fun LeagueStatsList(leagueID: String) {
                 }
             }
         }
-
+        // ------------------------- Graph -------------------------
         if (
             weeklyConsumptionList == listOf(Point(-1f, -1f)) ||
             monthlyConsumptionList == listOf(Point(-1f, -1f)) ||
@@ -303,12 +301,11 @@ fun LeagueStatsList(leagueID: String) {
         else {
             ConsumptionChart(showedList, selectedDuration)
         }
-
         // =========================================================================================
         Spacer(modifier = Modifier.height(12.dp))
         StatsCategory(stringResource(R.string.league_pref))
         Spacer(modifier = Modifier.height(12.dp))
-
+        // ------------------------- Preferences stats -------------------------
         if ( topCategories == listOf(Pair("", -1L),Pair("", -1L),Pair("", -1L)) ) {
             LoadingSection()
         }
@@ -323,11 +320,10 @@ fun LeagueStatsList(leagueID: String) {
                 StatsItemRowValueFirst(topCategories[2].first, "${topCategories[2].second}")
             }
         }
-
         // =========================================================================================
         Spacer(modifier = Modifier.height(12.dp))
         StatsCategory(stringResource(R.string.total))
-
+        // ------------------------- Total stats -------------------------
         if (
             totalPaid == -1.0 ||
             totalDrink == -1 ||

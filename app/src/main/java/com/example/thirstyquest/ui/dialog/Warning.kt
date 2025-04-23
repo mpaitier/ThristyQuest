@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.thirstyquest.R
 
@@ -37,13 +38,13 @@ fun WarningDialog(onDismiss: () -> Unit) {
         text = {
 
             Text(
-                "L'abus d'alcool est dangereux pour la santé. À consommer avec modération.",
+                stringResource(R.string.alcohol_warning),
                 style = MaterialTheme.typography.bodyLarge
             )
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("J'ai compris", color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.understood), color = MaterialTheme.colorScheme.primary)
             }
         },
         containerColor = MaterialTheme.colorScheme.surface

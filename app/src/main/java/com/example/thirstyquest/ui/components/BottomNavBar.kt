@@ -27,7 +27,6 @@ fun BottomNavBar(navController: NavController) {
         Screen.MainMenu to Icons.Filled.Home,
         Screen.Social to Icons.Filled.Person
     )
-
     NavigationBar(
         containerColor = backgroundColor,
         modifier = Modifier

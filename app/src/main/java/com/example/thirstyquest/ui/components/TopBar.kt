@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -139,7 +138,6 @@ fun TopBar(navController: NavController, authViewModel: AuthViewModel) {
         }
     }
 
-    // Ouvre le Dialog d’édition de profil
     if (showDialog) {
         EditProfileDialog(
             authViewModel = authViewModel,
@@ -197,7 +195,7 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 modifier = Modifier
                     .size((0.04166* LocalConfiguration.current.screenHeightDp).dp)
                     .clip(CircleShape)
-                    .clickable { showImageFullscreen = true }, // Clic pour afficher
+                    .clickable { showImageFullscreen = true },
                 contentScale = ContentScale.Crop
             )
         } else {
@@ -219,7 +217,6 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
             modifier = Modifier.weight(1f)
         )
 
-        // TODO : navigate to league settings & visible only if user is owner
         if(currentUserUid == leagueOwnerId) {
             IconButton(onClick = { showDialog = true }) {
                 Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier")
@@ -252,7 +249,6 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 showDialog = false
                 updateLeagueName(leagueID, newLeagueName)
                 leagueName = newLeagueName
-                // TODO : modify league's picture
             },
             leagueID = leagueID,
             leaguePhotoUrl = leaguePhotoUrl.toString()

@@ -177,11 +177,13 @@ fun getAllUserLeague(uid: String, onResult: (List<String>) -> Unit) {
 
 fun calculateLevelAndRequiredXP(xp: Double, baseXp: Int = 1000  , growthRate: Double = 1.12): Pair<Int, Int> {
     var level = 1
-    var totalXpForNextLevel = baseXp
+    var totalXpForNextLevel = baseXp.toDouble()
+    var actualXP = xp
 
-    while (xp >= totalXpForNextLevel) {
+    while (actualXP >= totalXpForNextLevel) {
         level++
-        totalXpForNextLevel += (baseXp * growthRate).toInt()
+        actualXP -= totalXpForNextLevel
+        totalXpForNextLevel = (totalXpForNextLevel * growthRate).toDouble()
     }
 
     return level to totalXpForNextLevel.toInt()
