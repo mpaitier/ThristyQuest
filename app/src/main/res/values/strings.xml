@@ -56,6 +56,17 @@
     <string name="name">Nom</string>
     <string name="level">Niveau</string>
     <string name="description">Description</string>
+    <string name="drink_points">Points des boissons</string>
+    <string name="points_description">Tu peux ici consulter les points attribués à chaque boisson. Ces points changent toutes les 3 heures, sont attribués aléatoirement et déterminent le score que tu gagnes à chaque consommation.</string>
+    <string name="live_distribution">Distribution actuelle :</string>
+    <string name="choose_category">Choisir une catégorie...</string>
+    <string name="choose_volume">Choisir un volume</string>
+    <string name="no_suggestion_found">Aucune suggestion trouvée</string>
+    <string name="category_required">La catégorie est requise</string>
+    <string name="drink_name">Nom de la boisson</string>
+    <string name="name_required">Le nom est requis</string>
+    <string name="cost">Prix (€)</string>
+    <string name="volume_required">Le volume est requis</string>
     <!--- ======== League ======== -->
     <string name="research">Rechercher un utilisateur ...</string>
     <string name="leagues">Mes ligues</string>
@@ -94,6 +105,9 @@
     <string name="share">Partager</string>
     <string name="league_code_prefix">Code de ligue :</string>
     <string name="profile_picture">Photo de profil</string>
+    <string name="add_profile_picture">Ajouter une photo de profil</string>
+    <string name="take_picture">Prendre une photo</string>
+    <string name="captured_picture">Image capturée</string>
     <!-- ======== Settings  ========-->
     <string name="dark_mode">Mode sombre</string>
     <string name="dark_mode_detail">Activer ou désactiver le mode sombre de l\'application</string>
@@ -112,4 +126,6 @@
     <string name="search">Rechercher</string>
     <string name="delete_search">Effacer la recherche</string>
     <string name="tri">Trier par</string>
+    <string name="alcohol_warning">L&apos;abus d&apos;alcool est dangereux pour la santé. À consommer avec modération.</string>
+    <string name="understood">J&apos;ai compris</string>
 </resources>

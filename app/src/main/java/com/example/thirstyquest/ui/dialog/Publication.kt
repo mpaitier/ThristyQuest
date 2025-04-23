@@ -247,7 +247,7 @@ fun AddPublicationDialog(
                         modifier = Modifier.size(20.dp)
                     )
                 } else {
-                    Text("Ajouter")
+                    Text(stringResource(R.string.add))
                 }
             }
             val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
@@ -259,7 +259,7 @@ fun AddPublicationDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Annuler")
+                Text(stringResource(R.string.cancel))
             }
         },
         text = {
@@ -270,7 +270,7 @@ fun AddPublicationDialog(
                 imageUri?.let {
                     AsyncImage(
                         model = it,
-                        contentDescription = "Image capturée",
+                        contentDescription = stringResource(R.string.captured_picture),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(120.dp)
@@ -314,7 +314,7 @@ fun AddPublicationDialog(
                         showVolumeError = false
                     },
                     showError = showVolumeError,
-                    placeholder = "Choisir un volume"
+                    placeholder = stringResource(R.string.choose_volume)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -364,7 +364,7 @@ fun CategoryAutoComplete(
                 decorationBox = { innerTextField ->
                     if (textFieldValue.text.isEmpty()) {
                         Text(
-                            text = "Choisir une catégorie...",
+                            text = stringResource(R.string.choose_category),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -410,7 +410,7 @@ fun CategoryAutoComplete(
             }
         } else if (showSuggestions && filteredSuggestions.isEmpty()) {
             Text(
-                text = "Aucune suggestion trouvée",
+                text = stringResource(R.string.no_suggestion_found),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp)
@@ -420,7 +420,7 @@ fun CategoryAutoComplete(
         // Error message
         if (showError) {
             Text(
-                "La catégorie est requise",
+                stringResource(R.string.league_image),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 8.dp, top = 4.dp)
@@ -454,7 +454,7 @@ fun NameInput(
             ) {
                 if (name.isEmpty()) {
                     Text(
-                        text = "Nom de la boisson",
+                        text = stringResource(R.string.drink_name),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 16.sp
                     )
@@ -477,7 +477,7 @@ fun NameInput(
         }
         if (showError) {
             Text(
-                text = "Le nom est requis",
+                text = stringResource(R.string.name_required),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 8.dp, top = 4.dp)
@@ -504,7 +504,7 @@ fun PriceInput(
         ) {
             if (price.isEmpty()) {
                 Text(
-                    text = "Prix (€)",
+                    text = stringResource(R.string.cost),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 16.sp
                 )
@@ -584,7 +584,7 @@ fun DropdownSelector(
 
         if (showError) {
             Text(
-                text = "Le volume est requis",
+                text = stringResource(R.string.volume_required),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 8.dp, top = 4.dp)

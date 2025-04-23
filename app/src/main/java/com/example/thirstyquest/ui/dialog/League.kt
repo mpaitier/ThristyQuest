@@ -148,7 +148,7 @@ fun LeagueEditDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AddCircleOutline,
-                            contentDescription = "Prendre une photo",
+                            contentDescription = stringResource(R.string.take_picture),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -357,7 +357,7 @@ fun CreateLeagueDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AddCircleOutline,
-                            contentDescription = "Prendre une photo",
+                            contentDescription = stringResource(R.string.take_picture),
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }

@@ -159,7 +159,7 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
                                 if(user.photoUrl == null) {
                                     AsyncImage(
                                         model = R.drawable.pdp,
-                                        contentDescription = "Photo de profil",
+                                        contentDescription = stringResource(R.string.profile_picture),
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .size(40.dp)
@@ -169,7 +169,7 @@ fun FollowDialog(uid: String, onDismiss: () -> Unit, navController: NavControlle
                                 else {
                                     AsyncImage(
                                         model = user.photoUrl,
-                                        contentDescription = "Photo de profil",
+                                        contentDescription = stringResource(R.string.profile_picture),
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .size(40.dp)

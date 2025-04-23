@@ -328,7 +328,7 @@ fun AllDrinksDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Points des boissons",
+                text = stringResource(R.string.drink_points),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
@@ -339,7 +339,7 @@ fun AllDrinksDialog(
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
             Column ( modifier = Modifier.height(screenHeight/2) ){
                 Text(
-                    text = "Tu peux ici consulter les points attribués à chaque boisson. Ces points changent toutes les 3 heures, sont attribués aléatoirement et déterminent le score que tu gagnes à chaque consommation.",
+                    text = stringResource(R.string.points_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Justify,
@@ -349,7 +349,7 @@ fun AllDrinksDialog(
                 )
 
                 Text(
-                    text = "Distribution actuelle :",
+                    text = stringResource(R.string.live_distribution),
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -389,7 +389,7 @@ fun AllDrinksDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Fermer")
+                Text(stringResource(R.string.close))
             }
         },
         containerColor = MaterialTheme.colorScheme.background
