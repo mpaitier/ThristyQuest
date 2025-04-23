@@ -90,9 +90,9 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
             // Copy button
             IconButton(onClick = {
                 clipboardManager.setText(AnnotatedString(leagueID))
-                Toast.makeText(context, "Code copié !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.copied_code), Toast.LENGTH_SHORT).show()
             }) {
-                Icon(Icons.Default.ContentCopy, contentDescription = "Copier")
+                Icon(Icons.Default.ContentCopy, contentDescription = context.getString(R.string.copy))
             }
             // Share button
             IconButton(
@@ -103,7 +103,7 @@ fun LeagueInfo(leagueID: String, onShareClick: (String) -> Unit)
                     onShareClick(shareMessage)
                 }
             ) {
-                Icon(imageVector = Icons.Filled.Share, contentDescription = "Share")
+                Icon(imageVector = Icons.Filled.Share, contentDescription = context.getString(R.string.share))
             }
         }
     }

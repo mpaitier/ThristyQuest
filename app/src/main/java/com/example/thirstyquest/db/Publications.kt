@@ -15,12 +15,10 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.provider.MediaStore
 import com.example.thirstyquest.data.Publication
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.util.*
-import com.example.thirstyquest.data.DrinkCategories
 import com.example.thirstyquest.data.DrinkVolumes
 import com.google.firebase.firestore.SetOptions
 import kotlin.math.max
@@ -86,7 +84,7 @@ suspend fun addPublicationToFirestore(userId: String, drinkName: String, drinkPr
         .addOnFailureListener { e ->
             Log.w("Firebase", "Erreur lors de la mise à jour du prix total", e)
         }
-    // TODO : faire systeme de level de boisson en fonction des points
+
     val categoryRef = db.collection("users").document(userId).collection("category").document(drinkCategory)
     val data2 = mapOf(
         "total" to FieldValue.increment(1),

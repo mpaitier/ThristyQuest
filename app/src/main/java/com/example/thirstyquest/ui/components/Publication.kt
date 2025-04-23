@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -158,7 +159,7 @@ fun UserPublicationsList(authViewModel: AuthViewModel) {
 
     Column (modifier = Modifier.fillMaxSize()) {
         if(sortedHist.isEmpty()) {
-            Text(text = "Aucun historique trouvé", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally))
+            Text(text = stringResource(R.string.hist_not_found), modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally))
         }
         else {
 
@@ -263,7 +264,7 @@ fun FriendPublicationsList(friendId: String) {
             .padding(horizontal = 10.dp)) {
             if(publications.isEmpty()) {
                 Text(
-                    text = "Aucune publication trouvée",
+                    text = stringResource(R.string.no_publication_found),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier

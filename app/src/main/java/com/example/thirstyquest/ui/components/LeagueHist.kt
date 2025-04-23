@@ -105,7 +105,7 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
             Column (modifier = Modifier.verticalScroll(rememberScrollState())){
                 if(publicationList.isEmpty()) {
                     Text(
-                        text = "Aucune publication trouvée",
+                        text = stringResource(R.string.no_publication_found),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier

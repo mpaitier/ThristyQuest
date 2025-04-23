@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -130,7 +131,7 @@ fun LeagueItem(
             // if photoUrl is not null or empty, load the image
             AsyncImage(
                 model = leaguePhotoUrl,
-                contentDescription = "Image de ligue",
+                contentDescription = stringResource(R.string.league_image),
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(12.dp)),
@@ -140,7 +141,7 @@ fun LeagueItem(
             // Default picture
             Image(
                 painter = painterResource(id = R.drawable.league_logo),
-                contentDescription = "Image de ligue",
+                contentDescription = stringResource(R.string.league_image),
                 modifier = Modifier
                     .size(60.dp)
                     .clip(RoundedCornerShape(12.dp))

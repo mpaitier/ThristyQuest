@@ -155,7 +155,7 @@ fun MemberItem(navController: NavController, currentUid: String, ownerId: String
             if (!photoUrl.isNullOrEmpty()) {
                 AsyncImage(
                     model = photoUrl,
-                    contentDescription = "Photo de profil",
+                    contentDescription = stringResource(R.string.profile_picture),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(50.dp)

@@ -35,7 +35,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.thirstyquest.R
 import com.example.thirstyquest.data.Category
 import com.example.thirstyquest.db.getUserCollection
 import com.example.thirstyquest.ui.dialog.DrinkItem
@@ -72,7 +74,7 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
     if (fullList == listOf(Category(""))) {
         LoadingSection()
     } else if(fullList.isEmpty()) {
-        Text(text = "Aucun historique trouvé", modifier = Modifier.padding(16.dp))
+        Text(text = stringResource(R.string.hist_not_found), modifier = Modifier.padding(16.dp))
     }
     else {
         Column {
@@ -126,7 +128,7 @@ fun SortBar(
             .border(1.dp, MaterialTheme.colorScheme.onBackground, shape = RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Text(text = "Trier par", style = MaterialTheme.typography.bodyMedium)
+        Text(text = stringResource(R.string.tri), style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.width(8.dp))
 

@@ -49,6 +49,7 @@
     <string name="following">Abonnements</string>
     <string name="contacts">Abonnés et abonnements</string>
     <string name="show_more">Afficher plus</string>
+    <string name="user_not_found">Aucun utilisateur trouvé.</string>
     <!-- ======== Drink ======== -->
     <string name="hist">Historique</string>
     <string name="hist_not_found">Aucun historique trouvé</string>
@@ -86,6 +87,13 @@
     <string name="per_month">/mois</string>
     <string name="per_year">/an</string>
     <string name="spent_money">dépensés</string>
+    <string name="no_publication_found">Aucune publication trouvée</string>
+    <string name="league_image">Image de ligue</string>
+    <string name="copied_code">Code copié !</string>
+    <string name="copy">Copier</string>
+    <string name="share">Partager</string>
+    <string name="league_code_prefix">Code de ligue :</string>
+    <string name="profile_picture">Photo de profil</string>
     <!-- ======== Settings  ========-->
     <string name="dark_mode">Mode sombre</string>
     <string name="dark_mode_detail">Activer ou désactiver le mode sombre de l\'application</string>
@@ -101,4 +109,7 @@
     <string name="drinks">Verres</string>
     <string name="emoji_beer"> 🍻</string>
     <string name="emoji_cross"> ❌</string>
+    <string name="search">Rechercher</string>
+    <string name="delete_search">Effacer la recherche</string>
+    <string name="tri">Trier par</string>
 </resources>

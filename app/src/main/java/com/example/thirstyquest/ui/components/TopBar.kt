@@ -249,7 +249,6 @@ fun LeagueTopBar(navController: NavController, authViewModel: AuthViewModel, lea
                 showDialog = false
                 updateLeagueName(leagueID, newLeagueName)
                 leagueName = newLeagueName
-                // TODO : modify league's picture
             },
             leagueID = leagueID,
             leaguePhotoUrl = leaguePhotoUrl.toString()
