@@ -139,7 +139,6 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             onCreateLeague = {
                 showDialog = false
                 showCreateLeagueDialog = true
-                Toast.makeText(context, context.getString(R.string.league_created), Toast.LENGTH_SHORT).show()
             },
             onJoinLeague = { leagueCode ->
                 showDialog = false
@@ -175,6 +174,8 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                         navController.navigate(Screen.LeagueContent.name + "/$newLeagueID")
                     }
                 }
+                Toast.makeText(context, context.getString(R.string.league_created), Toast.LENGTH_SHORT).show()
+
             }
         )
 
