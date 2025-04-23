@@ -64,7 +64,7 @@ fun SignInScreen(navController: NavController, authViewModel: AuthViewModel)
     }
 
     Column (
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 66.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     )
@@ -94,7 +94,9 @@ fun SignInScreen(navController: NavController, authViewModel: AuthViewModel)
             label = {
                 Text(stringResource(R.string.email))
             },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
         // Password section
@@ -117,7 +119,8 @@ fun SignInScreen(navController: NavController, authViewModel: AuthViewModel)
                     )
                 }
             },
-            singleLine = true
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {

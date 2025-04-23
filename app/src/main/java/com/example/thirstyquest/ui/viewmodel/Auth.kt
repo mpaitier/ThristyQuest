@@ -75,8 +75,8 @@ class AuthViewModel : ViewModel() {
             return
         }
 
-        if (pseudo.length !in 3..20) {
-            _authState.value = AuthState.Error("Le pseudo doit contenir entre 3 et 20 caractères")
+        if (pseudo.length !in 2..20) {
+            _authState.value = AuthState.Error("Le pseudo doit contenir entre 2 et 20 caractères")
             return
         }
 

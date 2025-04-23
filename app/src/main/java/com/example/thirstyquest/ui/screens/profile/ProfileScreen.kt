@@ -18,12 +18,9 @@ import kotlinx.coroutines.launch
 import com.example.thirstyquest.ui.components.UserCollectionContent
 import com.example.thirstyquest.ui.components.UserStatsContent
 import com.example.thirstyquest.navigation.Screen
-import com.example.thirstyquest.ui.components.UserPublications
+import com.example.thirstyquest.ui.components.UserPublicationsList
 import com.example.thirstyquest.ui.viewmodel.AuthState
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                      Composable
 
 @Composable
 fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -67,8 +64,8 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             modifier = Modifier.weight(1f),
         ) { page ->
             when (page) {
-                0 -> UserStatsContent(userId = userId, isFriend = false)
-                1 -> UserPublications(authViewModel)
+                0 -> UserStatsContent(userId = userId)
+                1 -> UserPublicationsList(authViewModel)
                 2 -> UserCollectionContent(authViewModel)
             }
         }

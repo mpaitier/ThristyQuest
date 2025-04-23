@@ -48,12 +48,12 @@ enum class SortCriterion(val label: String) {
 
 @Composable
 fun UserCollectionContent(authViewModel: AuthViewModel) {
-    var fullList by remember { mutableStateOf<List<Category>>(emptyList()) }
+    var fullList by remember { mutableStateOf<List<Category>>(listOf(Category(""))) }
     val uid = authViewModel.uid.observeAsState()
     val userId = uid.value ?: ""
 
     var selectedSort by remember { mutableStateOf(SortCriterion.Level) }
-    var isAscending by remember { mutableStateOf(true) }
+    var isAscending by remember { mutableStateOf(false) }
 
     LaunchedEffect(userId) {
         fullList = getUserCollection(userId)
@@ -64,15 +64,17 @@ fun UserCollectionContent(authViewModel: AuthViewModel) {
         selectedSort = newCriterion
         fullList = sortCategories(fullList, selectedSort, isAscending)
     }
-
     fun onOrderChanged(newIsAscending: Boolean) {
         isAscending = newIsAscending
         fullList = sortCategories(fullList, selectedSort, isAscending)
     }
 
-    if (fullList.isEmpty()) {
+    if (fullList == listOf(Category(""))) {
         LoadingSection()
-    } else {
+    } else if(fullList.isEmpty()) {
+        Text(text = "Aucun historique trouvé", modifier = Modifier.padding(16.dp))
+    }
+    else {
         Column {
             SortBar(
                 selectedSort = selectedSort,

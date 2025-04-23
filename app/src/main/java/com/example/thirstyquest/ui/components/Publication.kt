@@ -138,7 +138,7 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
 }
 
 @Composable
-fun UserPublications(authViewModel: AuthViewModel) {
+fun UserPublicationsList(authViewModel: AuthViewModel) {
     val uid = authViewModel.uid.observeAsState()
     val userId = uid.value ?: ""
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
@@ -156,49 +156,53 @@ fun UserPublications(authViewModel: AuthViewModel) {
         publications.sortedWith(compareBy({ it.date }, { it.hour }))
     }
 
-    Column {
-        Row {
-            Spacer(Modifier.weight(1F))
-
-            IconButton(
-                onClick = { isDescending = !isDescending }
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AccessTime,
-                        contentDescription = "Clock",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Icon(
-                        imageVector = if (isDescending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
-                        contentDescription = "Order by time",
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-            }
-
-            Spacer(Modifier.width(8.dp))
+    Column (modifier = Modifier.fillMaxSize()) {
+        if(sortedHist.isEmpty()) {
+            Text(text = "Aucun historique trouvé", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally))
         }
+        else {
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            contentPadding = PaddingValues(top = 6.dp),
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            items(sortedHist) { publication ->
-                PublicationItem(publication)
+            Row {
+                Spacer(Modifier.weight(1F))
+
+                IconButton(
+                    onClick = { isDescending = !isDescending }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AccessTime,
+                            contentDescription = "Clock",
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Icon(
+                            imageVector = if (isDescending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
+                            contentDescription = "Order by time",
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.width(8.dp))
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                contentPadding = PaddingValues(top = 6.dp),
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                items(sortedHist) { publication ->
+                    UserPublicationItem(publication)
+                }
             }
         }
     }
-
 }
 
 @Composable
-fun PublicationItem(publication: Publication) {
+fun UserPublicationItem(publication: Publication) {
     var showDialog by remember { mutableStateOf(false) }
 
     Box(
@@ -235,7 +239,7 @@ fun PublicationItem(publication: Publication) {
 
 
 @Composable
-fun FriendPublications(friendId: String) {
+fun FriendPublicationsList(friendId: String) {
 
     var publications by remember { mutableStateOf<List<Publication>>( listOf( Publication(ID = "-1", description = "", user_ID = "", date = "", hour = "", category = "", price = 0.0, photo = "", points = -1 )) ) }
     var showMorePublications by remember { mutableStateOf(false) }

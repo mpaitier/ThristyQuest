@@ -100,10 +100,11 @@ fun EditProfileDialog(
                     value = newUserName,
                     onValueChange = { newUserName = it },
                     label = { Text("Nom", color = MaterialTheme.colorScheme.primary) },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Affichage du message d'erreur si le pseudo est déjà pris
+                // Error message if username taken or invalid
                 errorMessage?.let {
                     Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -130,9 +131,7 @@ fun EditProfileDialog(
                             .background(MaterialTheme.colorScheme.secondary)
                     )
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
                 Button(onClick = { showImageDialog = true }) {
                     Text("Modifier la photo de profil")
                 }
@@ -141,14 +140,20 @@ fun EditProfileDialog(
         confirmButton = {
             TextButton(onClick = {
                 scope.launch {
-                    // Vérifier si le pseudo existe déjà
+                    // Name length check
+                    if (newUserName.length !in 2..20) {
+                        errorMessage = "Le pseudo doit contenir entre 2 et 20 caractères"
+                        return@launch
+                    }
+
+                    // Unique name check
                     if (doesUsernameExist(newUserName) && newUserName != userName) {
                         errorMessage = "Ce pseudo est déjà utilisé"
                         return@launch
                     }
 
                     currentUserUid?.let { uid ->
-                        // Mettre à jour le pseudo si le pseudo est unique
+                        // Update user name and photo URL
                         updateUserName(uid, newUserName)
                         profileImageUri?.let { uri ->
                             val url = uploadImageToFirebase(uid, uri, context)

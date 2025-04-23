@@ -55,7 +55,7 @@ import com.example.thirstyquest.data.Publication
 import com.example.thirstyquest.db.calculateLevelAndRequiredXP
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.components.ProgressBar
-
+import com.example.thirstyquest.ui.components.StatsItemRowValueFirst
 
 
 @Composable
@@ -129,16 +129,22 @@ fun DrinkDetailDialog (
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                // Drink's XP
                 ProgressBar(
                     currentLevel = currentLevel,
                     currentXP = drink.points.toInt(),
                     requiredXP = requiredXP,
                     modifier = Modifier.padding(8.dp)
                 )
-
                 Spacer(modifier = Modifier.height(12.dp))
+                Row {
+                    Spacer(Modifier.weight(0.5F))
+                    StatsItemRowValueFirst(" XP accumulé", drink.points.toString())
+                    Spacer(Modifier.weight(0.5F))
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                // Drink's history
                 val filteredHist = hist.filter { it.category == drink.name }
                 if (filteredHist.isNotEmpty()) {
                     Text(
@@ -150,7 +156,6 @@ fun DrinkDetailDialog (
                     LazyColumn(
                         modifier = Modifier.height(300.dp)
                     ) {
-                        // Utilisation de itemsIndexed pour afficher les éléments
                         itemsIndexed(filteredHist) { index, publication ->
                             DrinkHistItem(publication, index)
                         }
@@ -163,10 +168,9 @@ fun DrinkDetailDialog (
             }
         },
         confirmButton = {},
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     )
 }
-
 
 @Composable
 fun DrinkItem(userId : String, drink: Category) {
@@ -214,9 +218,6 @@ fun DrinkItem(userId : String, drink: Category) {
         DrinkDetailDialog(onDismiss = {showDialog=false}, drink = drink, hist = publications, icon = painterResource(id = getDrinkIcon(drink.name)))
     }
 }
-
-
-
 
 @Composable
 fun DrinkHistItem(publication: Publication, publicationNum: Int)
@@ -277,7 +278,6 @@ fun DrinkHistItem(publication: Publication, publicationNum: Int)
     }
 }
 
-// Fonction pour mapper chaque boisson à son icône
 @Composable
 fun getDrinkIcon(name: String): Int {
     return when (name) {
@@ -315,7 +315,6 @@ fun getDrinkIcon(name: String): Int {
         "Absinthe" -> R.drawable.absinthe
         "Liqueur" -> R.drawable.liqueur
 
-        // Par défaut
         else -> R.drawable.other
     }
 }
@@ -396,5 +395,3 @@ fun AllDrinksDialog(
         containerColor = MaterialTheme.colorScheme.background
     )
 }
-
-

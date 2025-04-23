@@ -199,8 +199,6 @@ fun AddPublicationDialog(
     var showCategoryError by remember { mutableStateOf(false) }
     var showVolumeError by remember { mutableStateOf(false) }
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -268,7 +266,6 @@ fun AddPublicationDialog(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
-                    .height(screenHeight*0.45f)
             ) {
                 imageUri?.let {
                     AsyncImage(
@@ -282,7 +279,7 @@ fun AddPublicationDialog(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }
-
+                // ---------------- Category ----------------
                 CategoryAutoComplete(
                     selectedCategory = drinkCategory,
                     onCategorySelected = {
@@ -291,9 +288,8 @@ fun AddPublicationDialog(
                     },
                     showError = showCategoryError
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
+                // ---------------- Name ----------------
                 NameInput(
                     name = drinkName,
                     onNameChange = {
@@ -302,16 +298,14 @@ fun AddPublicationDialog(
                     },
                     showError = showNameError
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
+                // ---------------- Price  ----------------
                 PriceInput(
                     price = drinkPrice,
                     onPriceChange = { drinkPrice = it }
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
+                // ---------------- Volume selector ----------------
                 DropdownSelector(
                     selectedLabel = volumeOptions.find { it.second == drinkVolume }?.first,
                     options = volumeOptions,
@@ -322,7 +316,7 @@ fun AddPublicationDialog(
                     showError = showVolumeError,
                     placeholder = "Choisir un volume"
                 )
-
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     )
@@ -380,7 +374,7 @@ fun CategoryAutoComplete(
             )
         }
 
-        // Suggestions list (no dropdown)
+        // Suggestions list
         if (showSuggestions && filteredSuggestions.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier

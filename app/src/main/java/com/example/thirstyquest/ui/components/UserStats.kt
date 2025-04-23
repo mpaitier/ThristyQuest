@@ -52,7 +52,7 @@ import com.example.thirstyquest.db.getYearConsumptionPoints
 import com.example.thirstyquest.db.getYearVolumeConsumptionPoints
 
 @Composable
-fun UserStatsContent(userId: String, isFriend: Boolean) {
+fun UserStatsContent(userId: String) {
 
     var weeklyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
     var monthlyConsumptionList by remember { mutableStateOf<List<Point>>( listOf(Point(-1f, -1f)) ) }
@@ -123,16 +123,6 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(12.dp))
-
-        // old stats ?
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            StatItemColumn(stringResource(R.string.cons_per_day), String.format("%.2f", averageDayConsumption))
-            StatItemColumn(stringResource(R.string.cons_per_month), String.format("%.2f", averageMonthConsumption))
-            StatItemColumn(stringResource(R.string.cons_per_year), String.format("%.2f", averageYearConsumption))
-        }
 
         // Duration & volume selection
         var selectedDuration by remember { mutableStateOf("Dans la semaine") }
@@ -278,21 +268,25 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // XP part
 
-        if(!isFriend){
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Niveau du Profil",
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ProgressBar(
-                currentLevel = userLevel,
-                currentXP = (userXP % requiredXP).toInt(),
-                requiredXP = requiredXP,
-                modifier = Modifier.fillMaxWidth()
-            )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Niveau du Profil",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        ProgressBar(
+            currentLevel = userLevel,
+            currentXP = (userXP % requiredXP).toInt(),
+            requiredXP = requiredXP,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Row {
+            Spacer(Modifier.weight(0.5F))
+            StatsItemRowValueFirst(" XP accumulé", userXP.toString())
+            Spacer(Modifier.weight(0.5F))
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -315,6 +309,3 @@ fun UserStatsContent(userId: String, isFriend: Boolean) {
         }
     }
 }
-
-
-

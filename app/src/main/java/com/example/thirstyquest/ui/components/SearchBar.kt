@@ -59,7 +59,6 @@ import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-// ------------------------------ Research section ------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit)
@@ -101,7 +100,6 @@ fun SearchBar(searchQuery: String, onQueryChange: (String) -> Unit)
     )
 }
 
-// --------------------------------- Search results ---------------------------------
 @Composable
 fun SearchResultsList(query: String, navController: NavController, authViewModel: AuthViewModel)
 {
