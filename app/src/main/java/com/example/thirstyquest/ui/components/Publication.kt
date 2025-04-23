@@ -20,8 +20,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -131,28 +137,64 @@ fun PublicationItemLeague(publication: Publication, publicationNum: Int, navCont
     }
 }
 
-
-
-
 @Composable
 fun UserPublications(authViewModel: AuthViewModel) {
     val uid = authViewModel.uid.observeAsState()
     val userId = uid.value ?: ""
     var publications by remember { mutableStateOf<List<Publication>>(emptyList()) }
+
+    var isDescending by remember { mutableStateOf(true) }
     LaunchedEffect(userId) {
         getUserLastPublications(userId) { newList ->
             publications = newList
         }
     }
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(top = 15.dp),
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        items(publications) { publication ->
-            PublicationItem(publication)
+
+    var sortedHist = if (isDescending) {
+        publications.sortedWith(compareBy({ it.date }, { it.hour })).reversed()
+    } else {
+        publications.sortedWith(compareBy({ it.date }, { it.hour }))
+    }
+
+    Column {
+        Row {
+            Spacer(Modifier.weight(1F))
+
+            IconButton(
+                onClick = { isDescending = !isDescending }
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AccessTime,
+                        contentDescription = "Clock",
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Icon(
+                        imageVector = if (isDescending) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
+                        contentDescription = "Order by time",
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(Modifier.width(8.dp))
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            contentPadding = PaddingValues(top = 6.dp),
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            items(sortedHist) { publication ->
+                PublicationItem(publication)
+            }
         }
     }
+
 }
 
 @Composable
@@ -212,7 +254,9 @@ fun FriendPublications(friendId: String) {
     }
     else
     {
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)) {
             if(publications.isEmpty()) {
                 Text(
                     text = "Aucune publication trouvée",

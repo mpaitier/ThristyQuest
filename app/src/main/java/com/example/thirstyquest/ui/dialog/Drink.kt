@@ -85,7 +85,6 @@ fun DrinkDetailDialog (
     icon: Painter
 )
 {
-
     val (currentLevel, requiredXP) = calculateLevelAndRequiredXP(drink.points)
 
     AlertDialog(
@@ -126,7 +125,7 @@ fun DrinkDetailDialog (
                 Spacer(modifier = Modifier.height(8.dp))
                 // Drink's name
                 Text(
-                    text = stringResource(R.string.name) + ": ${drink.name}",
+                    text = drink.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
@@ -143,7 +142,7 @@ fun DrinkDetailDialog (
                 val filteredHist = hist.filter { it.category == drink.name }
                 if (filteredHist.isNotEmpty()) {
                     Text(
-                        text = stringResource(R.string.hist) + ":",
+                        text = stringResource(R.string.hist) +"(" + "${filteredHist.size}" + ") :",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )

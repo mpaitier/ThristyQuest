@@ -1,6 +1,6 @@
 package com.example.thirstyquest.ui.screens.social
 
-import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -37,13 +37,8 @@ import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import android.os.Build
 import androidx.compose.runtime.DisposableEffect
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.thirstyquest.db.getAllfollowingIdSnap
-import com.example.thirstyquest.ui.dialog.getActivity
-import com.example.thirstyquest.ui.dialog.trySendNotification
 
 
 @Composable
@@ -54,15 +49,12 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
-    // State pour stocker dynamiquement le nombre d'amis
+    // State to dynamically save info
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
 
-    val activity = getActivity()
-
     val currentUserUid by authViewModel.uid.observeAsState()
-
 
     DisposableEffect(currentUserUid) {
         val uid = currentUserUid
@@ -80,7 +72,6 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
         }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,7 +83,6 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
         SearchBar(searchQuery, onQueryChange = { searchQuery = it })
 
         Spacer(modifier = Modifier.height(12.dp))
-
         // If no user's entry, show user's league & friends
         if (searchQuery.isBlank()) {
             // League list
@@ -108,7 +98,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 )
 
                 IconButton(
-                    onClick = {showDialog = true },
+                    onClick = {showDialog = true},
                     modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
@@ -142,6 +132,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             onCreateLeague = {
                 showDialog = false
                 showCreateLeagueDialog = true
+                Toast.makeText(context, "Ligue crée avec succès !", Toast.LENGTH_SHORT).show()
             },
             onJoinLeague = { leagueCode ->
                 showDialog = false
@@ -154,6 +145,8 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                         navController = navController
                     )
                 }
+
+                Toast.makeText(context, "Ligue rejoins avec succès !", Toast.LENGTH_SHORT).show()
             }
         )
     }

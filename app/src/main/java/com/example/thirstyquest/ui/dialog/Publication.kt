@@ -85,7 +85,6 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun PublicationDetailDialog(publication: Publication, onDismiss: () -> Unit)
 {
-
     val dateTimeString = "${publication.date} ${publication.hour}"
     val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRENCH)
     val parsedDate = inputFormat.parse(dateTimeString) ?: ""
