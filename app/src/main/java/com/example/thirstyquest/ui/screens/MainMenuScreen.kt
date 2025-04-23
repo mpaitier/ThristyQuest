@@ -123,7 +123,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
-                        text = "Plus d'infos +",
+                        text = stringResource(R.string.more_infos),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center,
@@ -246,7 +246,7 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
             },
             onSuccess = {
                 coroutineScope.launch {
-                    Toast.makeText(context, "Publication ajoutée avec succès", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.publication_added), Toast.LENGTH_SHORT).show()
                 }
             }
         )

@@ -103,7 +103,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AddCircleOutline,
-                        contentDescription = "Ajouter une ligue",
+                        contentDescription = stringResource(R.string.add_league),
                         tint = MaterialTheme.colorScheme.tertiary
                     )
                 }
@@ -132,7 +132,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
             onCreateLeague = {
                 showDialog = false
                 showCreateLeagueDialog = true
-                Toast.makeText(context, "Ligue crée avec succès !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.league_created), Toast.LENGTH_SHORT).show()
             },
             onJoinLeague = { leagueCode ->
                 showDialog = false
@@ -146,7 +146,7 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
                     )
                 }
 
-                Toast.makeText(context, "Ligue rejoins avec succès !", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.league_joined), Toast.LENGTH_SHORT).show()
             }
         )
     }

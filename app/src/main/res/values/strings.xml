@@ -9,6 +9,10 @@
     <string name="add_drink">Ajouter une boisson</string>
     <string name="top_drinks">Boissons en tendance</string>
     <string name="add">Ajouter</string>
+    <string name="more_infos">Plus d\'infos +</string>
+    <string name="publication_added">Publication ajoutée avec succès</string>
+
+
     <!-- ======== Login ======== -->
     <string name="login">Se connecter</string>
     <string name="sign_in">Connexion</string>
@@ -50,6 +54,7 @@
     <string name="contacts">Abonnés et abonnements</string>
     <string name="show_more">Afficher plus</string>
     <string name="user_not_found">Aucun utilisateur trouvé.</string>
+    <string name="name_not_found">Nom non trouvé</string>
     <!-- ======== Drink ======== -->
     <string name="hist">Historique</string>
     <string name="hist_not_found">Aucun historique trouvé</string>
@@ -67,6 +72,10 @@
     <string name="name_required">Le nom est requis</string>
     <string name="cost">Prix (€)</string>
     <string name="volume_required">Le volume est requis</string>
+    <string name="last_publications">Publications récentes</string>
+    <string name="collection_not_found">Aucune collection trouvée</string>
+    <string name="statistics">Statistiques</string>
+    <string name="xp_acc">XP accumulé</string>
     <!--- ======== League ======== -->
     <string name="research">Rechercher un utilisateur ...</string>
     <string name="leagues">Mes ligues</string>
@@ -108,6 +117,9 @@
     <string name="add_profile_picture">Ajouter une photo de profil</string>
     <string name="take_picture">Prendre une photo</string>
     <string name="captured_picture">Image capturée</string>
+    <string name="add_league">Ajouter une ligue</string>
+    <string name="league_created">Ligue crée avec succès !</string>
+    <string name="league_joined">Ligue rejoins avec succès !</string>
     <!-- ======== Settings  ========-->
     <string name="dark_mode">Mode sombre</string>
     <string name="dark_mode_detail">Activer ou désactiver le mode sombre de l\'application</string>
@@ -126,6 +138,7 @@
     <string name="search">Rechercher</string>
     <string name="delete_search">Effacer la recherche</string>
     <string name="tri">Trier par</string>
-    <string name="alcohol_warning">L&apos;abus d&apos;alcool est dangereux pour la santé. À consommer avec modération.</string>
-    <string name="understood">J&apos;ai compris</string>
+    <string name="alcohol_warning">L\'abus d\'alcool est dangereux pour la santé. À consommer avec modération.</string>
+    <string name="understood">J\'ai compris</string>
+    <string name="returnn">Retour</string>
 </resources>
