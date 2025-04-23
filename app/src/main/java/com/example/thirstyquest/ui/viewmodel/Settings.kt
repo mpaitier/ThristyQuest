@@ -9,14 +9,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewModelScope
+import com.example.thirstyquest.ui.dataStore
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-//private val Application.dataStore by preferencesDataStore(name = "settings")
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    private val Context.dataStore by preferencesDataStore(name = "settings")
     private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
 
     private val context = application.applicationContext

@@ -37,18 +37,16 @@ import com.example.thirstyquest.ui.components.SearchResultsList
 import com.example.thirstyquest.ui.dialog.AddLeagueDialog
 import com.example.thirstyquest.ui.dialog.CreateLeagueDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
-import android.os.Build
 import androidx.compose.runtime.DisposableEffect
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+
 import com.example.thirstyquest.db.getAllfollowingIdSnap
 import com.example.thirstyquest.ui.dialog.getActivity
-import com.example.thirstyquest.ui.dialog.trySendNotification
+
 
 
 @Composable
 fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
 
     var showDialog by remember { mutableStateOf(false) }
     var showCreateLeagueDialog by remember { mutableStateOf(false) }
@@ -58,8 +56,6 @@ fun SocialScreen(navController: NavController, authViewModel: AuthViewModel) {
     var leagueNumber by remember { mutableIntStateOf(0) }
     var friendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var leagueList by remember { mutableStateOf<List<String>>(emptyList()) }
-
-    val activity = getActivity()
 
     val currentUserUid by authViewModel.uid.observeAsState()
 

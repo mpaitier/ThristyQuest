@@ -254,7 +254,7 @@ fun AddPublicationDialog(
                 }
             }
             val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-                .setInitialDelay(30, TimeUnit.MINUTES)
+                .setInitialDelay(1, TimeUnit.MINUTES)
                 .build()
 
             WorkManager.getInstance(context).enqueue(workRequest)

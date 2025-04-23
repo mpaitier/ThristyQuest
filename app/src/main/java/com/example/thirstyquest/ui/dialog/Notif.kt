@@ -12,9 +12,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+
+import androidx.datastore.preferences.core.edit
+
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.thirstyquest.R
+import com.example.thirstyquest.ui.NotificationPreferences.getNotificationsEnabled
+
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 fun createNotificationChannel(context: Context) {
     val channel = NotificationChannel(
@@ -30,12 +37,16 @@ fun createNotificationChannel(context: Context) {
     notificationManager.createNotificationChannel(channel)
 }
 
+
+/*
 fun trySendNotification(context: Context, title: String, message: String) {
-    if (ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-    ) {
+    val notificationsEnabled = runBlocking {
+        getNotificationsEnabled(context)
+    }
+    if (!notificationsEnabled) {
+        Log.w("Notif", "Notifications désactivées : switch off ou permission refusée")
+    }
+    else{
         val notification = NotificationCompat.Builder(context, "default_channel")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
@@ -43,12 +54,49 @@ fun trySendNotification(context: Context, title: String, message: String) {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .build()
+        try {
+            NotificationManagerCompat.from(context).notify(1, notification)
+        } catch (e: SecurityException) {
+            Log.e("Notif", "Permission POST_NOTIFICATIONS manquante au moment de l'envoi", e)
+        }
+    }
+}*/
 
-        NotificationManagerCompat.from(context).notify(1, notification)
-    } else {
-        Log.w("Notif", "Permission POST_NOTIFICATIONS refusée ou non demandée")
+
+
+class NotificationWorker(context: Context, params: WorkerParameters) :
+    Worker(context, params) {
+
+    override fun doWork(): Result {
+        val notificationsEnabled = runBlocking {
+            getNotificationsEnabled(applicationContext)
+        }
+
+        if (!notificationsEnabled) {
+            Log.w("Notif", "Notifications désactivées : switch off ou permission refusée")
+            return Result.success()
+        }
+
+        val notification = NotificationCompat.Builder(applicationContext, "default_channel")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Rappel")
+            .setContentText("Pense à boire de l'eau !")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+
+        try {
+            NotificationManagerCompat.from(applicationContext).notify(1, notification)
+        } catch (e: SecurityException) {
+            Log.e("Notif", "Permission POST_NOTIFICATIONS manquante au moment de l'envoi", e)
+        }
+
+        return Result.success()
     }
 }
+
+
+
 
 @Composable
 fun getActivity(): Activity? {
@@ -65,39 +113,6 @@ fun getActivity(): Activity? {
         else -> null
     }
 }
-
-class NotificationWorker(context: Context, params: WorkerParameters) :
-    Worker(context, params) {
-
-    override fun doWork(): Result {
-        if (ContextCompat.checkSelfPermission(
-                applicationContext,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            val notification = NotificationCompat.Builder(applicationContext, "default_channel")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Rappel")
-                .setContentText("Pense à boire de l'eau !")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .build()
-
-            NotificationManagerCompat.from(applicationContext).notify(1, notification)
-
-        } else {
-            Log.w("Notif", "Permission POST_NOTIFICATIONS refusée ou non demandée")
-        }
-        return Result.success()
-    }
-}
-
-
-
-
-
-
-
 
 //truc à foutre pour appeler une notif
 

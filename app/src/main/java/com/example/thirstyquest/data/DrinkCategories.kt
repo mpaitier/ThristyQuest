@@ -30,7 +30,7 @@ object DrinkCategories {
         "Ricard / Pastis" to 500,
         "Saké" to 500,
         "Aguardiente" to 600,
-        "Cavlados" to 600,
+        "Calvados" to 600,
         "Martini" to 600,
         "Eau de vie" to 700,
         "Absinthe" to 750,

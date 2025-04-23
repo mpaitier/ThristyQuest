@@ -1,6 +1,7 @@
 package com.example.thirstyquest.ui.screens.profile
 
 
+import android.util.Log
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,12 +17,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.thirstyquest.R
 import com.example.thirstyquest.navigation.Screen
+import com.example.thirstyquest.ui.NotificationPreferences
 import com.example.thirstyquest.ui.viewmodel.AuthState
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
 import com.example.thirstyquest.ui.viewmodel.SettingsViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -30,6 +34,8 @@ fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel,se
     val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
 
     var areNotificationsEnabled by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     val authState = authViewModel.authState.observeAsState()
     LaunchedEffect(authState.value) {
@@ -38,6 +44,12 @@ fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel,se
             else -> Unit
         }
     }
+
+    LaunchedEffect(Unit) {
+        areNotificationsEnabled = NotificationPreferences.getNotificationsEnabled(context)
+
+    }
+
 
     Column(
         modifier = Modifier
@@ -64,12 +76,18 @@ fun SettingsScreen(navController: NavController, authViewModel: AuthViewModel,se
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Notifications switch
         SettingsSwitchOption(
             title = stringResource(R.string.notif),
             description = stringResource(R.string.notif_detail),
             isChecked = areNotificationsEnabled,
-            onCheckedChange = { areNotificationsEnabled = it }
+            onCheckedChange = {isEnabled ->
+                areNotificationsEnabled = isEnabled
+                coroutineScope.launch {
+                    NotificationPreferences.setNotificationsEnabled(context, isEnabled)
+
+                }
+            }
+
         )
         Spacer(modifier = Modifier.height(16.dp))
         AboutSection()
