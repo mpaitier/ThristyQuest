@@ -99,7 +99,7 @@ fun LeagueHistScreenContent(leagueID: String, navController: NavController)
         {
             LoadingSection()
         }
-        else
+        else if (publicationList.isNotEmpty())
         {
             // -------- List of publication in the hist --------
             Column (modifier = Modifier.verticalScroll(rememberScrollState())){
