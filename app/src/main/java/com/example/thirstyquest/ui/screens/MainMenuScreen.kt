@@ -35,11 +35,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.FileProvider
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.example.thirstyquest.db.DrinkPointManager.getAllDrinksFromFirestore
 import com.example.thirstyquest.db.DrinkPointManager.getTopDrinksFromFirestore
 import com.example.thirstyquest.db.getUserLastPublications
 import com.example.thirstyquest.ui.dialog.AllDrinksDialog
+import com.example.thirstyquest.ui.dialog.NotificationWorker
 import com.example.thirstyquest.ui.dialog.TopDrinkItem
 import com.example.thirstyquest.ui.dialog.WarningDialog
 import com.example.thirstyquest.ui.viewmodel.AuthViewModel
@@ -48,6 +51,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
@@ -247,6 +251,12 @@ fun MainMenuScreen(authViewModel: AuthViewModel, navController: NavController)
             onSuccess = {
                 coroutineScope.launch {
                     Toast.makeText(context, context.getString(R.string.publication_added), Toast.LENGTH_SHORT).show()
+                    val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+                        .setInitialDelay(30, TimeUnit.MINUTES)
+                        .build()
+
+                    WorkManager.getInstance(context).enqueue(workRequest)
+
                 }
             }
         )
